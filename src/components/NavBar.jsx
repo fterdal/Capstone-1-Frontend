@@ -15,6 +15,10 @@ const NavBar = ({ user, onLogout }) => {
 
         {user ? (
           <div className="user-section">
+
+            <Link to="/create-poll" className="nav-link">Create a poll</Link>
+
+
             <span className="username">Welcome, {user.username}!</span>
             <button onClick={onLogout} className="logout-btn">
               Logout
