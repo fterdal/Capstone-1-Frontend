@@ -39,6 +39,9 @@ const NavBar = ({ user, onLogout }) => {
               <Link to="/new-poll" className="nav-link">
                 Create a Poll
               </Link>
+              <Link to="/poll-list" className="nav-link">
+                Poll List
+              </Link>
             </div>
           </div>
         )}

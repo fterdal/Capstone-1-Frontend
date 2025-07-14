@@ -14,6 +14,7 @@ import FriendsPage from "./components/FriendsPage";
 import Friends from "./components/Friends";
 import Profile from "./components/Profile";
 import NewPoll from "./components/NewPoll";
+import PollList from "./components/PollList";
 
 
 
@@ -72,6 +73,8 @@ const App = () => {
           <Route exact path="/me" element={<Profile />} />
 
           <Route exact path ="new-poll" element={<NewPoll />} />
+
+          <Route exact path="poll-list" element={<PollList />}/>
 
           <Route path="*" element={<NotFound />} />
 
