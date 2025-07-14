@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import "./AuthStyles.css";
+import "./CSS/AuthStyles.css";
 import { API_URL } from "../shared";
 
 const Signup = ({ setUser }) => {
