@@ -15,3 +15,6 @@ With that done, run the following commands:
 3. Preview your React app: `npm run start-dev`
 
 You should be able to deploy this application to Vercel by simply connecting the GitHub repo to a new Vercel project. You will also need to configure the `API_URL` environment variable on Vercel to match the deployed API url for your backend. Likewise, you may need to configure the `FRONTEND_URL` environment varialbe on your Backend to match the deployed URL for this app.
+
+# Team's Norm
+[Google Docs- Team 1 Norms](https://docs.google.com/document/d/1RHJ7jtspaNzsc--etkQTvNSEmy2uNYQkhy2pSislH18/edit?tab=t.wb6r1sewz6o8)
