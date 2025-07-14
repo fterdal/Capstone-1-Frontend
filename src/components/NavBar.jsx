@@ -6,7 +6,7 @@ const NavBar = ({ user, onLogout }) => {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <Link to="/">Capstone I</Link>
+        <Link to="/">Instapoll</Link>
       </div>
 
       <div className="nav-links">
@@ -19,12 +19,18 @@ const NavBar = ({ user, onLogout }) => {
           </div>
         ) : (
           <div className="auth-links">
-            <Link to="/login" className="nav-link">
-              Login
+            <Link to="/create" className="nav-link">
+              Home
+            </Link>
+            <Link to="/create" className="nav-link">
+              Create a Poll
             </Link>
             <Link to="/signup" className="nav-link">
               Sign Up
             </Link>
+            <Link to="/login" className="nav-link">
+              Login
+            </Link>           
           </div>
         )}
       </div>
