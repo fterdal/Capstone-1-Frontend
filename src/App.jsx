@@ -11,7 +11,6 @@ import Signup from "./components/Signup";
 import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import FriendsPage from "./components/FriendsPage";
-import { API_URL } from "./shared";
 import Friends from "./components/Friends";
 import Profile from "./components/Profile";
 import NewPoll from "./components/NewPoll";
