@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const ViewResultsPage = () => {
+const ViewResultsPage = ({rankings,poll}) => {
 
     return (
         <div className="view-results-page">
