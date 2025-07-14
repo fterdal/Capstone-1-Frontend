@@ -11,6 +11,7 @@ import Demo from "./pages/Demo";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 import VotePollPage from "./pages/VotePollPage";
+import ViewResultsPage from "./pages/ ViewResultsPage";
 
 
 const App = () => {
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="/demo" element={<Demo />} />
           <Route exact path="/" element={<Home />} />
           <Route path="/vote" element={<VotePollPage />} />
+          <Route path="/polls/results" element={<ViewResultsPage />}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
