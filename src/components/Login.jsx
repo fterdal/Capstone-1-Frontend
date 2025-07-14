@@ -102,6 +102,10 @@ const Login = ({ setUser }) => {
     });
   };
 
+  const handleGuestLogin = () => {
+    navigate("/dashboard");
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-form">
@@ -164,6 +168,14 @@ const Login = ({ setUser }) => {
               ? (isLogin ? "Logging in..." : "Creating account...") 
               : (isLogin ? "Login" : "Sign Up")
             }
+          </button>
+
+          <button 
+            type="button" 
+            onClick={handleGuestLogin}
+            className="guest-button"
+          >
+            Sign in as Guest
           </button>
         </form>
 
