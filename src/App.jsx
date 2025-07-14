@@ -8,6 +8,7 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Home from "./components/Home";
 import NotFound from "./components/NotFound";
+import FriendsPage from "./components/FriendsPage";
 import { API_URL } from "./shared";
 
 
@@ -55,6 +56,7 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
+          <Route path="/friends" element={<FriendsPage/>}/>
           <Route exact path="/" element={<Home />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
