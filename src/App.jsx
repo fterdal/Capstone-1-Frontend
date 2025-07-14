@@ -11,7 +11,7 @@ import Demo from "./pages/Demo";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 import VotePollPage from "./pages/VotePollPage";
-import ViewResultsPage from "./pages/ ViewResultsPage";
+import ViewResultsPage from "./pages/ViewResultsPage";
 
 
 const App = () => {
