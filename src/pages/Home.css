@@ -4,3 +4,8 @@ h1 {
   margin: 1rem 0;
   font-family: "Excalifont", "Caveat", "Comic Sans MS", cursive;
 }
+.home-container {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f0f0f0;
+}
