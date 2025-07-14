@@ -57,6 +57,7 @@ const App = () => {
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
           <Route path="/vote" element={<VotePollPage />} />
+          <Route path="/polls/results" element={<ViewResultsPage/>}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
