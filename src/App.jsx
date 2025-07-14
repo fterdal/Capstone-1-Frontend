@@ -56,7 +56,7 @@ const App = () => {
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
-          <Route path="/voting" element={<VotePollPage />} />
+          <Route path="/vote" element={<VotePollPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
