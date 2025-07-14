@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 import "./AuthStyles.css";
 
 const Login = ({ setUser }) => {
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +30,15 @@ const Login = ({ setUser }) => {
       newErrors.password = "Password must be at least 6 characters";
     }
 
+    // Only validate confirm password for signup
+    if (!isLogin) {
+      if (!formData.confirmPassword) {
+        newErrors.confirmPassword = "Please confirm your password";
+      } else if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = "Passwords do not match";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -41,7 +52,13 @@ const Login = ({ setUser }) => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/auth/login`, formData, {
+      const endpoint = isLogin ? "/auth/login" : "/auth/signup";
+      const data = {
+        username: formData.username,
+        password: formData.password,
+      };
+
+      const response = await axios.post(`${API_URL}${endpoint}`, data, {
         withCredentials: true,
       });
 
@@ -51,7 +68,8 @@ const Login = ({ setUser }) => {
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
       } else {
-        setErrors({ general: "An error occurred during login" });
+        const action = isLogin ? "login" : "signup";
+        setErrors({ general: `An error occurred during ${action}` });
       }
     } finally {
       setIsLoading(false);
@@ -74,10 +92,20 @@ const Login = ({ setUser }) => {
     }
   };
 
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setErrors({});
+    setFormData({
+      username: "",
+      password: "",
+      confirmPassword: "",
+    });
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-form">
-        <h2>Login</h2>
+        <h2>{isLogin ? "Login" : "Sign Up"}</h2>
 
         {errors.general && (
           <div className="error-message">{errors.general}</div>
@@ -114,13 +142,40 @@ const Login = ({ setUser }) => {
             )}
           </div>
 
+          {!isLogin && (
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password:</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className={errors.confirmPassword ? "error" : ""}
+              />
+              {errors.confirmPassword && (
+                <span className="error-text">{errors.confirmPassword}</span>
+              )}
+            </div>
+          )}
+
           <button type="submit" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading 
+              ? (isLogin ? "Logging in..." : "Creating account...") 
+              : (isLogin ? "Login" : "Sign Up")
+            }
           </button>
         </form>
 
         <p className="auth-link">
-          Don't have an account? <Link to="/signup">Sign up</Link>
+          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          <button 
+            type="button" 
+            onClick={toggleMode} 
+            className="toggle-button"
+          >
+            {isLogin ? "Sign up" : "Login"}
+          </button>
         </p>
       </div>
     </div>
