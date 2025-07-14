@@ -5,7 +5,8 @@ import "./AppStyles.css";
 import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
-import Home from "./components/Home";
+import Signup from "./components/Signup";
+import Home from "./pages/Home";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 
