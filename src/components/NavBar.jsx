@@ -7,16 +7,17 @@ const NavBar = ({ user, onLogout }) => {
     <nav className="navbar">
       <div className="nav-brand">
         <Link to="/">Rankzilla</Link>
+        <Link to="/demo" className="nav-link">Demo</Link>
       </div>
 
       <div className="nav-links">
 
-        <Link to="/demo" className="nav-link">Demo</Link>
+        
 
         {user ? (
           <div className="user-section">
 
-            <Link to="/create-poll" className="nav-link">Create a poll</Link>
+        <Link to="/create-poll" className="nav-link">Create a poll</Link>
 
 
             <span className="username">Welcome, {user.username}!</span>
