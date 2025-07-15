@@ -1,8 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import "./PollFormModal.css";
 
 const PollFormModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [options, setOptions] = useState(["", ""]);
+
+  const handleOptionChange = (index, value) => {
+    const updated = [...options];
+    updated[index] = value;
+    setOptions(updated);
+  };
+
+  const handleAddOption = () => {
+    if (options.length < 10) {
+      setOptions([...options, ""]);
+    }
+  };
+
+  const handleRemoveOption = (index) => {
+    if (options.length > 2) {
+      const updated = options.filter((_, i) => i !== index);
+      setOptions(updated);
+    }
+  };
 
   return (
     <div className="modal-overlay">
