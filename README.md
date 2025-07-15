@@ -32,3 +32,5 @@ You should be able to deploy this application to Vercel by simply connecting the
 |             | Wednesday         | 9:00 AM – 2:30 PM                    | Not available after 3:00 PM |
 |             | Thursday          | 9:00 AM – 5:00 PM                    | Fully available             |
 |             | Friday            | 9:00 AM – 5:00 PM                    | Not available after 3:00 PM |
+| **Flo**     |                   |                                      |          
+                        |    
