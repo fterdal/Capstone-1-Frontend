@@ -1,6 +1,7 @@
 import React from 'react';
 import PollCard from './PollCard';
 
+
 const PollsList = ({ polls }) => {
   if (!polls) {
     return (
@@ -23,6 +24,7 @@ const PollsList = ({ polls }) => {
   }
 
   return (
+
     <div className="polls-container">
       {polls.map(poll => (
         <PollCard key={poll.id} poll={poll} />

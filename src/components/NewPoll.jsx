@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const NewPoll = () => {
+const NewPoll = ({ user }) => {
   const [title, setTitle] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [error, setError] = useState("");
@@ -36,6 +36,8 @@ const NewPoll = () => {
       await axios.post("http://localhost:8080/api/polls", {
         title,
         options: validOptions,
+        creator_id: user.id,
+
       });
       navigate("/poll-list");
     } catch (err) {
