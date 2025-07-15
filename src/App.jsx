@@ -16,11 +16,19 @@ import Profile from "./components/Profile";
 import NewPoll from "./components/NewPoll";
 import PollList from "./components/PollList";
 
-
-
-//Alex branch
 const App = () => {
   const [user, setUser] = useState(null);
+  const [polls, setPolls] = useState(null);
+
+  const fetchPolls = async () => {
+    try{
+      const response = await axios.get(`${API_URL}/api/polls`);
+      setPolls(response.data);
+    }catch{
+      console.log("failed to get polls");
+      setPolls([]);  
+    }
+  };
 
   const checkAuth = async () => {
     try {
@@ -34,14 +42,14 @@ const App = () => {
     }
   };
 
-  // Check authentication status on app load
+  // Check authentication status and fetch polls on app load
   useEffect(() => {
     checkAuth();
+    fetchPolls(); // Add this line to actually fetch polls
   }, []);
 
   const handleLogout = async () => {
     try {
-      // Logout from our backend
       await axios.post(
         `${API_URL}/auth/logout`,
         {},
@@ -61,28 +69,21 @@ const App = () => {
       <div className="app">
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
-
           <Route path="/signup" element={<Signup setUser={setUser} />} />
-
           <Route path="/friends" element={<FriendsPage/>}/>
-
           <Route exact path="/" element={<Home />} />
-
           <Route exact path="/friends" element={<Friends />} />
-
           <Route exact path="/me" element={<Profile user={user}/>} />
-
-          <Route exact path ="new-poll" element={<NewPoll />} />
-
-          <Route exact path="poll-list" element={<PollList />}/>
-
+          <Route exact path="/new-poll" element={<NewPoll />} />
+          <Route exact path="/poll-list" element={<PollList polls={polls} />}/>
           <Route path="*" element={<NotFound />} />
-
         </Routes>
       </div>
     </div>
   );
 };
+
+// ...existing code...
 
 const Root = () => {
   return (
