@@ -6,6 +6,15 @@ const PollList = () => {
    const [polls, setPolls] = useState([]);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null); 
+   const [user, setUser] = useState({
+    id: '1',
+    username: 'alex_n',
+    email: 'alex@email.com',
+    auth0Id: 'id',
+    passwordHash: 'hash',
+    createdAt: 'at',
+    updatedAt: 'at',
+   });
 
    useEffect(() => {
     const fetchPolls = async () => {
@@ -35,7 +44,7 @@ const PollList = () => {
                     <li>
                         {poll.title}
                         <br />
-                        Created by: {poll.creatorName || "Unknown"}
+                        Created by: {user.username || "Unknown"}
                     </li>
                 ))}
             </ul>
