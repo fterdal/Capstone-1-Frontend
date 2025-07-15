@@ -74,7 +74,7 @@ const App = () => {
           <Route exact path="/" element={<Home />} />
           <Route exact path="/friends" element={<Friends />} />
           <Route exact path="/me" element={<Profile user={user}/>} />
-          <Route exact path="/new-poll" element={<NewPoll />} />
+          <Route exact path="/new-poll" element={<NewPoll user={user}/>} />
           <Route exact path="/poll-list" element={<PollList polls={polls} />}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
