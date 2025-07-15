@@ -8,6 +8,10 @@ import Login from "./components/Login";
 import Home from "./pages/Home";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
+import VotePollPage from "./pages/VotePollPage";
+import ViewResultsPage from "./pages/ViewResultsPage";
+import Dashboard from "./pages/Dashboard"
+
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -52,6 +56,8 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
+          <Route path="/vote" element={<VotePollPage />} />
+          <Route path="/polls/results" element={<ViewResultsPage />}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
