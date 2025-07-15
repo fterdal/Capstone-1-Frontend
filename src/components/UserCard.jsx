@@ -1,30 +1,28 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const UserCard = () => {
-  const [name, setName] = useState([]);
-  const navigate = useNavigate();
+  const { id } = useParams();
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/users")
+      .get(`http://localhost:8080/api/users/${id}`)
       .then((response) => {
-        console.log("Users data:", response.data);
-        setUsers(response.data);
+        setUser(response.data);
       })
       .catch((error) => {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching user:", error);
       });
   }, []);
 
-  const handleUserClick = (userId) => {
-    navigate(`/users/${userId.value}`);
-  };
+  if (!user) return <p>Loading...</p>;
 
   return (
     <div>
-      <h2>One User</h2>
+      <h2>User Profile</h2>
+      {user.username}
     </div>
   );
 };
