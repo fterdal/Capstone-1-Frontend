@@ -31,6 +31,7 @@ const App = () => {
       setPolls([]);  
     }
   };
+  
 
   const checkAuth = async () => {
     try {
@@ -87,8 +88,6 @@ const App = () => {
   );
 };
 
-
-// ...existing code...
 
 const Root = () => {
   return (
