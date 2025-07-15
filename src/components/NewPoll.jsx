@@ -33,11 +33,11 @@ const NewPoll = () => {
       return setError("At least two filled options are required.");
     }
     try {
-      await axios.post("/api/polls", {
+      await axios.post("http://localhost:8080/api/polls", {
         title,
         options: validOptions
       });
-      navigate("polls");
+      navigate("/poll-list");
     } catch (err) {
       setError("Failed to create poll.");
     }
