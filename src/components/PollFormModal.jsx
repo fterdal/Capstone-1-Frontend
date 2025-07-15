@@ -7,15 +7,16 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
+  const [allowEndDateTime, setAllowEndDateTime] = useState(false);
+  const [endDateTime, setEndDateTime] = useState("");
   const [errors, setErrors] = useState({});
 
-  // Helper to normalize options for comparison
   const normalizeOption = (opt) =>
     opt.trim().toLowerCase().replace(/\s+/g, "");
 
   const handleOptionChange = (index, value) => {
     const updated = [...options];
-    updated[index] = value; // preserve original casing/spacing
+    updated[index] = value;
     setOptions(updated);
   };
 
@@ -104,7 +105,24 @@ const PollFormModal = ({ isOpen, onClose }) => {
         <h3>Settings</h3>
         <div className="checkbox-row">
           <label><input type="checkbox" /> Allow guest voters</label>
-          <label><input type="checkbox" /> End date/time</label>
+          <label>
+            <input
+              type="checkbox"
+              checked={allowEndDateTime}
+              onChange={(e) => setAllowEndDateTime(e.target.checked)}
+            />
+            End date/time
+          </label>
+              {allowEndDateTime && (
+                <div className="datetime-picker">
+                  <label>Choose end date/time:</label>
+                  <input
+                    type="datetime-local"
+                    value={endDateTime}
+                    onChange={(e) => setEndDateTime(e.target.value)}
+                  />
+                </div>
+              )}
           <label><input type="checkbox" /> Allow shared links</label>
         </div>
 
