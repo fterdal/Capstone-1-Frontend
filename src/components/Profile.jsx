@@ -1,5 +1,5 @@
-import React from 'react';
-import './CSS/ProfileStyles.css';
+import React from "react";
+import "./CSS/ProfileStyles.css";
 
 const ProfilePage = ({ user }) => {
   if (!user) {
@@ -16,17 +16,19 @@ const ProfilePage = ({ user }) => {
     <div className="profile-page">
       <div className="profile-header">
         <div className="profile-picture">
-          <img 
-            src={"https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"} 
+          <img
+            src={
+              "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
+            }
             alt={`${user.username}'s profile`}
             className="profile-img"
           />
         </div>
-        
+
         <div className="profile-info">
           <h1 className="display-name">{user.username}</h1>
           <p className="username">@{user.username}</p>
-          
+
           <div className="stats">
             <div className="stat-item">
               <span className="stat-count">{user.postsCount || 0}</span>
@@ -41,11 +43,9 @@ const ProfilePage = ({ user }) => {
               <span className="stat-label">Following</span>
             </div>
           </div>
-          
-          {user.bio && (
-            <p className="bio">{user.bio}</p>
-          )}
-          
+
+          {user.bio && <p className="bio">{user.bio}</p>}
+
           <div className="profile-actions">
             <button className="follow-btn">Edit Profile</button>
             <button className="message-btn">View Drafts</button>

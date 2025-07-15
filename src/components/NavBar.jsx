@@ -14,7 +14,7 @@ const NavBar = ({ user, onLogout }) => {
           <div className="user-section">
             <span>Welcome, {user.username}!</span>
             <div>
-              <Link to ="/me" className="nav-link">
+              <Link to="/me" className="nav-link">
                 Profile
               </Link>
               <Link to="/friends" className="nav-link">
@@ -27,10 +27,12 @@ const NavBar = ({ user, onLogout }) => {
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>
-
           </div>
         ) : (
           <div className="auth-links">
+            <Link to="/users" className="nav-link">
+              Users
+            </Link>
             <Link to="/friends" className="nav-link">
               FriendsPage
             </Link>

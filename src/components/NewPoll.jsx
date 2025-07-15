@@ -28,14 +28,14 @@ const NewPoll = () => {
     if (!title.trim()) {
       return setError("Poll title is required.");
     }
-    const validOptions = options.filter(opt => opt.trim() != "");
+    const validOptions = options.filter((opt) => opt.trim() != "");
     if (validOptions.length < 2) {
       return setError("At least two filled options are required.");
     }
     try {
       await axios.post("http://localhost:8080/api/polls", {
         title,
-        options: validOptions
+        options: validOptions,
       });
       navigate("/poll-list");
     } catch (err) {
@@ -61,7 +61,7 @@ const NewPoll = () => {
           <label>Options:</label>
           {options.map((option, index) => (
             <div>
-              <input 
+              <input
                 type="text"
                 value={option}
                 onChange={(e) => handleOptionChange(index, e.target.value)}
