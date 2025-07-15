@@ -6,10 +6,8 @@ import "./Login.css";
 
 const Login = ({ setUser }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [isEmailMode, setIsEmailMode] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
+    identifier: "", // Single field for email or username
     password: "",
     confirmPassword: "",
   });
@@ -17,21 +15,27 @@ const Login = ({ setUser }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Auto-detect if input is email or username
+  const isEmailInput = (value) => {
+    return /\S+@\S+\.\S+/.test(value);
+  };
+
   const validateForm = () => {
     const newErrors = {};
+    const isEmail = isEmailInput(formData.identifier);
 
-    // Validate email or username based on mode
-    if (isEmailMode) {
-      if (!formData.email) {
-        newErrors.email = "Email is required";
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = "Please enter a valid email";
+    // Validate email or username based on what user typed
+    if (!formData.identifier) {
+      newErrors.identifier = "Email or username is required";
+    } else if (isEmail) {
+      // If it looks like an email, validate as email
+      if (!/\S+@\S+\.\S+/.test(formData.identifier)) {
+        newErrors.identifier = "Please enter a valid email";
       }
     } else {
-      if (!formData.username) {
-        newErrors.username = "Username is required";
-      } else if (formData.username.length < 3 || formData.username.length > 20) {
-        newErrors.username = "Username must be between 3 and 20 characters";
+      // If it doesn't look like email, validate as username
+      if (formData.identifier.length < 3 || formData.identifier.length > 20) {
+        newErrors.identifier = "Username must be between 3 and 20 characters";
       }
     }
 
@@ -64,26 +68,27 @@ const Login = ({ setUser }) => {
     setIsLoading(true);
     try {
       let endpoint, data;
+      const isEmail = isEmailInput(formData.identifier);
       
       if (isLogin) {
-        // For login, always use /auth/login with username (backend requirement)
+        // For login, always use /auth/login with username field (backend requirement)
         endpoint = "/auth/login";
         data = {
-          username: isEmailMode ? formData.email : formData.username,
+          username: formData.identifier, // Backend expects 'username' field for both email and username
           password: formData.password,
         };
       } else {
-        // For signup, use different endpoints based on email/username mode
-        if (isEmailMode) {
+        // For signup, use different endpoints based on auto-detected type
+        if (isEmail) {
           endpoint = "/auth/signup/email";
           data = {
-            email: formData.email,
+            email: formData.identifier,
             password: formData.password,
           };
         } else {
           endpoint = "/auth/signup/username";
           data = {
-            username: formData.username,
+            username: formData.identifier,
             password: formData.password,
           };
         }
@@ -127,8 +132,7 @@ const Login = ({ setUser }) => {
     setIsLogin(!isLogin);
     setErrors({});
     setFormData({
-      username: "",
-      email: "",
+      identifier: "",
       password: "",
       confirmPassword: "",
     });
@@ -148,64 +152,29 @@ const Login = ({ setUser }) => {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Email/Username Toggle */}
+          {/* Smart Email/Username Input */}
           <div className="form-group">
-            <div style={{ marginBottom: "10px" }}>
-              <label>
-                <input
-                  type="radio"
-                  name="loginMode"
-                  checked={!isEmailMode}
-                  onChange={() => setIsEmailMode(false)}
-                  style={{ marginRight: "5px" }}
-                />
-                Username
-              </label>
-              <label style={{ marginLeft: "20px" }}>
-                <input
-                  type="radio"
-                  name="loginMode"
-                  checked={isEmailMode}
-                  onChange={() => setIsEmailMode(true)}
-                  style={{ marginRight: "5px" }}
-                />
-                Email
-              </label>
-            </div>
+            <label htmlFor="identifier">
+              Email or Username:
+              {formData.identifier && (
+                <span style={{ fontSize: "0.8em", color: "#666", marginLeft: "5px" }}>
+                  ({isEmailInput(formData.identifier) ? "Email detected" : "Username detected"})
+                </span>
+              )}
+            </label>
+            <input
+              type="text"
+              id="identifier"
+              name="identifier"
+              value={formData.identifier}
+              onChange={handleChange}
+              placeholder="Enter your email or username"
+              className={errors.identifier ? "error" : ""}
+            />
+            {errors.identifier && (
+              <span className="error-text">{errors.identifier}</span>
+            )}
           </div>
-
-          {/* Username or Email Input */}
-          {isEmailMode ? (
-            <div className="form-group">
-              <label htmlFor="email">Email:</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={errors.email ? "error" : ""}
-              />
-              {errors.email && (
-                <span className="error-text">{errors.email}</span>
-              )}
-            </div>
-          ) : (
-            <div className="form-group">
-              <label htmlFor="username">Username:</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className={errors.username ? "error" : ""}
-              />
-              {errors.username && (
-                <span className="error-text">{errors.username}</span>
-              )}
-            </div>
-          )}
 
           <div className="form-group">
             <label htmlFor="password">Password:</label>

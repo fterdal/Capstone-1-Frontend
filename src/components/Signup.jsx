@@ -6,7 +6,7 @@ import { API_URL } from "../shared";
 
 const Signup = ({ setUser }) => {
   const [formData, setFormData] = useState({
-    username: "",
+    identifier: "", // Single field for email or username
     password: "",
     confirmPassword: "",
   });
@@ -14,13 +14,28 @@ const Signup = ({ setUser }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Auto-detect if input is email or username
+  const isEmailInput = (value) => {
+    return /\S+@\S+\.\S+/.test(value);
+  };
+
   const validateForm = () => {
     const newErrors = {};
+    const isEmail = isEmailInput(formData.identifier);
 
-    if (!formData.username) {
-      newErrors.username = "Username is required";
-    } else if (formData.username.length < 3 || formData.username.length > 20) {
-      newErrors.username = "Username must be between 3 and 20 characters";
+    // Validate email or username based on what user typed
+    if (!formData.identifier) {
+      newErrors.identifier = "Email or username is required";
+    } else if (isEmail) {
+      // If it looks like an email, validate as email
+      if (!/\S+@\S+\.\S+/.test(formData.identifier)) {
+        newErrors.identifier = "Please enter a valid email";
+      }
+    } else {
+      // If it doesn't look like email, validate as username
+      if (formData.identifier.length < 3 || formData.identifier.length > 20) {
+        newErrors.identifier = "Username must be between 3 and 20 characters";
+      }
     }
 
     if (!formData.password) {
@@ -48,14 +63,27 @@ const Signup = ({ setUser }) => {
 
     setIsLoading(true);
     try {
-      const response = await axios.post(
-        `${API_URL}/auth/signup/username`,
-        {
-          username: formData.username,
+      const isEmail = isEmailInput(formData.identifier);
+      let endpoint, data;
+
+      // Use different endpoints based on auto-detected type
+      if (isEmail) {
+        endpoint = "/auth/signup/email";
+        data = {
+          email: formData.identifier,
           password: formData.password,
-        },
-        { withCredentials: true }
-      );
+        };
+      } else {
+        endpoint = "/auth/signup/username";
+        data = {
+          username: formData.identifier,
+          password: formData.password,
+        };
+      }
+
+      const response = await axios.post(`${API_URL}${endpoint}`, data, {
+        withCredentials: true,
+      });
 
       setUser(response.data.user);
       navigate("/");
@@ -97,17 +125,25 @@ const Signup = ({ setUser }) => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username:</label>
+            <label htmlFor="identifier">
+              Email or Username:
+              {formData.identifier && (
+                <span style={{ fontSize: "0.8em", color: "#666", marginLeft: "5px" }}>
+                  ({isEmailInput(formData.identifier) ? "Email detected" : "Username detected"})
+                </span>
+              )}
+            </label>
             <input
               type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              id="identifier"
+              name="identifier"
+              value={formData.identifier}
               onChange={handleChange}
-              className={errors.username ? "error" : ""}
+              placeholder="Enter your email or username"
+              className={errors.identifier ? "error" : ""}
             />
-            {errors.username && (
-              <span className="error-text">{errors.username}</span>
+            {errors.identifier && (
+              <span className="error-text">{errors.identifier}</span>
             )}
           </div>
 
