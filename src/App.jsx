@@ -21,6 +21,17 @@ import UserCard from "./components/UserCard";
 //Alex branch
 const App = () => {
   const [user, setUser] = useState(null);
+  const [polls, setPolls] = useState(null);
+
+  const fetchPolls = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/polls`);
+      setPolls(response.data);
+    } catch {
+      console.log("failed to get polls");
+      setPolls([]);
+    }
+  };
 
   const checkAuth = async () => {
     try {
@@ -34,14 +45,14 @@ const App = () => {
     }
   };
 
-  // Check authentication status on app load
+  // Check authentication status and fetch polls on app load
   useEffect(() => {
     checkAuth();
+    fetchPolls(); // Add this line to actually fetch polls
   }, []);
 
   const handleLogout = async () => {
     try {
-      // Logout from our backend
       await axios.post(
         `${API_URL}/auth/logout`,
         {},
@@ -76,6 +87,8 @@ const App = () => {
     </div>
   );
 };
+
+// ...existing code...
 
 const Root = () => {
   return (
