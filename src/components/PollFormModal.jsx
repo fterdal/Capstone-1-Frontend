@@ -33,14 +33,41 @@ const PollFormModal = ({ isOpen, onClose }) => {
         <button className="close-button" onClick={onClose}>×</button>
         <h2>Create a Poll</h2>
 
-        <input placeholder="Title" />
-        <textarea placeholder="Description (1–3 sentences)" />
+        <input placeholder="Title" 
+        value ={title}
+        onChange= {(e)=> setTitle(e.target.value)}
+        />
 
+        <textarea placeholder="Description (1–3 sentences)"
+        value={description}
+        onChange= {(e)=> setDescription(e.target.value)} />
+
+        
         <div className="poll-options">
-          <div><input placeholder="Option 1" /></div>
-          <div><input placeholder="Option 2" /></div>
-          <div><input placeholder="Option 3" /></div>
-          <button className="add-option-btn">+ Add option</button>
+          {options.map((option, index) => (
+            <div key={index} className="option-row">
+              <input
+                placeholder={`Option ${index + 1}`}
+                value={option}
+                onChange={(e) => handleOptionChange(index, e.target.value)}
+              />
+              {options.length > 2 && (
+                <button
+                  className="remove-option-btn"
+                  onClick={() => handleRemoveOption(index)}
+                >
+                  🗑
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            className="add-option-btn"
+            onClick={handleAddOption}
+            disabled={options.length >= 10}
+          >
+            + Add option
+          </button>
         </div>
 
         <div className="checkbox-row">
