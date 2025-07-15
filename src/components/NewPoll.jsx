@@ -28,7 +28,7 @@ const NewPoll = ({ user }) => {
     if (!title.trim()) {
       return setError("Poll title is required.");
     }
-    const validOptions = options.filter(opt => opt.trim() != "");
+    const validOptions = options.filter((opt) => opt.trim() != "");
     if (validOptions.length < 2) {
       return setError("At least two filled options are required.");
     }
@@ -37,6 +37,7 @@ const NewPoll = ({ user }) => {
         title,
         options: validOptions,
         creator_id: user.id,
+
       });
       navigate("/poll-list");
     } catch (err) {
@@ -62,7 +63,7 @@ const NewPoll = ({ user }) => {
           <label>Options:</label>
           {options.map((option, index) => (
             <div>
-              <input 
+              <input
                 type="text"
                 value={option}
                 onChange={(e) => handleOptionChange(index, e.target.value)}
