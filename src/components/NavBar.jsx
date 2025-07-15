@@ -23,6 +23,9 @@ const NavBar = ({ user, onLogout }) => {
               <Link to="/new-poll" className="nav-link">
                 Create a Poll
               </Link>
+              <Link to="/poll-list" class="nav-link">
+                Poll List
+              </Link>
             </div>
             <button onClick={onLogout} className="logout-btn">
               Logout
