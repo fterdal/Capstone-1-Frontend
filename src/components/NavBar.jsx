@@ -12,7 +12,18 @@ const NavBar = ({ user, onLogout }) => {
       <div className="nav-links">
         {user ? (
           <div className="user-section">
-            <span className="username">Welcome, {user.username}!</span>
+            <span>Welcome, {user.username}!</span>
+            <div className="Will move to the if true section when auth and login are complete">
+              <Link to ="/me" className="nav-link">
+                Profile
+              </Link>
+              <Link to="/friends" className="nav-link">
+                Friends
+              </Link>
+              <Link to="/new-poll" className="nav-link">
+                Create a Poll
+              </Link>
+            </div>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>
@@ -26,17 +37,6 @@ const NavBar = ({ user, onLogout }) => {
             <Link to="/signup" className="nav-link">
               Sign Up
             </Link>
-            <div className="Will move to the if true section when auth and login are complete">
-              <Link to ="/me" className="nav-link">
-                Profile
-              </Link>
-              <Link to="/friends" className="nav-link">
-                Friends
-              </Link>
-              <Link to="/new-poll" className="nav-link">
-                Create a Poll
-              </Link>
-            </div>
           </div>
         )}
       </div>

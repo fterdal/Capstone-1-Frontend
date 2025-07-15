@@ -63,7 +63,7 @@ const App = () => {
 
           <Route exact path="/friends" element={<Friends />} />
 
-          <Route exact path="/me" element={<Profile />} />
+          <Route exact path="/me" element={<Profile user={user}/>} />
 
           <Route exact path ="new-poll" element={<NewPoll />} />
 
