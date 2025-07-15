@@ -6,8 +6,10 @@ import "./Login.css";
 
 const Login = ({ setUser }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isEmailMode, setIsEmailMode] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
+    email: "",
     password: "",
     confirmPassword: "",
   });
@@ -18,10 +20,19 @@ const Login = ({ setUser }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.username) {
-      newErrors.username = "Username is required";
-    } else if (formData.username.length < 3 || formData.username.length > 20) {
-      newErrors.username = "Username must be between 3 and 20 characters";
+    // Validate email or username based on mode
+    if (isEmailMode) {
+      if (!formData.email) {
+        newErrors.email = "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = "Please enter a valid email";
+      }
+    } else {
+      if (!formData.username) {
+        newErrors.username = "Username is required";
+      } else if (formData.username.length < 3 || formData.username.length > 20) {
+        newErrors.username = "Username must be between 3 and 20 characters";
+      }
     }
 
     if (!formData.password) {
@@ -52,11 +63,31 @@ const Login = ({ setUser }) => {
 
     setIsLoading(true);
     try {
-      const endpoint = isLogin ? "/auth/login" : "/auth/signup";
-      const data = {
-        username: formData.username,
-        password: formData.password,
-      };
+      let endpoint, data;
+      
+      if (isLogin) {
+        // For login, always use /auth/login with username (backend requirement)
+        endpoint = "/auth/login";
+        data = {
+          username: isEmailMode ? formData.email : formData.username,
+          password: formData.password,
+        };
+      } else {
+        // For signup, use different endpoints based on email/username mode
+        if (isEmailMode) {
+          endpoint = "/auth/signup/email";
+          data = {
+            email: formData.email,
+            password: formData.password,
+          };
+        } else {
+          endpoint = "/auth/signup/username";
+          data = {
+            username: formData.username,
+            password: formData.password,
+          };
+        }
+      }
 
       const response = await axios.post(`${API_URL}${endpoint}`, data, {
         withCredentials: true,
@@ -97,6 +128,7 @@ const Login = ({ setUser }) => {
     setErrors({});
     setFormData({
       username: "",
+      email: "",
       password: "",
       confirmPassword: "",
     });
@@ -116,20 +148,64 @@ const Login = ({ setUser }) => {
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* Email/Username Toggle */}
           <div className="form-group">
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className={errors.username ? "error" : ""}
-            />
-            {errors.username && (
-              <span className="error-text">{errors.username}</span>
-            )}
+            <div style={{ marginBottom: "10px" }}>
+              <label>
+                <input
+                  type="radio"
+                  name="loginMode"
+                  checked={!isEmailMode}
+                  onChange={() => setIsEmailMode(false)}
+                  style={{ marginRight: "5px" }}
+                />
+                Username
+              </label>
+              <label style={{ marginLeft: "20px" }}>
+                <input
+                  type="radio"
+                  name="loginMode"
+                  checked={isEmailMode}
+                  onChange={() => setIsEmailMode(true)}
+                  style={{ marginRight: "5px" }}
+                />
+                Email
+              </label>
+            </div>
           </div>
+
+          {/* Username or Email Input */}
+          {isEmailMode ? (
+            <div className="form-group">
+              <label htmlFor="email">Email:</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className={errors.email ? "error" : ""}
+              />
+              {errors.email && (
+                <span className="error-text">{errors.email}</span>
+              )}
+            </div>
+          ) : (
+            <div className="form-group">
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className={errors.username ? "error" : ""}
+              />
+              {errors.username && (
+                <span className="error-text">{errors.username}</span>
+              )}
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="password">Password:</label>
