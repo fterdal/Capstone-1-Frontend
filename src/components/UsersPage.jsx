@@ -18,8 +18,8 @@ const UsersPage = () => {
       });
   }, []);
 
-  const handleUserClick = (userId) => {
-    navigate(`/users/${userId}`);
+  const handleUserClick = (id) => {
+    navigate(`/users/${id}`);
   };
 
   return (
@@ -30,7 +30,7 @@ const UsersPage = () => {
       ) : (
         <ul>
           {users.map((user) => (
-            <li key={user.id} onClick={handleUserClick}>
+            <li key={user.id} onClick={() => handleUserClick(user.id)}>
               {user.username}
             </li>
           ))}
