@@ -7,8 +7,13 @@ const PollCard = ({ poll }) => {
 
   useEffect(() => {
     const calculateTimeLeft = () => {
+      if (!poll.endAt) {
+        setTimeLeft('No end date');
+        return;
+      }
+
       const now = new Date();
-      const endTime = new Date(poll.end_at);
+      const endTime = new Date(poll.endAt); 
       const difference = endTime - now;
 
       if (difference > 0) {
@@ -31,22 +36,25 @@ const PollCard = ({ poll }) => {
     };
 
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 60000); // Update every minute
+    const timer = setInterval(calculateTimeLeft, 60000); 
 
     return () => clearInterval(timer);
-  }, [poll.end_at]);
+  }, [poll.endAt]); 
 
-  // Fetch creator information
   useEffect(() => {
     const fetchCreator = async () => {
       try {
-        const response = await fetch(`/api/users/${poll.creator_id}`);
+        const response = await fetch(`http://localhost:8080/api/users/${poll.creator_id}`);
         if (response.ok) {
           const userData = await response.json();
           setCreator(userData);
+        } else {
+          console.error('Failed to fetch creator:', response.status);
+          setCreator({ username: 'Unknown' });
         }
       } catch (error) {
         console.error('Error fetching creator:', error);
+        setCreator({ username: 'Unknown' }); 
       }
     };
 
@@ -55,13 +63,13 @@ const PollCard = ({ poll }) => {
     }
   }, [poll.creator_id]);
 
-  const isPollActive = new Date(poll.end_at) > new Date();
+  const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true; 
 
   return (
     <div className={`poll-card ${!isPollActive ? 'poll-ended' : ''}`}>
       <div className="poll-header">
         <h3 className="poll-title">{poll.title}</h3>
-        <div>
+        <div className="poll-meta">
           <span className="poll-creator">
             by {creator ? `@${creator.username}` : 'Loading...'}
           </span>
@@ -70,6 +78,12 @@ const PollCard = ({ poll }) => {
           </span>
         </div>
       </div>
+      
+      {poll.description && (
+        <div className="poll-description">
+          <p>{poll.description}</p>
+        </div>
+      )}
       
       {!isPollActive && (
         <div className="poll-status">
