@@ -12,18 +12,18 @@
 }
 
 .profile {
-    justify-content: column;
-    gap: 40px;
+  justify-content: column;
+  gap: 40px;
 }
 
 .image {
-    justify-content: row;
+  justify-content: row;
 }
 
 .image img {
-    width: 150px;
-    height: 150px;
-    padding: 10px;
+  width: 150px;
+  height: 150px;
+  padding: 10px;
 }
 
 .top-section {

@@ -81,7 +81,8 @@
   gap: 10px;
 }
 
-.follow-btn, .message-btn {
+.follow-btn,
+.message-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 6px;
@@ -117,16 +118,16 @@
     text-align: center;
     padding: 20px;
   }
-  
+
   .profile-img {
     width: 120px;
     height: 120px;
   }
-  
+
   .display-name {
     font-size: 1.8rem;
   }
-  
+
   .stats {
     justify-content: center;
   }
