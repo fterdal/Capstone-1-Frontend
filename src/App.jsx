@@ -5,9 +5,7 @@ import "./AppStyles.css";
 import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
-import Signup from "./components/Signup";
 import Home from "./pages/Home";
-import Demo from "./pages/Demo";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
 import VotePollPage from "./pages/VotePollPage";
@@ -57,12 +55,9 @@ const App = () => {
       <div className="app">
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/signup" element={<Signup setUser={setUser} />} />
-          <Route path="/demo" element={<Demo />} />
           <Route exact path="/" element={<Home />} />
           <Route path="/vote" element={<VotePollPage />} />
           <Route path="/polls/results" element={<ViewResultsPage />}/>
-          <Route path="/dashboard" element={<Dashboard/>}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

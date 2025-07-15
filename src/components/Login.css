@@ -144,3 +144,21 @@
 .auth-link a:hover {
   text-decoration: underline;
 }
+
+.guest-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.guest-button:hover {
+  background-color: #5a6268;
+}
