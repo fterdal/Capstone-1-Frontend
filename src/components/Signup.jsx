@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { API_URL } from "../shared";
 import "./Login.css";
+import { API_URL } from "../shared";
 
-const Login = ({ setUser }) => {
-  const [isLogin, setIsLogin] = useState(true);
+const Signup = ({ setUser }) => {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -30,13 +29,10 @@ const Login = ({ setUser }) => {
       newErrors.password = "Password must be at least 6 characters";
     }
 
-    // Only validate confirm password for signup
-    if (!isLogin) {
-      if (!formData.confirmPassword) {
-        newErrors.confirmPassword = "Please confirm your password";
-      } else if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-      }
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -52,15 +48,14 @@ const Login = ({ setUser }) => {
 
     setIsLoading(true);
     try {
-      const endpoint = isLogin ? "/auth/login" : "/auth/signup";
-      const data = {
-        username: formData.username,
-        password: formData.password,
-      };
-
-      const response = await axios.post(`${API_URL}${endpoint}`, data, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        `${API_URL}/auth/signup`,
+        {
+          username: formData.username,
+          password: formData.password,
+        },
+        { withCredentials: true }
+      );
 
       setUser(response.data.user);
       navigate("/");
@@ -68,8 +63,7 @@ const Login = ({ setUser }) => {
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
       } else {
-        const action = isLogin ? "login" : "signup";
-        setErrors({ general: `An error occurred during ${action}` });
+        setErrors({ general: "An error occurred during signup" });
       }
     } finally {
       setIsLoading(false);
@@ -92,24 +86,10 @@ const Login = ({ setUser }) => {
     }
   };
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setErrors({});
-    setFormData({
-      username: "",
-      password: "",
-      confirmPassword: "",
-    });
-  };
-
-  const handleGuestLogin = () => {
-    navigate("/dashboard");
-  };
-
   return (
     <div className="auth-container">
       <div className="auth-form">
-        <h2>{isLogin ? "Login" : "Sign Up"}</h2>
+        <h2>Sign Up</h2>
 
         {errors.general && (
           <div className="error-message">{errors.general}</div>
@@ -146,52 +126,32 @@ const Login = ({ setUser }) => {
             )}
           </div>
 
-          {!isLogin && (
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password:</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={errors.confirmPassword ? "error" : ""}
-              />
-              {errors.confirmPassword && (
-                <span className="error-text">{errors.confirmPassword}</span>
-              )}
-            </div>
-          )}
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className={errors.confirmPassword ? "error" : ""}
+            />
+            {errors.confirmPassword && (
+              <span className="error-text">{errors.confirmPassword}</span>
+            )}
+          </div>
 
           <button type="submit" disabled={isLoading}>
-            {isLoading 
-              ? (isLogin ? "Logging in..." : "Creating account...") 
-              : (isLogin ? "Login" : "Sign Up")
-            }
-          </button>
-
-          <button 
-            type="button" 
-            onClick={handleGuestLogin}
-            className="guest-button"
-          >
-            Sign in as Guest
+            {isLoading ? "Creating account..." : "Sign Up"}
           </button>
         </form>
 
         <p className="auth-link">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <button 
-            type="button" 
-            onClick={toggleMode} 
-            className="toggle-button"
-          >
-            {isLogin ? "Sign up" : "Login"}
-          </button>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Signup;
