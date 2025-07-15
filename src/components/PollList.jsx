@@ -10,7 +10,7 @@ const PollList = () => {
    useEffect(() => {
     const fetchPolls = async () => {
         try {
-            const response = await axios.get("/api/polls");
+            const response = await axios.get("http://localhost:8080/api/polls");
             setPolls(response.data);
         } catch (err) {
             setError("Failed to fetch polls.");
