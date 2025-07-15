@@ -13,7 +13,7 @@ const NavBar = ({ user, onLogout }) => {
         {user ? (
           <div className="user-section">
             <span>Welcome, {user.username}!</span>
-            <div className="Will move to the if true section when auth and login are complete">
+            <div>
               <Link to ="/me" className="nav-link">
                 Profile
               </Link>
@@ -31,6 +31,9 @@ const NavBar = ({ user, onLogout }) => {
           </div>
         ) : (
           <div className="auth-links">
+            <Link to="/friends" className="nav-link">
+              FriendsPage
+            </Link>
             <Link to="/login" className="nav-link">
               Login
             </Link>
