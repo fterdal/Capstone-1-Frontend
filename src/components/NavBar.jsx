@@ -6,19 +6,36 @@ const NavBar = ({ user, onLogout }) => {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <Link to="/">Capstone I</Link>
+        <Link to="/">Home</Link>
       </div>
 
       <div className="nav-links">
         {user ? (
           <div className="user-section">
-            <span className="username">Welcome, {user.username}!</span>
+            <span>Welcome, {user.username}!</span>
+            <div>
+              <Link to="/me" className="nav-link">
+                Profile
+              </Link>
+              <Link to="/friends" className="nav-link">
+                Friends
+              </Link>
+              <Link to="/new-poll" className="nav-link">
+                Create a Poll
+              </Link>
+            </div>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>
           </div>
         ) : (
           <div className="auth-links">
+            <Link to="/users" className="nav-link">
+              Users
+            </Link>
+            <Link to="/friends" className="nav-link">
+              FriendsPage
+            </Link>
             <Link to="/login" className="nav-link">
               Login
             </Link>
