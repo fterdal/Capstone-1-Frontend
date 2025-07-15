@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./NavBarStyles.css";
+import "./CSS/NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
   return (
