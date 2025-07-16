@@ -9,6 +9,8 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [options, setOptions] = useState(["", ""]);
   const [allowEndDateTime, setAllowEndDateTime] = useState(false);
   const [endDateTime, setEndDateTime] = useState("");
+  const [allowGuests, setAllowGuests] = useState(false);
+  const [allowSharedLinks, setAllowSharedLinks] = useState(false);
   const [errors, setErrors] = useState({});
 
   const normalizeOption = (opt) =>
