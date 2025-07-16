@@ -13,7 +13,7 @@ const Login = ({ setUser }) => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   const validateForm = () => {
     const newErrors = {};
@@ -106,6 +106,11 @@ const Login = ({ setUser }) => {
     navigate("/dashboard");
   };
 
+  const handleGoogleLogin = () => {
+    // Redirect to your backend's Google OAuth endpoint
+    window.location.href = `${API_URL}/auth/google`;
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-form">
@@ -170,8 +175,8 @@ const Login = ({ setUser }) => {
             }
           </button>
 
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={handleGuestLogin}
             className="guest-button"
           >
@@ -181,14 +186,20 @@ const Login = ({ setUser }) => {
 
         <p className="auth-link">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <button 
-            type="button" 
-            onClick={toggleMode} 
-            className="toggle-button"
-          >
+          <button type="button" onClick={toggleMode} className="toggle-button">
             {isLogin ? "Sign up" : "Login"}
           </button>
         </p>
+         <div className="or-divider">or</div>
+         
+        <button
+          className="google-button"
+          type="button"
+          onClick={handleGoogleLogin}
+        >
+          Sign in with Google
+        </button>
+        
       </div>
     </div>
   );
