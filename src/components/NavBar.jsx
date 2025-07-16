@@ -6,7 +6,7 @@ const NavBar = ({ user, onLogout }) => {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <Link to="/">Rankzilla</Link>
+        <Link to={user ? "/dashboard" : "/"}>Rankzilla</Link>
         <Link to="/demo" className="nav-link">Demo</Link>
       </div>
 
