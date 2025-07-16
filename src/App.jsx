@@ -11,7 +11,11 @@ import { API_URL } from "./shared";
 import VotePollPage from "./pages/VotePollPage";
 import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
+<<<<<<< HEAD
 import { Auth0Provider } from "@auth0/auth0-react";
+=======
+import HostPollView from "./pages/HostPollView";
+>>>>>>> d68500b36a6ee0423c04cb6a163c8c565d8a91f5
 
 
 const App = () => {
@@ -61,7 +65,7 @@ const App = () => {
           <Route path="/polls/results" element={<ViewResultsPage />}/>
           <Route path="*" element={<NotFound />} />
           <Route path="/dashboard" element={<Dashboard />} />
-
+          <Route path="/host" element={<HostPollView />} />
         </Routes>
       </div>
     </div>
