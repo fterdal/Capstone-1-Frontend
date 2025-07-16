@@ -61,21 +61,48 @@ const Dashboard = () => {
         {filteredPolls.map((poll) => (
           <li key={poll.id}>
             <Link to={`/polls/${poll.id}`}>{poll.title}</Link> ({poll.status})
+            
             {poll.status === "draft" && (
               <>
                 <button onClick={() => handleDelete(poll.id)}>🗑️ Delete</button>
                 <Link to={`/edit/${poll.id}`}>✏️ Edit</Link>
               </>
             )}
+
             {poll.status === "published" && (
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(`${API_URL}/polls/${poll.id}`);
-                  alert("Link copied!");
-                }}
-              >
-                📋 Copy Link
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/polls/${poll.id}`);
+                    alert("Link copied!");
+                  }}
+                >
+                  📋 Copy Link
+                </button>
+
+                {/* Added share button logic here */}
+                <a
+                  href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                    `${window.location.origin}/polls/${poll.id}`
+                  )}&text=Check out this poll!`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginLeft: "8px" }}
+                >
+                  🐦 Share on Twitter
+                </a>
+
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    `${window.location.origin}/polls/${poll.id}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginLeft: "8px" }}
+                >
+                  📘 Share on Facebook
+                </a>
+              </>
             )}
           </li>
         ))}
