@@ -11,6 +11,7 @@ import { API_URL } from "./shared";
 import VotePollPage from "./pages/VotePollPage";
 import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
+import { Auth0Provider } from "@auth0/auth0-react";
 
 
 const App = () => {
@@ -69,9 +70,17 @@ const App = () => {
 
 const Root = () => {
   return (
-    <Router>
-      <App />
-    </Router>
+    <Auth0Provider
+      domain="YOUR_AUTH0_DOMAIN"
+      clientId="YOUR_AUTH0_CLIENT_ID"
+      authorizationParams={{
+        redirect_uri: window.location.origin,
+      }}
+    >
+      <Router>
+        <App />
+      </Router>
+    </Auth0Provider>
   );
 };
 

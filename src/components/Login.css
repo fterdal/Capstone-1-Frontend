@@ -162,3 +162,22 @@
 .guest-button:hover {
   background-color: #5a6268;
 }
+
+.google-button {
+  width: 100%;
+  padding: 0.6rem;
+  margin-bottom: 1rem;
+  background-color: #4285f4;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.or-divider {
+  text-align: center;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+  color: #888;
+}
