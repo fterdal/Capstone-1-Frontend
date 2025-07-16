@@ -19,6 +19,7 @@ import UsersPage from "./components/UsersPage";
 import UserCard from "./components/UserCard";
 import PollDetails from "./components/PollDetails";
 
+
 const App = () => {
   const [user, setUser] = useState(null);
   const [polls, setPolls] = useState(null);
