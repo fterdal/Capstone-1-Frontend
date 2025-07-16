@@ -18,6 +18,9 @@ const NavBar = ({ user, onLogout }) => {
               <Link to="/me" className="nav-link">
                 Profile
               </Link>
+              <Link to="/users" className="nav-link">
+                Users
+              </Link>
               <Link to="/friends" className="nav-link">
                 Friends
               </Link>
@@ -29,9 +32,6 @@ const NavBar = ({ user, onLogout }) => {
           </div>
         ) : (
           <div className="auth-links">
-            <Link to="/users" className="nav-link">
-              Users
-            </Link>
             <Link to="/friends" className="nav-link">
               FriendsPage
             </Link>
