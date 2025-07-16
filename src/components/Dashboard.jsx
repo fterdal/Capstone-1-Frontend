@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./Dashboard.css"; 
-import { Link } from "react-router-dom";
+//import "./Dashboard.css";
+import { Link, useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
 
 const Dashboard = () => {
   const [polls, setPolls] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
+  // Fetch polls from API
   useEffect(() => {
     const fetchPolls = async () => {
       try {
@@ -18,16 +20,17 @@ const Dashboard = () => {
         console.error("Failed to load polls", err);
       }
     };
-
     fetchPolls();
   }, []);
 
+  // Filter polls by status and title
   const filteredPolls = polls.filter((poll) => {
     const titleMatch = poll.title.toLowerCase().includes(search.toLowerCase());
     const statusMatch = statusFilter === "all" || poll.status === statusFilter;
     return titleMatch && statusMatch;
   });
 
+  // Delete poll
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this draft poll?")) {
       try {
@@ -39,48 +42,59 @@ const Dashboard = () => {
     }
   };
 
+  // Copy poll link
+  const handleCopyLink = (id) => {
+    navigator.clipboard.writeText(`${window.location.origin}/polls/${id}`);
+    alert("Link copied!");
+  };
+
   return (
     <div className="dashboard-container">
-      <h2>My Polls</h2>
-
+      <h2>📋 My Polls</h2>
+      {/* Search/filter UI */}
       <input
         type="text"
-        placeholder="Search by title..."
+        placeholder="Search by title…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-
       <select onChange={(e) => setStatusFilter(e.target.value)} value={statusFilter}>
         <option value="all">All</option>
         <option value="draft">Draft</option>
         <option value="published">Published</option>
         <option value="ended">Ended</option>
       </select>
-
+      {/* Create poll button */}
+      <button
+        type="button"
+        onClick={() => navigate("/create")}
+        style={{ marginLeft: "1em" }}
+      >
+        Create a New Poll ＋
+      </button>
+      {/* List of filtered polls with emoji status and actions */}
       <ul>
         {filteredPolls.map((poll) => (
           <li key={poll.id}>
-            <Link to={`/polls/${poll.id}`}>{poll.title}</Link> ({poll.status})
-            
+            <span>
+              <Link to={`/polls/${poll.id}`}>{poll.title}</Link>{" "}
+              <span style={{ fontWeight: "bold" }}>
+                {poll.status === "draft" && "📝"}
+                {poll.status === "published" && "✅"}
+                {poll.status === "ended" && "⏰"}
+                {poll.status}
+              </span>
+            </span>
+            {/* Actions for each poll */}
             {poll.status === "draft" && (
               <>
                 <button onClick={() => handleDelete(poll.id)}>🗑️ Delete</button>
                 <Link to={`/edit/${poll.id}`}>✏️ Edit</Link>
               </>
             )}
-
             {poll.status === "published" && (
               <>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/polls/${poll.id}`);
-                    alert("Link copied!");
-                  }}
-                >
-                  📋 Copy Link
-                </button>
-
-                {/* Added share button logic here */}
+                <button onClick={() => handleCopyLink(poll.id)}>📋 Copy Link</button>
                 <a
                   href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
                     `${window.location.origin}/polls/${poll.id}`
@@ -91,7 +105,6 @@ const Dashboard = () => {
                 >
                   🐦 Share on Twitter
                 </a>
-
                 <a
                   href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
                     `${window.location.origin}/polls/${poll.id}`
