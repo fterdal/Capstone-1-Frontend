@@ -1,0 +1,120 @@
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { API_URL } from "../shared";
+
+
+const PollDetails = () => {
+  const { id } = useParams();
+  const [poll, setPoll] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchPoll = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/api/polls/${id}`);
+      setPoll(response.data);
+    } catch (error) {
+      console.error("Error fetching poll:", error);
+      setError("Failed to load poll");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchPoll();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="poll-details-container">
+        <p>Loading poll...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="poll-details-container">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (!poll) {
+    return (
+      <div className="poll-details-container">
+        <p>Poll not found</p>
+      </div>
+    );
+  }
+
+  // Check if poll is active
+  const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true;
+
+  return (
+    <div className = "poll-details-wrapper">
+    <div className="poll-details-container">
+      <div className="poll-header">
+        <h1>{poll.title}</h1>
+        {poll.description && (
+          <p className="poll-description">{poll.description}</p>
+        )}
+
+        <div className="poll-meta">
+          <span className="poll-status">
+            Status: {isPollActive ? "Active" : "Ended"}
+          </span>
+          {poll.endAt && (
+            <span className="poll-end-time">
+              Ends: {new Date(poll.endAt).toLocaleDateString()} at{" "}
+              {new Date(poll.endAt).toLocaleTimeString()}
+            </span>
+          )}
+          {!poll.endAt && <span className="poll-end-time">No end date</span>}
+        </div>
+      </div>
+
+      <div className="poll-options">
+        <h3>Options:</h3>
+        {poll.pollOptions && poll.pollOptions.length > 0 ? (
+          <div className="options-list">
+            {poll.pollOptions
+              .map((option, index) => (
+                <div key={option.id} className="option-item">
+                  <span className="option-number">{index + 1}.</span>
+                  <span className="option-text">{option.text}</span>
+                  <button
+                    className={`vote-btn ${!isPollActive ? "disabled" : ""}`}
+                    disabled={!isPollActive}
+                  >
+                    Vote
+                  </button>
+                </div>
+              ))}
+          </div>
+        ) : (
+          <p>No options available for this poll.</p>
+        )}
+      </div>
+
+      <div className="poll-info">
+        <p>
+          <strong>Anonymous voting:</strong>{" "}
+          {poll.allowAnonymous ? "Allowed" : "Not allowed"}
+        </p>
+        <p>
+          <strong>Created:</strong>{" "}
+          {new Date(poll.createdAt).toLocaleDateString()}
+        </p>
+      </div>
+    </div>
+    </div>
+  );
+};
+
+export default PollDetails;

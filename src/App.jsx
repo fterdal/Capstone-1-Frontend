@@ -17,6 +17,8 @@ import NewPoll from "./components/NewPoll";
 import PollList from "./components/PollList";
 import UsersPage from "./components/UsersPage";
 import UserCard from "./components/UserCard";
+import PollDetails from "./components/PollDetails";
+
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -80,6 +82,7 @@ const App = () => {
           <Route path="/users/:id" element={<UserCard />} />
           <Route exact path="/me" element={<Profile user={user} />} />
           <Route exact path="poll-list" element={<PollList polls={polls}/>} />
+          <Route path ="polls/:id" element={<PollDetails />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
@@ -87,8 +90,6 @@ const App = () => {
   );
 };
 
-
-// ...existing code...
 
 const Root = () => {
   return (

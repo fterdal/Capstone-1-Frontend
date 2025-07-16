@@ -1,8 +1,14 @@
 import React from 'react';
 import PollCard from './PollCard';
-
+import { Link, useNavigate } from 'react-router-dom'; 
 
 const PollsList = ({ polls }) => {
+  const navigate = useNavigate(); 
+
+  const handleUserClick = (id) => {
+    navigate(`/polls/${id}`);
+  };
+
   if (!polls) {
     return (
       <div className="polls-container">
@@ -24,10 +30,9 @@ const PollsList = ({ polls }) => {
   }
 
   return (
-
     <div className="polls-container">
       {polls.map(poll => (
-        <PollCard key={poll.id} poll={poll} />
+        <PollCard key={poll.id} poll={poll} onClick={() => handleUserClick(poll.id)}/>
       ))}
     </div>
   );
