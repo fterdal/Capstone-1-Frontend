@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
-import "./ProfileStyles.css";
+//import "./ProfileStyles.css";
 
 const Profile = ({ user, setUser }) => {
   const [formData, setFormData] = useState({
