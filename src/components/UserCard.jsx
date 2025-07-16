@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import "./CSS/UserCard.css";
 
 const UserCard = () => {
   const { id } = useParams();
@@ -20,9 +21,13 @@ const UserCard = () => {
   if (!user) return <p>Loading...</p>;
 
   return (
-    <div>
+    <div className="user-card-page">
       <h2>User Profile</h2>
-      {user.username}
+      {user.imageUrl && (
+        <img src={user.imageUrl} alt="profile" className="user-card-pfp" />
+      )}
+      <p className="user-card-name">{user.username}</p>
+      {user.bio && <p className="user-card-bio">{user.bio}</p>}
     </div>
   );
 };

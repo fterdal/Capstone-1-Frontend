@@ -43,4 +43,4 @@ const PollList = () => {
   );
 };
 
-export default PollsList;
+export default PollList;

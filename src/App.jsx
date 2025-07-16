@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { createRoot } from "react-dom/client";
 import axios from "axios";
 import "./AppStyles.css";
 import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { API_URL } from "./shared";
+import { useNavigate } from "react-router-dom";
 
 import Login from "./components/Login";
 import Signup from "./components/Signup";
@@ -52,6 +53,7 @@ const App = () => {
   }, []);
 
   const handleLogout = async () => {
+    const navigate = useNavigate();
     try {
       await axios.post(
         `${API_URL}/auth/logout`,
@@ -61,6 +63,7 @@ const App = () => {
         }
       );
       setUser(null);
+      navigate("/auth/login");
     } catch (error) {
       console.error("Logout error:", error);
     }
