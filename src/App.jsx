@@ -10,8 +10,13 @@ import Create from "./components/create";
 import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
+
 import { AuthProvider } from "./components/AuthContext";
 import PollsDashboard from "./components/PollsDashboard";
+
+import Profile from "./components/Profile"; 
+import Dashboard from "./components/Dashboard";
+
 
 const App = ({ user, setUser }) => {
   const checkAuth = async () => {
@@ -56,7 +61,12 @@ const App = ({ user, setUser }) => {
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route path="/create" element={<Create setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
+
           <Route path="/dashboard" element={<PollsDashboard />} />
+
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
