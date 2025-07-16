@@ -6,14 +6,14 @@ import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Create from "./components/Create";
+import Create from "./components/create";
 import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
+import { AuthProvider } from "./components/AuthContext";
+import PollsDashboard from "./components/PollsDashboard";
 
-const App = () => {
-  const [user, setUser] = useState(null);
-
+const App = ({ user, setUser }) => {
   const checkAuth = async () => {
     try {
       const response = await axios.get(`${API_URL}/auth/me`, {
@@ -56,6 +56,7 @@ const App = () => {
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route path="/create" element={<Create setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
+          <Route path="/dashboard" element={<PollsDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
@@ -64,10 +65,14 @@ const App = () => {
 };
 
 const Root = () => {
+  const [user, setUser] = React.useState(null);
+
   return (
-    <Router>
-      <App />
-    </Router>
+    <AuthProvider user={user} setUser={setUser}>
+      <Router>
+        <App user={user} setUser={setUser} />
+      </Router>
+    </AuthProvider>
   );
 };
 

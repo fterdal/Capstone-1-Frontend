@@ -1,63 +1,173 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../components/AuthContext";
+import { Link } from "react-router-dom";
 
+// Initial state constants for easy reset
+const initialQuestions = [{ questionTitle: "", options: ["", ""] }];
+const initialDuration = "";
 
-// Initiating poll creation to take data from a form
 const Create = () => {
-  const [formData, setFormData] = useState({
-    pollTitle: "",
-    options: ["", "", "", ""],
-  });
+  const { isLoggedIn } = useContext(AuthContext);
 
-  // to helps us handle any changes once the user submits the data
-  const handleChange = (event, index = null) => {
-    const { name, value } = event.target;
+  // State for questions and duration
+  const [questions, setQuestions] = useState(initialQuestions);
+  const [duration, setDuration] = useState(initialDuration);
 
-    if (name === "pollTitle") {
-      setFormData((prev) => ({ ...prev, pollTitle: value }));
-    } else if (name === "pollOption" && index !== null) {
-      const newOptions = [...formData.options];
-      newOptions[index] = value;
-      setFormData((prev) => ({ ...prev, options: newOptions }));
-    }
+  // Handle changes for question titles
+  const handleQuestionChange = (qIdx, value) => {
+    setQuestions(prev =>
+      prev.map((q, idx) =>
+        idx === qIdx ? { ...q, questionTitle: value } : q
+      )
+    );
   };
 
-  const handleSubmit = (e) => {
+  // Handle changes for options
+  const handleOptionChange = (qIdx, oIdx, value) => {
+    setQuestions(prev =>
+      prev.map((q, idx) =>
+        idx === qIdx
+          ? {
+              ...q,
+              options: q.options.map((opt, i) =>
+                i === oIdx ? value : opt
+              )
+            }
+          : q
+      )
+    );
+  };
+
+  // Add an option to a question
+  const handleAddOption = qIdx => {
+    setQuestions(prev =>
+      prev.map((q, idx) =>
+        idx === qIdx
+          ? { ...q, options: [...q.options, ""] }
+          : q
+      )
+    );
+  };
+
+  // Remove last option from a question (keep at least 2)
+  const handleDeleteOption = qIdx => {
+    setQuestions(prev =>
+      prev.map((q, idx) =>
+        idx === qIdx && q.options.length > 2
+          ? { ...q, options: q.options.slice(0, -1) }
+          : q
+      )
+    );
+  };
+
+  // Add a new question (with 2 empty options)
+  const handleAddQuestion = () => {
+    setQuestions(prev => [...prev, { questionTitle: "", options: ["", ""] }]);
+  };
+
+  // Handle duration change
+  const handleDurationChange = e => setDuration(e.target.value);
+
+  // Reset the form to its initial state
+  const handleDeleteDraft = () => {
+    setQuestions(initialQuestions);
+    setDuration(initialDuration);
+  };
+
+  // Duplicate the current poll (questions and duration)
+  const handleDuplicatePoll = () => {
+    // Deep copy to avoid reference issues
+    const duplicatedQuestions = questions.map(q => ({
+      questionTitle: q.questionTitle,
+      options: [...q.options],
+    }));
+    setQuestions(duplicatedQuestions);
+    setDuration(duration);
+  };
+
+  // Handle form submission
+  const handleSubmit = e => {
     e.preventDefault();
-    console.log("Submitted form:", formData);
-    // we can add API calling here if we need it unless we want to keep in the the backend 
+    console.log("Submitted poll:", { questions, duration });
+    // Add API call here
   };
+
+  // If not logged in, show login prompt
+  if (!isLoggedIn) {
+    return (
+      <div>
+        <h2>You must be logged in to create a poll.</h2>
+        <Link to="/login">Go to Login</Link>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit}>
+      {/* Timer Section */}
       <div>
-        {/* This will be the portion the main poll tittle */}
-        <label htmlFor="pollTitle">Poll Title:</label>
+        <label htmlFor="duration">Poll Duration (minutes):</label>
         <input
-          type="text"
-          id="pollTitle"
-          name="pollTitle"
-          value={formData.pollTitle}
-          onChange={handleChange}
+          type="number"
+          id="duration"
+          name="duration"
+          min="1"
+          value={duration}
+          onChange={handleDurationChange}
+          placeholder="Enter duration in minutes"
         />
       </div>
 
-        {/* This will be the portion where the users will be able to add the options for the poll */}
-      {formData.options.map((option, index) => (
-        <div key={index}>
-          <label htmlFor={`option${index + 1}`}>Enter Option {index + 1}:</label>
-          <input
-            type="text"
-            id={`option${index + 1}`}
-            name="pollOption"
-            value={option}
-            onChange={(e) => handleChange(e, index)}
-          />
+      {/* Questions Section */}
+      {questions.map((q, qIdx) => (
+        <div key={qIdx} style={{ border: "1px solid #ccc", margin: "1em 0", padding: "1em" }}>
+          <label>
+            Question {qIdx + 1}:
+            <input
+              type="text"
+              value={q.questionTitle}
+              onChange={e => handleQuestionChange(qIdx, e.target.value)}
+              placeholder="Enter question"
+              required
+            />
+          </label>
+          {q.options.map((option, oIdx) => (
+            <div key={oIdx}>
+              <label>
+                Option {oIdx + 1}:
+                <input
+                  type="text"
+                  value={option}
+                  onChange={e => handleOptionChange(qIdx, oIdx, e.target.value)}
+                  placeholder={`Enter option ${oIdx + 1}`}
+                  required
+                />
+              </label>
+            </div>
+          ))}
+          <button type="button" onClick={() => handleAddOption(qIdx)}>
+            Add Option
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDeleteOption(qIdx)}
+            disabled={q.options.length <= 2}
+          >
+            Delete Option
+          </button>
         </div>
       ))}
 
-    {/* This will be the button for creating the poll */}
-
-      <button type="submit">Create Poll</button>
+      <button type="button" onClick={handleAddQuestion}>
+        Add Question
+      </button>
+      <button type="submit">Publish Poll</button>
+      <button type="button" onClick={handleDeleteDraft}>
+        Delete Draft
+      </button>
+      <button type="button" onClick={handleDuplicatePoll}>
+        Duplicate Poll
+      </button>
     </form>
   );
 };
