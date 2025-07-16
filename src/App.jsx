@@ -11,7 +11,6 @@ import { API_URL } from "./shared";
 import VotePollPage from "./pages/VotePollPage";
 import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
-import { Auth0Provider } from "@auth0/auth0-react";
 
 
 const App = () => {
@@ -59,9 +58,8 @@ const App = () => {
           <Route exact path="/" element={<Home />} />
           <Route path="/vote" element={<VotePollPage />} />
           <Route path="/polls/results" element={<ViewResultsPage />}/>
-          <Route path="*" element={<NotFound />} />
           <Route path="/dashboard" element={<Dashboard />} />
-
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </div>
@@ -70,17 +68,9 @@ const App = () => {
 
 const Root = () => {
   return (
-    <Auth0Provider
-      domain="YOUR_AUTH0_DOMAIN"
-      clientId="YOUR_AUTH0_CLIENT_ID"
-      authorizationParams={{
-        redirect_uri: window.location.origin,
-      }}
-    >
-      <Router>
-        <App />
-      </Router>
-    </Auth0Provider>
+    <Router>
+      <App />
+    </Router>
   );
 };
 
