@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CSS/PollCardStyles.css';
 
-const PollCard = ({ poll }) => {
+const PollCard = ({ poll, onClick }) => {
   const [timeLeft, setTimeLeft] = useState('');
   const [creator, setCreator] = useState(null);
 
@@ -65,8 +65,12 @@ const PollCard = ({ poll }) => {
 
   const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true; 
 
-  return (
-    <div className={`poll-card ${!isPollActive ? 'poll-ended' : ''}`}>
+return (
+    <div 
+      className={`poll-card ${!isPollActive ? 'poll-ended' : ''}`}
+      onClick={onClick} 
+      style={{ cursor: 'pointer' }} 
+    >
       <div className="poll-header">
         <h3 className="poll-title">{poll.title}</h3>
         <div className="poll-meta">
