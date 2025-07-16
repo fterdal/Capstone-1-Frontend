@@ -9,6 +9,7 @@ import Signup from "./components/Signup";
 import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import { API_URL } from "./shared";
+import Profile from "./components/Profile"; 
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -54,6 +55,7 @@ const App = () => {
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
+          <Route path="/profile" element={<Profile user={user} setUser={setUser} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
