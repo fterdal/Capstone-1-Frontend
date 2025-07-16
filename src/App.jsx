@@ -18,6 +18,8 @@ import NewPoll from "./components/NewPoll";
 import PollList from "./components/PollList";
 import UsersPage from "./components/UsersPage";
 import UserCard from "./components/UserCard";
+import PollDetails from "./components/PollDetails";
+
 
 //Alex branch
 const App = () => {
@@ -76,14 +78,20 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/signup" element={<Signup setUser={setUser} />} />
-          <Route path="/friends" element={<FriendsPage />} />
+          <Route path="/friends-page" element={<FriendsPage />} />
           <Route exact path="/" element={<Home />} />
           <Route exact path="/friends" element={<Friends />} />
+          <Route exact path ="new-poll" element={<NewPoll user={user}/>} />
           <Route exact path="/users" element={<UsersPage />} />
           <Route path="/users/:id" element={<UserCard />} />
           <Route exact path="/me" element={<Profile user={user} />} />
+<<<<<<< HEAD
           <Route exact path="new-poll" element={<NewPoll />} />
           <Route exact path="poll-list" element={<PollList />} />
+=======
+          <Route exact path="poll-list" element={<PollList polls={polls}/>} />
+          <Route path ="polls/:id" element={<PollDetails />} />
+>>>>>>> 53e01dc79ff974b16b5cf228df1dd1cba4127fe6
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
@@ -91,7 +99,6 @@ const App = () => {
   );
 };
 
-// ...existing code...
 
 const Root = () => {
   return (

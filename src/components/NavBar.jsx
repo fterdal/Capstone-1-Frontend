@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Dropdown from "./Dropdown";
 import "./CSS/NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
@@ -23,10 +24,8 @@ const NavBar = ({ user, onLogout }) => {
               <Link to="/friends" className="nav-link">
                 Friends
               </Link>
-              <Link to="/new-poll" className="nav-link">
-                Create a Poll
-              </Link>
             </div>
+              <Dropdown />
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>
