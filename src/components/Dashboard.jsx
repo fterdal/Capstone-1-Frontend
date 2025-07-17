@@ -117,6 +117,24 @@ const Dashboard = () => {
                 </a>
               </>
             )}
+            {/* Poll duplication logic */}
+            <button
+              onClick={async () => {
+                try {
+                  const res = await axios.post(`${API_URL}/polls/${poll.id}/duplicate`, {}, {
+                    withCredentials: true,
+                  });
+                  alert("Poll duplicated!");
+                  navigate(`/edit/${res.data.poll.id}`);
+                } catch (err) {
+                  console.error("Duplication failed:", err);
+                  alert("Could not duplicate poll.");
+                }
+              }}
+              style={{ marginLeft: "8px" }}
+            >
+              📄 Duplicate
+            </button>
           </li>
         ))}
       </ul>
