@@ -61,7 +61,7 @@ const App = () => {
           <Route path="/demo" element={<Demo />} />
           <Route path="/vote" element={<VotePollPage />} />
           <Route path="/polls/results" element={<ViewResultsPage />}/>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard user={user} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
