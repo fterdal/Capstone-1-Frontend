@@ -26,7 +26,6 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const navigate = useNavigate();
 
   // Reset all form fields after submission
   const resetForm = () => {
@@ -87,9 +86,6 @@ const PollFormModal = ({ isOpen, onClose }) => {
     // For publish: validate. For draft: skip validation.
     if (status === "published" && !validateForm()) return;
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-
     const payload = {
       title,
       description,
@@ -98,22 +94,20 @@ const PollFormModal = ({ isOpen, onClose }) => {
       authRequired: !allowGuests,
       restricted: false, // backend: support later if needed
       allowSharedLinks, // backend: use to allow link-based access
-      status: "published",
+      status,
     };
 
     setIsLoading(true);
     setSubmitError("");
+
     try {
-      const res = await axios.post( "/api/polls", { //this will have to be changed 
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await axios.post( "http://localhost:8080/api/polls",
+        payload, { 
+        withCredentials: true});
 
-      const data = await res.json();
+      const data = res.data;
 
-      if (!res.ok) {
+      if (!res.status) {
         setSubmitError(data.error || "Poll creation failed.");
       } else {
         console.log("✅ Poll created:", data);
@@ -129,7 +123,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSaveDraft = async () => {
+  const handleSaveDraft = async (status) => {
     // Skip validation for drafts to allow partial saves
   const payload = {
       title,
@@ -139,25 +133,25 @@ const PollFormModal = ({ isOpen, onClose }) => {
       authRequired: !allowGuests,
       restricted: false,
       allowSharedLinks, // same as above
-      status: "draft",
+      status,
     };
 
     setIsLoading(true);
     setSubmitError("");
     try {
       // Use relative path only (assumes correct proxy or base URL setup)
-      const res = await axios.post( "/api/polls",
+      const res = await axios.post( "http://localhost:8080/api/polls",
         payload,
         { withCredentials: true }
       );
 
-      console.log(`✅ Poll ${status === "draft" ? "saved as draft" : "published"}:`, res.data);
+      console.log(`✅ Poll ${payload.status === "draft" ? "saved as draft" : "published"}:`, res.data);
       resetForm();
       onClose();
       navigate("/dashboard");
     } catch (err) {
-      console.error(`Error during ${status} save:`, err);
-      setSubmitError(`Network error while ${status === "draft" ? "saving draft" : "publishing"}.`);
+      console.error(`Error during ${payload.status} save:`, err);
+      setSubmitError(`Network error while ${payload.status === "draft" ? "saving draft" : "publishing"}.`);
     } finally {
       setIsLoading(false);
     }
@@ -255,7 +249,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
           <button className="publish" onClick={() => handleSubmit("published")} disabled={isLoading}>
             Publish
           </button>
-          <button className="draft" onClick={() => handleSubmit("draft")} disabled={isLoading}>
+          <button className="draft" onClick={() => handleSaveDraft("draft")} disabled={isLoading}>
             Save as draft
           </button>
         </div>
@@ -265,4 +259,3 @@ const PollFormModal = ({ isOpen, onClose }) => {
 };
 
 export default PollFormModal;
-
