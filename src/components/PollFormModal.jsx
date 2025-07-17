@@ -54,6 +54,87 @@ const PollFormModal = ({ isOpen, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+    const handleSubmit = async () => {
+      if (!validateForm()) return;
+
+      const payload = {
+        title,
+        description,
+        options,
+        deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
+        authRequired: !allowGuests,
+        restricted: false, // Add support later if needed
+      };
+
+      try {
+        const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error || "Poll creation failed.");
+        } else {
+          console.log("✅ Poll created:", data);
+          onClose(); // Close modal
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("Network error. Try again.");
+      }
+    };
+
+  const handleSaveDraft = async () => {
+    if (!validateForm()) return;
+
+            const payload = {
+              title,
+              description,
+              options,
+              deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
+              authRequired: !allowGuests,
+              restricted: false,
+              status: "draft", // key difference from handleSubmit
+            };
+
+            try {
+              const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              });
+
+              const data = await res.json();
+
+              if (!res.ok) {
+                alert(data.error || "Saving draft failed.");
+              } else {
+                console.log("✅ Draft saved:", data);
+                onClose(); // optionally reset form too
+              }
+            } catch (err) {
+              console.error("Error saving draft:", err);
+              alert("Network error while saving draft.");
+            }
+    };
+
+
+
+
+
+
+
+
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -143,18 +224,12 @@ const PollFormModal = ({ isOpen, onClose }) => {
         </div>
 
         <div className="modal-buttons">
-          <button
-            className="publish"
-            onClick={() => {
-              if (validateForm()) {
-                console.log("Submitting:", { title, description, options });
-                // TODO: handle actual form submit
-              }
-            }}
-          >
+          <button className="publish" onClick={handleSubmit}>
             Publish
           </button>
-          <button className="draft">Save as draft</button>
+          <button className="draft" onClick={handleSaveDraft}>
+            Save as draft
+          </button>
         </div>
       </div>
     </div>
