@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import "./PollFormModal.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PollFormModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
-  // Form state
+  // =============================
+  // State Management
+  // =============================
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
@@ -13,12 +17,17 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [allowGuests, setAllowGuests] = useState(false);
   const [allowSharedLinks, setAllowSharedLinks] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  const navigate = useNavigate();
 
   // New: loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  // Helper to reset form fields
+
+  // Reset all form fields after submission
   const resetForm = () => {
     setTitle("");
     setDescription("");
@@ -52,6 +61,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Form validation (skipped for drafts)
   const validateForm = () => {
     const newErrors = {};
 
@@ -71,8 +81,10 @@ const PollFormModal = ({ isOpen, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+  // Unified handler for submit & draft
+  const handleSubmit = async (status) => {
+    // For publish: validate. For draft: skip validation.
+    if (status === "published" && !validateForm()) return;
 
     const payload = {
       title,
@@ -82,28 +94,26 @@ const PollFormModal = ({ isOpen, onClose }) => {
       authRequired: !allowGuests,
       restricted: false, // backend: support later if needed
       allowSharedLinks, // backend: use to allow link-based access
-      status: "published",
+      status,
     };
 
     setIsLoading(true);
     setSubmitError("");
+
     try {
-      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, { //this will have to be changed 
-        method: "POST",
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await axios.post( "http://localhost:8080/api/polls",
+        payload, { 
+        withCredentials: true});
 
-      const data = await res.json();
+      const data = res.data;
 
-      if (!res.ok) {
+      if (!res.status) {
         setSubmitError(data.error || "Poll creation failed.");
       } else {
         console.log("✅ Poll created:", data);
         onClose();
         resetForm(); // clear form
+        navigate("/host/poll/view");
       }
     } catch (err) {
       console.error("Error:", err);
@@ -113,9 +123,9 @@ const PollFormModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleSaveDraft = async () => {
+  const handleSaveDraft = async (status) => {
     // Skip validation for drafts to allow partial saves
-    const payload = {
+  const payload = {
       title,
       description,
       options,
@@ -123,31 +133,25 @@ const PollFormModal = ({ isOpen, onClose }) => {
       authRequired: !allowGuests,
       restricted: false,
       allowSharedLinks, // same as above
-      status: "draft",
+      status,
     };
 
     setIsLoading(true);
     setSubmitError("");
     try {
-      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, { //this will have to be changed 
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      // Use relative path only (assumes correct proxy or base URL setup)
+      const res = await axios.post( "http://localhost:8080/api/polls",
+        payload,
+        { withCredentials: true }
+      );
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setSubmitError(data.error || "Saving draft failed.");
-      } else {
-        console.log("✅ Draft saved:", data);
-        onClose();
-        resetForm();
-      }
+      console.log(`✅ Poll ${payload.status === "draft" ? "saved as draft" : "published"}:`, res.data);
+      resetForm();
+      onClose();
+      navigate("/dashboard");
     } catch (err) {
-      console.error("Error saving draft:", err);
-      setSubmitError("Network error while saving draft.");
+      console.error(`Error during ${payload.status} save:`, err);
+      setSubmitError(`Network error while ${payload.status === "draft" ? "saving draft" : "publishing"}.`);
     } finally {
       setIsLoading(false);
     }
@@ -207,13 +211,11 @@ const PollFormModal = ({ isOpen, onClose }) => {
         <h3>Settings</h3>
         <div className="checkbox-row">
           <label>
-            <input
-              type="checkbox"
-              checked={allowGuests}
-              onChange={(e) => setAllowGuests(e.target.checked)}
-            />
-            Allow guest voters
-          </label>
+            <input 
+           type="checkbox" 
+           checked={allowGuests}
+           onChange={(e) => setAllowGuests(e.target.checked)} /> 
+          Allow guest voters</label>
           <label>
             <input
               type="checkbox"
@@ -222,23 +224,21 @@ const PollFormModal = ({ isOpen, onClose }) => {
             />
             End date/time
           </label>
-          {allowEndDateTime && (
-            <div className="datetime-picker">
-              <label>Choose end date/time:</label>
-              <input
-                type="datetime-local"
-                value={endDateTime}
-                onChange={(e) => setEndDateTime(e.target.value)}
-              />
-            </div>
-          )}
-          <label>
-            <input
-              type="checkbox"
-              checked={allowSharedLinks}
-              onChange={(e) => setAllowSharedLinks(e.target.checked)}
-            />
-            Allow shared links
+              {allowEndDateTime && (
+                <div className="datetime-picker">
+                  <label>Choose end date/time:</label>
+                  <input
+                    type="datetime-local"
+                    value={endDateTime}
+                    onChange={(e) => setEndDateTime(e.target.value)}
+                  />
+                </div>
+              )}
+          <label><input 
+            type="checkbox"
+            checked={allowSharedLinks}
+            onChange={(e) => setAllowSharedLinks(e.target.checked)}/> 
+          Allow shared links
           </label>
         </div>
 
@@ -246,10 +246,10 @@ const PollFormModal = ({ isOpen, onClose }) => {
         {submitError && <p className="error">{submitError}</p>}
 
         <div className="modal-buttons">
-          <button className="publish" onClick={handleSubmit} disabled={isLoading}>
+          <button className="publish" onClick={() => handleSubmit("published")} disabled={isLoading}>
             Publish
           </button>
-          <button className="draft" onClick={handleSaveDraft} disabled={isLoading}>
+          <button className="draft" onClick={() => handleSaveDraft("draft")} disabled={isLoading}>
             Save as draft
           </button>
         </div>

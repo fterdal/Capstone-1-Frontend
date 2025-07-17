@@ -1,31 +1,111 @@
-import React, { useState } from "react";
-import PollFormModal from "../components/PollFormModal";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PollFormModal from "../components/PollFormModal";
+import PollCard from "../components/PollCard";
+import "./Dashboard.css";
 
-const Dashboard = ({ user }) => {
+
+const Dashboard = ({ currentUser }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [polls, setPolls] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all"); // all | created | participated
+  const [sortOrder, setSortOrder] = useState("newest");
+  const [openMenuId, setOpenMenuId] = useState(null);
+
+  useEffect(() => {
+    const fetchPolls = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/api/polls`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to fetch polls");
+
+        setPolls(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPolls();
+  }, []);
+
+  const filteredAndSortedPolls = [...polls]
+    .filter((poll) => {
+      const matchesSearch = poll.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "created" && poll.ownerId === currentUser.id) ||
+        (filter === "participated" && poll.participated);
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      if (sortOrder === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
+      if (sortOrder === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
+      if (sortOrder === "status-az") return a.status.localeCompare(b.status);
+      if (sortOrder === "status-za") return b.status.localeCompare(a.status);
+      return 0;
+    });
+
+  const timeLeft = (deadline) => {
+    const now = new Date();
+    const end = new Date(deadline);
+    const diff = Math.max(0, end - now);
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    return days === 0 ? "ends today" : `ends in ${days} day${days > 1 ? "s" : ""}`;
+  };
 
   return (
-    <div>
-      <h3>This is the dashboard/new homepage to view all polls</h3>
+    <div className="dashboard">
+      <header className="dashboard-header">
+        <h1>Dashboard</h1>
+      </header>
 
-      {/* Only show Create New Poll button for authenticated users with username (not guests) */}
-      {user && user.username && (
-        <button onClick={() => setIsModalOpen(true)}>Create New Poll</button>
-      )}
+      <nav className="dashboard-nav">
+        <button onClick={() => setIsModalOpen(true)}>Create a Poll</button>
+        <input
+          type="text"
+          placeholder="Search by title..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="all">All</option>
+          <option value="created">Created</option>
+          <option value="participated">Participated</option>
+        </select>
+        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="status-az">Status A → Z</option>
+          <option value="status-za">Status Z → A</option>
+        </select>
+      </nav>
 
-      <div className="poll-list">
-        <ul>
-          <li onClick={() => navigate("/vote")}>Front-end Frameworks Poll</li>
-        </ul>
-      </div>
+      {loading && <p>Loading polls...</p>}
+      {error && <p className="error">{error}</p>}
+      {!loading && filteredAndSortedPolls.length === 0 && <p>No polls to display.</p>}
 
-      {/* Only render PollFormModal for authenticated users */}
-      {user && user.username && (
-        <PollFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      )}
+      <ul className="poll-list">
+        {filteredAndSortedPolls.map((poll) => (
+          <PollCard
+            key={poll.id}
+            poll={poll}
+            isOpen={openMenuId === poll.id}
+            onToggleMenu={(id) => setOpenMenuId(openMenuId === id ? null : id)}
+            currentUser={currentUser}
+          />
+        ))}
+      </ul>
+      <PollFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };
+
 export default Dashboard;
