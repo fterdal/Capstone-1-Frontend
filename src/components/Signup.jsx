@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { API_URL } from "../shared";
 import "./Login.css";
+import { API_URL } from "../shared";
 
-const Login = ({ setUser }) => {
-  const [isLogin, setIsLogin] = useState(true);
+const Signup = ({ setUser }) => {
   const [formData, setFormData] = useState({
     identifier: "", // Single field for email or username
     password: "",
@@ -13,7 +12,7 @@ const Login = ({ setUser }) => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   // Auto-detect if input is email or username
   const isEmailInput = (value) => {
@@ -45,13 +44,10 @@ const Login = ({ setUser }) => {
       newErrors.password = "Password must be at least 6 characters";
     }
 
-    // Only validate confirm password for signup
-    if (!isLogin) {
-      if (!formData.confirmPassword) {
-        newErrors.confirmPassword = "Please confirm your password";
-      } else if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-      }
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -67,31 +63,22 @@ const Login = ({ setUser }) => {
 
     setIsLoading(true);
     try {
-      let endpoint, data;
       const isEmail = isEmailInput(formData.identifier);
-      
-      if (isLogin) {
-        // For login, always use /auth/login with username field (backend requirement)
-        endpoint = "/auth/login";
+      let endpoint, data;
+
+      // Use different endpoints based on auto-detected type
+      if (isEmail) {
+        endpoint = "/auth/signup/email";
         data = {
-          username: formData.identifier, // Backend expects 'username' field for both email and username
+          email: formData.identifier,
           password: formData.password,
         };
       } else {
-        // For signup, use different endpoints based on auto-detected type
-        if (isEmail) {
-          endpoint = "/auth/signup/email";
-          data = {
-            email: formData.identifier,
-            password: formData.password,
-          };
-        } else {
-          endpoint = "/auth/signup/username";
-          data = {
-            username: formData.identifier,
-            password: formData.password,
-          };
-        }
+        endpoint = "/auth/signup/username";
+        data = {
+          username: formData.identifier,
+          password: formData.password,
+        };
       }
 
       const response = await axios.post(`${API_URL}${endpoint}`, data, {
@@ -104,8 +91,7 @@ const Login = ({ setUser }) => {
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
       } else {
-        const action = isLogin ? "login" : "signup";
-        setErrors({ general: `An error occurred during ${action}` });
+        setErrors({ general: "An error occurred during signup" });
       }
     } finally {
       setIsLoading(false);
@@ -128,36 +114,16 @@ const Login = ({ setUser }) => {
     }
   };
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
-    setErrors({});
-    setFormData({
-      identifier: "",
-      password: "",
-      confirmPassword: "",
-    });
-  };
-
-  const handleGuestLogin = () => {
-    navigate("/dashboard");
-  };
-
-  const handleGoogleLogin = () => {
-    // Redirect to your backend's Google OAuth endpoint
-    window.location.href = `${API_URL}/auth/google`;
-  };
-
   return (
     <div className="auth-container">
       <div className="auth-form">
-        <h2>{isLogin ? "Login" : "Sign Up"}</h2>
+        <h2>Sign Up</h2>
 
         {errors.general && (
           <div className="error-message">{errors.general}</div>
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Smart Email/Username Input */}
           <div className="form-group">
             <label htmlFor="identifier">
               Email or Username:
@@ -196,58 +162,32 @@ const Login = ({ setUser }) => {
             )}
           </div>
 
-          {!isLogin && (
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password:</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={errors.confirmPassword ? "error" : ""}
-              />
-              {errors.confirmPassword && (
-                <span className="error-text">{errors.confirmPassword}</span>
-              )}
-            </div>
-          )}
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className={errors.confirmPassword ? "error" : ""}
+            />
+            {errors.confirmPassword && (
+              <span className="error-text">{errors.confirmPassword}</span>
+            )}
+          </div>
 
           <button type="submit" disabled={isLoading}>
-            {isLoading 
-              ? (isLogin ? "Logging in..." : "Creating account...") 
-              : (isLogin ? "Login" : "Sign Up")
-            }
-          </button>
-
-          <button
-            type="button"
-            onClick={handleGuestLogin}
-            className="guest-button"
-          >
-            Sign in as Guest
+            {isLoading ? "Creating account..." : "Sign Up"}
           </button>
         </form>
 
         <p className="auth-link">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <button type="button" onClick={toggleMode} className="toggle-button">
-            {isLogin ? "Sign up" : "Login"}
-          </button>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
-         <div className="or-divider">or</div>
-         
-        <button
-          className="google-button"
-          type="button"
-          onClick={handleGoogleLogin}
-        >
-          Sign in with Google
-        </button>
-        
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Signup;
