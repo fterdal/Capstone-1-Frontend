@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
+import VoteForm from "./VoteForm";
 
-const PollDetails = () => {
+const PollDetails = ({ user }) => {
   const { id } = useParams();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [master, setMaster] = useState(null);
-  const [userLoading, setUserLoading] = useState(false); 
+  const [userLoading, setUserLoading] = useState(false);
+  const [showVoteForm, setShowVoteForm] = useState(false);
 
   const fetchPoll = async () => {
     try {
@@ -34,6 +36,12 @@ const PollDetails = () => {
     } finally {
       setUserLoading(false);
     }
+  };
+
+  const handleVoteSubmitted = (voteData) => {
+    console.log("Vote submitted:", voteData);
+    setShowVoteForm(false);
+
   };
 
   useEffect(() => {
@@ -107,19 +115,30 @@ const PollDetails = () => {
                   <div key={option.id} className="option-item">
                     <span className="option-number">{index + 1}.</span>
                     <span className="option-text">{option.text}</span>
-                    <button
-                      className={`vote-btn ${!isPollActive ? "disabled" : ""}`}
-                      disabled={!isPollActive}
-                    >
-                      Vote
-                    </button>
                   </div>
                 ))}
             </div>
           ) : (
             <p>No options available for this poll.</p>
           )}
+          
+          {isPollActive && (
+            <button
+              onClick={() => setShowVoteForm(!showVoteForm)}
+              className="vote-toggle-btn"
+            >
+              {showVoteForm ? "Cancel Vote" : "Vote Now"}
+            </button>
+          )}
         </div>
+
+        {showVoteForm && isPollActive && (
+          <VoteForm
+            poll={poll}
+            user={user}
+            onVoteSubmitted={handleVoteSubmitted}
+          />
+        )}
 
         <div className="poll-info">
           <p>

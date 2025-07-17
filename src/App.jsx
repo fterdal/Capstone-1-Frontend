@@ -24,6 +24,7 @@ import PollDetails from "./components/PollDetails";
 const App = () => {
   const [user, setUser] = useState(null);
   const [polls, setPolls] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchPolls = async () => {
     try {
@@ -40,17 +41,18 @@ const App = () => {
       const response = await axios.get(`${API_URL}/auth/me`, {
         withCredentials: true,
       });
-      setUser(response.data.user);
-    } catch {
-      console.log("Not authenticated");
+      setUser(response.data);
+    } catch (error) {
+      console.error("Auth check failed:", error);
       setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Check authentication status and fetch polls on app load
   useEffect(() => {
     checkAuth();
-    fetchPolls(); // Add this line to actually fetch polls
+    fetchPolls();
   }, []);
 
   const navigate = useNavigate();
@@ -65,11 +67,12 @@ const App = () => {
         }
       );
       setUser(null);
-      navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
+
+  console.log(user);
 
   return (
     <div>
@@ -84,11 +87,9 @@ const App = () => {
           <Route exact path="new-poll" element={<NewPoll user={user} />} />
           <Route exact path="/users" element={<UsersPage />} />
           <Route path="/users/:id" element={<UserCard />} />
-          <Route exact path="/me" element={<Profile user={user} />} />
-          <Route exact path="new-poll" element={<NewPoll />} />
-          <Route exact path="poll-list" element={<PollList />} />
+          <Route exact path="/me" element={<Profile user={user} authLoading={loading} />} />
           <Route exact path="poll-list" element={<PollList polls={polls} />} />
-          <Route path="polls/:id" element={<PollDetails />} />
+          <Route path="/polls/:id" element={<PollDetails user={user} />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
@@ -107,4 +108,3 @@ const Root = () => {
 const root = createRoot(document.getElementById("root"));
 root.render(<Root />);
 
-//

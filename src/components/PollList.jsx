@@ -1,35 +1,32 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import PollCard from "./PollCard";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const PollList = ({ polls }) => {
+const PollList = () => {
+  const [polls, setPolls] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleUserClick = (id) => {
     navigate(`/polls/${id}`);
   };
 
-  if (!polls) {
-    return (
-      <div className="polls-container">
-        <div className="loading-container">
-          <p>Loading polls...</p>
-        </div>
-      </div>
-    );
-  }
-
   useEffect(() => {
     const fetchPolls = async () => {
       try {
+        setLoading(true);
         const response = await axios.get("http://localhost:8080/api/polls");
         setPolls(response.data);
       } catch (err) {
         setError("Failed to fetch polls.");
+        console.error("Error fetching polls:", err);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchPolls();
   }, []);
 
@@ -38,13 +35,17 @@ const PollList = ({ polls }) => {
 
   return (
     <div className="polls-container">
-      {polls.map((poll) => (
-        <PollCard
-          key={poll.id}
-          poll={poll}
-          onClick={() => handleUserClick(poll.id)}
-        />
-      ))}
+      {polls.length === 0 ? (
+        <p>No polls available.</p>
+      ) : (
+        polls.map((poll) => (
+          <PollCard
+            key={poll.id}
+            poll={poll}
+            onClick={() => handleUserClick(poll.id)}
+          />
+        ))
+      )}
     </div>
   );
 };
