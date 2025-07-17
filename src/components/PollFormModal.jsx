@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import "./PollFormModal.css";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const PollFormModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
-  // Form state
+  // =============================
+  // State Management
+  // =============================
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
@@ -13,12 +17,12 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [allowGuests, setAllowGuests] = useState(false);
   const [allowSharedLinks, setAllowSharedLinks] = useState(false);
   const [errors, setErrors] = useState({});
-
-  // New: loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  // Helper to reset form fields
+  const navigate = useNavigate();
+
+  // Reset all form fields after submission
   const resetForm = () => {
     setTitle("");
     setDescription("");
@@ -52,6 +56,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
     }
   };
 
+  // Form validation (skipped for drafts)
   const validateForm = () => {
     const newErrors = {};
 
@@ -71,50 +76,11 @@ const PollFormModal = ({ isOpen, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+  // Unified handler for submit & draft
+  const handleSubmit = async (status) => {
+    // For publish: validate. For draft: skip validation.
+    if (status === "published" && !validateForm()) return;
 
-    const payload = {
-      title,
-      description,
-      options,
-      deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
-      authRequired: !allowGuests,
-      restricted: false, // backend: support later if needed
-      allowSharedLinks, // backend: use to allow link-based access
-      status: "published",
-    };
-
-    setIsLoading(true);
-    setSubmitError("");
-    try {
-      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, { //this will have to be changed 
-        method: "POST",
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setSubmitError(data.error || "Poll creation failed.");
-      } else {
-        console.log("✅ Poll created:", data);
-        onClose();
-        resetForm(); // clear form
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      setSubmitError("Network error. Try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSaveDraft = async () => {
-    // Skip validation for drafts to allow partial saves
     const payload = {
       title,
       description,
@@ -122,32 +88,25 @@ const PollFormModal = ({ isOpen, onClose }) => {
       deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
       authRequired: !allowGuests,
       restricted: false,
-      allowSharedLinks, // same as above
-      status: "draft",
+      allowSharedLinks,
+      status,
     };
 
     setIsLoading(true);
     setSubmitError("");
     try {
-      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, { //this will have to be changed 
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      // Use relative path only (assumes correct proxy or base URL setup)
+      const res = await axios.post( "/api/polls",
+        payload,
+        { withCredentials: true }
+      );
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setSubmitError(data.error || "Saving draft failed.");
-      } else {
-        console.log("✅ Draft saved:", data);
-        onClose();
-        resetForm();
-      }
+      console.log(`✅ Poll ${status === "draft" ? "saved as draft" : "published"}:`, res.data);
+      resetForm();
+      onClose();
     } catch (err) {
-      console.error("Error saving draft:", err);
-      setSubmitError("Network error while saving draft.");
+      console.error(`Error during ${status} save:`, err);
+      setSubmitError(`Network error while ${status === "draft" ? "saving draft" : "publishing"}.`);
     } finally {
       setIsLoading(false);
     }
@@ -246,10 +205,10 @@ const PollFormModal = ({ isOpen, onClose }) => {
         {submitError && <p className="error">{submitError}</p>}
 
         <div className="modal-buttons">
-          <button className="publish" onClick={handleSubmit} disabled={isLoading}>
+          <button className="publish" onClick={() => handleSubmit("published")} disabled={isLoading}>
             Publish
           </button>
-          <button className="draft" onClick={handleSaveDraft} disabled={isLoading}>
+          <button className="draft" onClick={() => handleSubmit("draft")} disabled={isLoading}>
             Save as draft
           </button>
         </div>
@@ -259,3 +218,4 @@ const PollFormModal = ({ isOpen, onClose }) => {
 };
 
 export default PollFormModal;
+
