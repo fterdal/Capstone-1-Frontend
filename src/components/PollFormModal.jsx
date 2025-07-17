@@ -4,6 +4,7 @@ import "./PollFormModal.css";
 const PollFormModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
+  // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
@@ -12,6 +13,22 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [allowGuests, setAllowGuests] = useState(false);
   const [allowSharedLinks, setAllowSharedLinks] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // New: loading and error states
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  // Helper to reset form fields
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setOptions(["", ""]);
+    setAllowEndDateTime(false);
+    setEndDateTime("");
+    setAllowGuests(false);
+    setAllowSharedLinks(false);
+    setErrors({});
+  };
 
   const normalizeOption = (opt) =>
     opt.trim().toLowerCase().replace(/\s+/g, "");
@@ -54,86 +71,87 @@ const PollFormModal = ({ isOpen, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-    const handleSubmit = async () => {
-      if (!validateForm()) return;
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
 
-      const payload = {
-        title,
-        description,
-        options,
-        deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
-        authRequired: !allowGuests,
-        restricted: false, // Add support later if needed
-      };
-
-      try {
-        const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          alert(data.error || "Poll creation failed.");
-        } else {
-          console.log("✅ Poll created:", data);
-          onClose(); // Close modal
-        }
-      } catch (err) {
-        console.error("Error:", err);
-        alert("Network error. Try again.");
-      }
+    const payload = {
+      title,
+      description,
+      options,
+      deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
+      authRequired: !allowGuests,
+      restricted: false, // backend: support later if needed
+      allowSharedLinks, // backend: use to allow link-based access
+      status: "published",
     };
+
+    setIsLoading(true);
+    setSubmitError("");
+    try {
+      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error || "Poll creation failed.");
+      } else {
+        console.log("✅ Poll created:", data);
+        onClose();
+        resetForm(); // clear form
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      setSubmitError("Network error. Try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSaveDraft = async () => {
     if (!validateForm()) return;
 
-            const payload = {
-              title,
-              description,
-              options,
-              deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
-              authRequired: !allowGuests,
-              restricted: false,
-              status: "draft", // key difference from handleSubmit
-            };
-
-            try {
-              const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-              });
-
-              const data = await res.json();
-
-              if (!res.ok) {
-                alert(data.error || "Saving draft failed.");
-              } else {
-                console.log("✅ Draft saved:", data);
-                onClose(); // optionally reset form too
-              }
-            } catch (err) {
-              console.error("Error saving draft:", err);
-              alert("Network error while saving draft.");
-            }
+    const payload = {
+      title,
+      description,
+      options,
+      deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
+      authRequired: !allowGuests,
+      restricted: false,
+      allowSharedLinks, // same as above
+      status: "draft",
     };
 
+    setIsLoading(true);
+    setSubmitError("");
+    try {
+      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
+      const data = await res.json();
 
-
-
-
-
-
+      if (!res.ok) {
+        setSubmitError(data.error || "Saving draft failed.");
+      } else {
+        console.log("✅ Draft saved:", data);
+        onClose();
+        resetForm();
+      }
+    } catch (err) {
+      console.error("Error saving draft:", err);
+      setSubmitError("Network error while saving draft.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="modal-overlay">
@@ -157,7 +175,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
         />
         {errors.description && <p className="error">{errors.description}</p>}
 
-      <h3>Options</h3>
+        <h3>Options</h3>
         <div className="poll-options">
           {options.map((option, index) => (
             <div key={index} className="option-row">
@@ -185,6 +203,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
             + Add option
           </button>
         </div>
+
         <h3>Settings</h3>
         <div className="checkbox-row">
           <label>
@@ -203,16 +222,16 @@ const PollFormModal = ({ isOpen, onClose }) => {
             />
             End date/time
           </label>
-              {allowEndDateTime && (
-                <div className="datetime-picker">
-                  <label>Choose end date/time:</label>
-                  <input
-                    type="datetime-local"
-                    value={endDateTime}
-                    onChange={(e) => setEndDateTime(e.target.value)}
-                  />
-                </div>
-              )}          
+          {allowEndDateTime && (
+            <div className="datetime-picker">
+              <label>Choose end date/time:</label>
+              <input
+                type="datetime-local"
+                value={endDateTime}
+                onChange={(e) => setEndDateTime(e.target.value)}
+              />
+            </div>
+          )}
           <label>
             <input
               type="checkbox"
@@ -223,11 +242,14 @@ const PollFormModal = ({ isOpen, onClose }) => {
           </label>
         </div>
 
+        {isLoading && <p className="loading">Submitting...</p>}
+        {submitError && <p className="error">{submitError}</p>}
+
         <div className="modal-buttons">
-          <button className="publish" onClick={handleSubmit}>
+          <button className="publish" onClick={handleSubmit} disabled={isLoading}>
             Publish
           </button>
-          <button className="draft" onClick={handleSaveDraft}>
+          <button className="draft" onClick={handleSaveDraft} disabled={isLoading}>
             Save as draft
           </button>
         </div>
