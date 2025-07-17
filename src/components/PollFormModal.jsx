@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import "./PollFormModal.css";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+
 
 const PollFormModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
+  // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
@@ -18,6 +19,22 @@ const PollFormModal = ({ isOpen, onClose }) => {
 
 
   const navigate = useNavigate();
+
+  // New: loading and error states
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  // Helper to reset form fields
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setOptions(["", ""]);
+    setAllowEndDateTime(false);
+    setEndDateTime("");
+    setAllowGuests(false);
+    setAllowSharedLinks(false);
+    setErrors({});
+  };
 
   const normalizeOption = (opt) =>
     opt.trim().toLowerCase().replace(/\s+/g, "");
@@ -60,51 +77,87 @@ const PollFormModal = ({ isOpen, onClose }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async(status) => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
 
+    const payload = {
+      title,
+      description,
+      options,
+      deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
+      authRequired: !allowGuests,
+      restricted: false, // backend: support later if needed
+      allowSharedLinks, // backend: use to allow link-based access
+      status: "published",
+    };
+
+    setIsLoading(true);
+    setSubmitError("");
     try {
-      const res = await axios.post("http://localhost:8080/api/polls", {
-       title,
-       description,
-       options, 
-       status,
-       deadline: allowEndDateTime ? endDateTime : null,
-       authRequired: !allowGuests,
-    }, {
-      withCredentials:true,
-    });
+      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, { //this will have to be changed 
+        method: "POST",
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    
-    if (status === "published"){
-      //navigate("/host/poll/view");
-      alert("Poll published successfully!"); 
-    }
-    else{
-      navigate("/dashboard");
-      alert("Draft saved successfully!"); 
-    }
+      const data = await res.json();
 
-    //reset form
-    setTitle("");
-    setDescription("");
-    setOptions(["",""]);
-    setAllowEndDateTime(false);
-    setEndDateTime("");
-    setAllowGuests(false);
-    setAllowSharedLinks(false);
-    setErrors({});
-
-    } catch (error) {
-      console.log(error);
-      alert("Failed to submit poll. Please try again.");
+      if (!res.ok) {
+        setSubmitError(data.error || "Poll creation failed.");
+      } else {
+        console.log("✅ Poll created:", data);
+        onClose();
+        resetForm(); // clear form
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      setSubmitError("Network error. Try again.");
+    } finally {
+      setIsLoading(false);
     }
-    finally{
-      setIsSubmitting(false);
-    }
-  }
+  };
 
+  const handleSaveDraft = async () => {
+    // Skip validation for drafts to allow partial saves
+    const payload = {
+      title,
+      description,
+      options,
+      deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
+      authRequired: !allowGuests,
+      restricted: false,
+      allowSharedLinks, // same as above
+      status: "draft",
+    };
+
+    setIsLoading(true);
+    setSubmitError("");
+    try {
+      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, { //this will have to be changed 
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error || "Saving draft failed.");
+      } else {
+        console.log("✅ Draft saved:", data);
+        onClose();
+        resetForm();
+      }
+    } catch (err) {
+      console.error("Error saving draft:", err);
+      setSubmitError("Network error while saving draft.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="modal-overlay">
@@ -128,7 +181,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
         />
         {errors.description && <p className="error">{errors.description}</p>}
 
-      <h3>Options</h3>
+        <h3>Options</h3>
         <div className="poll-options">
           {options.map((option, index) => (
             <div key={index} className="option-row">
@@ -156,9 +209,11 @@ const PollFormModal = ({ isOpen, onClose }) => {
             + Add option
           </button>
         </div>
+
         <h3>Settings</h3>
         <div className="checkbox-row">
-          <label><input 
+          <label>
+            <input 
            type="checkbox" 
            checked={allowGuests}
            onChange={(e) => setAllowGuests(e.target.checked)} /> 
@@ -185,24 +240,20 @@ const PollFormModal = ({ isOpen, onClose }) => {
             type="checkbox"
             checked={allowSharedLinks}
             onChange={(e) => setAllowSharedLinks(e.target.checked)}/> 
-          Allow shared links</label>
+          Allow shared links
+          </label>
         </div>
 
+        {isLoading && <p className="loading">Submitting...</p>}
+        {submitError && <p className="error">{submitError}</p>}
+
         <div className="modal-buttons">
-          <button
-            className="publish"
-            onClick={() => {
-              if (validateForm()) {
-                console.log("Submitting:", { title, description, options });
-                handleSubmit("published")
-              }
-            }}
-            disabled={isSubmitting}
-          >
+          <button className="publish" onClick={handleSubmit} disabled={isLoading}>
             Publish
           </button>
-          <button className="draft" onClick={() => handleSubmit("draft")} disabled={isSubmitting}>
-            Save as draft</button>
+          <button className="draft" onClick={handleSaveDraft} disabled={isLoading}>
+            Save as draft
+          </button>
         </div>
       </div>
     </div>

@@ -16,11 +16,12 @@ const NavBar = ({ user, onLogout }) => {
 
         {user ? (
           <div className="user-section">
+            {/* Only show "Create a poll" for authenticated users with username (not guests) */}
+            {user.username && (
+              <Link to="/create-poll" className="nav-link">Create a poll</Link>
+            )}
 
-        <Link to="/create-poll" className="nav-link">Create a poll</Link>
-
-
-            <span className="username">Welcome, {user.username}!</span>
+            <span className="username">Welcome, {user.username || 'Guest'}!</span>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>
