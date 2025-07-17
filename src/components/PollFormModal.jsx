@@ -76,11 +76,14 @@ const PollFormModal = ({ isOpen, onClose }) => {
       withCredentials:true,
     });
 
+    
     if (status === "published"){
-      navigate("/host/poll/view");
+      //navigate("/host/poll/view");
+      alert("Poll published successfully!"); 
     }
     else{
-      alert("Draft saved successfully!"); //redirect to dashboard
+      navigate("/dashboard");
+      alert("Draft saved successfully!"); 
     }
 
     //reset form
