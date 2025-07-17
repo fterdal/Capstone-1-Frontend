@@ -12,7 +12,6 @@ import { API_URL } from "./shared";
 import VotePollPage from "./pages/VotePollPage";
 import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
-import HostPollView from "./pages/HostPollView";
 
 
 const App = () => {
