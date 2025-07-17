@@ -70,10 +70,12 @@ const PollFormModal = ({ isOpen, onClose }) => {
        description,
        options, 
        status,
+       deadline: allowEndDateTime ? endDateTime : null,
+       authRequired: !allowGuests,
     });
 
     if (status === "published"){
-      navigate("host/poll/view");
+      navigate("/host/poll/view");
     }
     else{
       alert("Draft saved successfully!");
@@ -82,7 +84,12 @@ const PollFormModal = ({ isOpen, onClose }) => {
     //reset form
     setTitle("");
     setDescription("");
-    setOptions([]);
+    setOptions(["",""]);
+    setAllowEndDateTime(false);
+    setEndDateTime("");
+    setAllowGuests(false);
+    setAllowSharedLinks(false);
+    setErrors({});
 
     } catch (error) {
       
