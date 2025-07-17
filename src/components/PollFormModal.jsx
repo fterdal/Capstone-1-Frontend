@@ -110,6 +110,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
         console.log("✅ Poll created:", data);
         onClose();
         resetForm(); // clear form
+        navigate("/host/poll/view");
       }
     } catch (err) {
       console.error("Error:", err);
@@ -150,6 +151,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
         console.log("✅ Draft saved:", data);
         onClose();
         resetForm();
+        navigate("/dashboard");
       }
     } catch (err) {
       console.error("Error saving draft:", err);
