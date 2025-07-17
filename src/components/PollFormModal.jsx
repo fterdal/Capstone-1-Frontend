@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./PollFormModal.css";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const PollFormModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
@@ -12,6 +14,8 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [allowGuests, setAllowGuests] = useState(false);
   const [allowSharedLinks, setAllowSharedLinks] = useState(false);
   const [errors, setErrors] = useState({});
+
+  const navigate = useNavigate();
 
   const normalizeOption = (opt) =>
     opt.trim().toLowerCase().replace(/\s+/g, "");
@@ -53,6 +57,20 @@ const PollFormModal = ({ isOpen, onClose }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const handleSubmit = async(status) => {
+    try {
+      const res = await axios.post("/api/polls", {
+       title,
+       description,
+       options, 
+       status,
+    });
+    } catch (error) {
+      
+    }
+  }
+
 
   return (
     <div className="modal-overlay">
