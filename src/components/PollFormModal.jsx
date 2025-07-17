@@ -66,13 +66,19 @@ const PollFormModal = ({ isOpen, onClose }) => {
        options, 
        status,
     });
-    
+
     if (status === "published"){
       navigate("host/poll/view");
     }
     else{
       alert("Draft saved successfully!");
     }
+
+    //reset form
+    setTitle("");
+    setDescription("");
+    setOptions([]);
+
     } catch (error) {
       
     }
