@@ -1,0 +1,158 @@
+/* Dashboard layout */
+.dashboard {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.dashboard-header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #e63946;
+}
+
+.dashboard-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.dashboard-nav input,
+.dashboard-nav select,
+.dashboard-nav button {
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.user-info {
+  font-weight: 500;
+  background-color: #f5f5f5;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.poll-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.poll-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.poll-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.poll-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.poll-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.poll-meta .icon {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.badge {
+  margin-left: 0.5rem;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  color: white;
+  text-transform: capitalize;
+}
+
+.badge.draft {
+  background-color: #6c757d;
+}
+.badge.published {
+  background-color: #28a745;
+}
+.badge.ended {
+  background-color: #dc3545;
+}
+
+.menu-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.poll-menu {
+  position: absolute;
+  top: 2.5rem;
+  right: 1rem;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  z-index: 100;
+  width: 140px;
+}
+
+.poll-menu li {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+}
+
+.poll-menu li:last-child {
+  border-bottom: none;
+}
+
+.poll-menu li:hover {
+  background-color: #f5f5f5;
+}
+
+.poll-menu .disabled {
+  color: #999;
+  cursor: not-allowed;
+  background-color: #fafafa;
+}
