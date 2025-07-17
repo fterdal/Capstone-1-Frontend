@@ -152,13 +152,13 @@ const PollFormModal = ({ isOpen, onClose }) => {
             onClick={() => {
               if (validateForm()) {
                 console.log("Submitting:", { title, description, options });
-                // TODO: handle actual form submit
+                handleSubmit("published")
               }
             }}
           >
             Publish
           </button>
-          <button className="draft">Save as draft</button>
+          <button className="draft" onClick={() => handleSubmit("draft")}>Save as draft</button>
         </div>
       </div>
     </div>
