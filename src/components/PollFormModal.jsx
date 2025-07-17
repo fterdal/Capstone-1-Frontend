@@ -88,7 +88,8 @@ const PollFormModal = ({ isOpen, onClose }) => {
     setIsLoading(true);
     setSubmitError("");
     try {
-      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, {
+      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, { //this will have to be changed 
+        method: "POST",
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -113,8 +114,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
   };
 
   const handleSaveDraft = async () => {
-    if (!validateForm()) return;
-
+    // Skip validation for drafts to allow partial saves
     const payload = {
       title,
       description,
@@ -129,7 +129,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
     setIsLoading(true);
     setSubmitError("");
     try {
-      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, {
+      const res = await fetch(`${import.meta.env.API_URL || "http://localhost:8080"}/api/polls`, { //this will have to be changed 
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
