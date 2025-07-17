@@ -65,20 +65,22 @@ const PollFormModal = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
 
     try {
-      const res = await axios.post("/api/polls", {
+      const res = await axios.post("http://localhost:8080/api/polls", {
        title,
        description,
        options, 
        status,
        deadline: allowEndDateTime ? endDateTime : null,
        authRequired: !allowGuests,
+    }, {
+      withCredentials:true,
     });
 
     if (status === "published"){
       navigate("/host/poll/view");
     }
     else{
-      alert("Draft saved successfully!");
+      alert("Draft saved successfully!"); //redirect to dashboard
     }
 
     //reset form
@@ -92,7 +94,8 @@ const PollFormModal = ({ isOpen, onClose }) => {
     setErrors({});
 
     } catch (error) {
-      
+      console.log(error);
+      alert("Failed to submit poll. Please try again.");
     }
     finally{
       setIsSubmitting(false);
@@ -152,7 +155,11 @@ const PollFormModal = ({ isOpen, onClose }) => {
         </div>
         <h3>Settings</h3>
         <div className="checkbox-row">
-          <label><input type="checkbox" /> Allow guest voters</label>
+          <label><input 
+           type="checkbox" 
+           checked={allowGuests}
+           onChange={(e) => setAllowGuests(e.target.checked)} /> 
+          Allow guest voters</label>
           <label>
             <input
               type="checkbox"
@@ -171,7 +178,11 @@ const PollFormModal = ({ isOpen, onClose }) => {
                   />
                 </div>
               )}
-          <label><input type="checkbox" /> Allow shared links</label>
+          <label><input 
+            type="checkbox"
+            checked={allowSharedLinks}
+            onChange={(e) => setAllowSharedLinks(e.target.checked)}/> 
+          Allow shared links</label>
         </div>
 
         <div className="modal-buttons">
