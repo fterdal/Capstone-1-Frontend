@@ -14,6 +14,8 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [allowGuests, setAllowGuests] = useState(false);
   const [allowSharedLinks, setAllowSharedLinks] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -59,6 +61,9 @@ const PollFormModal = ({ isOpen, onClose }) => {
   };
 
   const handleSubmit = async(status) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     try {
       const res = await axios.post("/api/polls", {
        title,
@@ -81,6 +86,9 @@ const PollFormModal = ({ isOpen, onClose }) => {
 
     } catch (error) {
       
+    }
+    finally{
+      setIsSubmitting(false);
     }
   }
 
@@ -168,10 +176,12 @@ const PollFormModal = ({ isOpen, onClose }) => {
                 handleSubmit("published")
               }
             }}
+            disabled={isSubmitting}
           >
             Publish
           </button>
-          <button className="draft" onClick={() => handleSubmit("draft")}>Save as draft</button>
+          <button className="draft" onClick={() => handleSubmit("draft")} disabled={isSubmitting}>
+            Save as draft</button>
         </div>
       </div>
     </div>
