@@ -106,7 +106,14 @@ const PollFormModal = ({ isOpen, onClose }) => {
         </div>
         <h3>Settings</h3>
         <div className="checkbox-row">
-          <label><input type="checkbox" /> Allow guest voters</label>
+          <label>
+            <input
+              type="checkbox"
+              checked={allowGuests}
+              onChange={(e) => setAllowGuests(e.target.checked)}
+            />
+            Allow guest voters
+          </label>
           <label>
             <input
               type="checkbox"
@@ -124,8 +131,15 @@ const PollFormModal = ({ isOpen, onClose }) => {
                     onChange={(e) => setEndDateTime(e.target.value)}
                   />
                 </div>
-              )}
-          <label><input type="checkbox" /> Allow shared links</label>
+              )}          
+          <label>
+            <input
+              type="checkbox"
+              checked={allowSharedLinks}
+              onChange={(e) => setAllowSharedLinks(e.target.checked)}
+            />
+            Allow shared links
+          </label>
         </div>
 
         <div className="modal-buttons">
