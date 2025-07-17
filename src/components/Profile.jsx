@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import PollCard from './PollCard'; 
+import UserPollCard from './UserPollCard'; 
 
 const ProfilePage = ({ user }) => {
   const [master, setMaster] = useState(null);
@@ -121,7 +121,7 @@ const ProfilePage = ({ user }) => {
           <h2>My Polls ({master.polls.length})</h2>
           <div className="polls-container">
             {master.polls.map(poll => (
-              <PollCard key={poll.id} poll={poll} onClick={() => handleUserClick(poll.id)}/>
+              <UserPollCard key={poll.id} poll={poll} onClick={() => handleUserClick(poll.id)}/>
             ))}
           </div>
         </div>

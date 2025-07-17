@@ -62,7 +62,7 @@ const UserCard = () => {
             <li
               key={poll._id || `${poll.title}-${poll.creator_id}`}
               className="user-poll-item"
-              onClick={() => navigate(`/polls/${poll._id}`)}
+              onClick={() => navigate(`/polls/${poll.id}`)}
               style={{ cursor: "pointer" }}
             >
               {poll.title}
