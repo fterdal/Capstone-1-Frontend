@@ -17,6 +17,12 @@ const PollFormModal = ({ isOpen, onClose }) => {
   const [allowGuests, setAllowGuests] = useState(false);
   const [allowSharedLinks, setAllowSharedLinks] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  const navigate = useNavigate();
+
+  // New: loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
@@ -81,15 +87,59 @@ const PollFormModal = ({ isOpen, onClose }) => {
     // For publish: validate. For draft: skip validation.
     if (status === "published" && !validateForm()) return;
 
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
     const payload = {
       title,
       description,
       options,
       deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
       authRequired: !allowGuests,
+      restricted: false, // backend: support later if needed
+      allowSharedLinks, // backend: use to allow link-based access
+      status: "published",
+    };
+
+    setIsLoading(true);
+    setSubmitError("");
+    try {
+      const res = await axios.post( "/api/polls", { //this will have to be changed 
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.error || "Poll creation failed.");
+      } else {
+        console.log("✅ Poll created:", data);
+        onClose();
+        resetForm(); // clear form
+        navigate("/host/poll/view");
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      setSubmitError("Network error. Try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    // Skip validation for drafts to allow partial saves
+  const payload = {
+      title,
+      description,
+      options,
+      deadline: allowEndDateTime ? new Date(endDateTime).toISOString() : null,
+      authRequired: !allowGuests,
       restricted: false,
-      allowSharedLinks,
-      status,
+      allowSharedLinks, // same as above
+      status: "draft",
     };
 
     setIsLoading(true);
@@ -104,6 +154,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
       console.log(`✅ Poll ${status === "draft" ? "saved as draft" : "published"}:`, res.data);
       resetForm();
       onClose();
+      navigate("/dashboard");
     } catch (err) {
       console.error(`Error during ${status} save:`, err);
       setSubmitError(`Network error while ${status === "draft" ? "saving draft" : "publishing"}.`);
@@ -166,13 +217,11 @@ const PollFormModal = ({ isOpen, onClose }) => {
         <h3>Settings</h3>
         <div className="checkbox-row">
           <label>
-            <input
-              type="checkbox"
-              checked={allowGuests}
-              onChange={(e) => setAllowGuests(e.target.checked)}
-            />
-            Allow guest voters
-          </label>
+            <input 
+           type="checkbox" 
+           checked={allowGuests}
+           onChange={(e) => setAllowGuests(e.target.checked)} /> 
+          Allow guest voters</label>
           <label>
             <input
               type="checkbox"
@@ -181,23 +230,21 @@ const PollFormModal = ({ isOpen, onClose }) => {
             />
             End date/time
           </label>
-          {allowEndDateTime && (
-            <div className="datetime-picker">
-              <label>Choose end date/time:</label>
-              <input
-                type="datetime-local"
-                value={endDateTime}
-                onChange={(e) => setEndDateTime(e.target.value)}
-              />
-            </div>
-          )}
-          <label>
-            <input
-              type="checkbox"
-              checked={allowSharedLinks}
-              onChange={(e) => setAllowSharedLinks(e.target.checked)}
-            />
-            Allow shared links
+              {allowEndDateTime && (
+                <div className="datetime-picker">
+                  <label>Choose end date/time:</label>
+                  <input
+                    type="datetime-local"
+                    value={endDateTime}
+                    onChange={(e) => setEndDateTime(e.target.value)}
+                  />
+                </div>
+              )}
+          <label><input 
+            type="checkbox"
+            checked={allowSharedLinks}
+            onChange={(e) => setAllowSharedLinks(e.target.checked)}/> 
+          Allow shared links
           </label>
         </div>
 

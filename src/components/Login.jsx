@@ -139,6 +139,8 @@ const Login = ({ setUser }) => {
   };
 
   const handleGuestLogin = () => {
+    // Set a guest user object without username to indicate guest status
+    setUser({ isGuest: true });
     navigate("/dashboard");
   };
 
