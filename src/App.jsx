@@ -87,7 +87,11 @@ const App = () => {
           <Route exact path="new-poll" element={<NewPoll user={user} />} />
           <Route exact path="/users" element={<UsersPage />} />
           <Route path="/users/:id" element={<UserCard />} />
-          <Route exact path="/me" element={<Profile user={user} authLoading={loading} />} />
+          <Route
+            exact
+            path="/me"
+            element={<Profile user={user} authLoading={loading} />}
+          />
           <Route exact path="poll-list" element={<PollList polls={polls} />} />
           <Route path="/polls/:id" element={<PollDetails user={user} />} />
           <Route path="*" element={<NotFound />} />
@@ -107,4 +111,3 @@ const Root = () => {
 
 const root = createRoot(document.getElementById("root"));
 root.render(<Root />);
-
