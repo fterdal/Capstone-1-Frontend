@@ -113,7 +113,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
         console.log("✅ Poll created:", data);
         onClose();
         resetForm(); // clear form
-        navigate("/host/poll/view");
+        navigate(`/polls/host/${res.data.id}`);
       }
     } catch (err) {
       console.error("Error:", err);
