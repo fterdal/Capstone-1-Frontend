@@ -58,7 +58,7 @@ const Dashboard = ({ currentUser }) => {
     const end = new Date(deadline);
     const diff = Math.max(0, end - now);
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return days === 0 ? "ends today" : `ends in ${days} day${days > 1 ? "s" : ""}`;
+    return days === 0 ? "no end date" : `ends in ${days} day${days > 1 ? "s" : ""}`;
   };
 
   return (
@@ -77,7 +77,7 @@ const Dashboard = ({ currentUser }) => {
         />
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
           <option value="all">All</option>
-          <option value="created">Created</option>
+          <option value="published">Created</option>
           <option value="participated">Participated</option>
         </select>
         <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
