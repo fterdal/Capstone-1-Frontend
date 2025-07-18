@@ -20,19 +20,27 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
     if (!confirmed) return;
 
     try {
-      await axios.delete("http://localhost:8080/api/polls/${poll.id}", {
+      await axios.delete(`http://localhost:8080/api/polls/${poll.id}`, {
         withCredentials: true,
       });
       console.log("✅ Poll deleted:", poll.id);
       window.location.reload();
     } catch (err) {
-      console.error("❌ Failed to delete poll:", err);
-      alert("Could not delete poll.");
+      
     }
   };
 
   return (
-    <li className="poll-item" onClick={() => navigate(`/polls/view/${poll.id}`)}>
+        <li
+            className="poll-item"
+            onClick={() => {
+                if (poll.status === "published" && poll.ownerId === currentUser.id) {
+                navigate(`/polls/host/${poll.id}`);
+                } else {
+                navigate(`/polls/view/${poll.id}`);
+                }
+            }}
+            >
       <div className="poll-body">
         <div className="poll-left">
           <div className="checkbox-placeholder" />
