@@ -155,7 +155,7 @@ const PollDetails = ({ user }) => {
             {userLoading ? "Loading..." : master ? master.username : "Unknown"}
           </p>
 
-          <div>{poll.status === "published" && poll.ballots?.length > 0 && <IRVResults poll={poll} />}</div>
+          {<div>{poll.status === "published" && poll.ballots?.length > 0 && <IRVResults poll={poll} />}</div>}
         </div>
       </div>
     </div>
