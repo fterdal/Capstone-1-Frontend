@@ -41,7 +41,7 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
 
       const voteData = {
         pollId: poll.id,
-        userId: user ? user.id : null,
+        userId: user ? user.id : null, // Allow null for anonymous voting
         rankings: rankingsArray
       };
 
@@ -68,6 +68,9 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
         <div className="success-message">
           <h3>✓ Vote submitted successfully!</h3>
           <p>Thank you for participating in this poll.</p>
+          {!user && (
+            <p className="anonymous-note">Your vote was submitted anonymously.</p>
+          )}
         </div>
       </div>
     );
@@ -77,6 +80,12 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
     <div className="vote-form-container">
       <h3>Rank the Options</h3>
       <p>Rank the options from 1 (most preferred) to {poll.pollOptions.length} (least preferred)</p>
+      
+      {!user && poll.allowAnonymous && (
+        <div className="anonymous-voting-notice">
+          <p>🔓 You are voting anonymously</p>
+        </div>
+      )}
       
       {error && (
         <div className="error-message">
