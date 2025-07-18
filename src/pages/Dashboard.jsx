@@ -12,14 +12,14 @@ const Dashboard = ({ currentUser }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all"); // all | created | participated
+  const [filter, setFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [openMenuId, setOpenMenuId] = useState(null);
 
   useEffect(() => {
     const fetchPolls = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/api/polls`, {
+        const res = await fetch("http://localhost:8080/api/polls", {
           credentials: "include",
         });
         const data = await res.json();
