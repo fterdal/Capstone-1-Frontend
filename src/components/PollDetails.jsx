@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 import VoteForm from "./VoteForm";
+import IRVResults from "./IRVResults";
 
 const PollDetails = ({ user }) => {
   const { id } = useParams();
@@ -153,6 +154,8 @@ const PollDetails = ({ user }) => {
             <strong>Created by:</strong>{" "}
             {userLoading ? "Loading..." : master ? master.username : "Unknown"}
           </p>
+
+          <div>{poll.status === "published" && poll.ballots?.length > 0 && <IRVResults poll={poll} />}</div>
         </div>
       </div>
     </div>
