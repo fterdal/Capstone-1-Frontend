@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import DraftPoll from "./children components/DraftPoll";
 
 const NewPoll = ({user}) => {
   const [title, setTitle] = useState("");
@@ -224,6 +225,7 @@ const NewPoll = ({user}) => {
           </button>
         </div>
       </form>
+      <DraftPoll prop = {options}/>
     </div>
   );
 };
