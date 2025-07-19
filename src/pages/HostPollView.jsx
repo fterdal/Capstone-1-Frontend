@@ -10,11 +10,13 @@ const HostPollView = () => {
   const [error, setError] = useState("");
   const [editingDeadline, setEditingDeadline] = useState(false);
   const [newDeadline, setNewDeadline] = useState("");
+  const [copySuccess, setCopySuccess] = useState("");
+
 
   useEffect(() => {
     const fetchPoll = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080"}/api/polls/${id}`, {
+        const res = await axios.get(`http://localhost:8080/api/polls/${id}`, {
           withCredentials: true,
         });
         setPoll(res.data);
@@ -29,9 +31,11 @@ const HostPollView = () => {
     fetchPoll();
   }, [id]);
 
+
   const handleSaveDeadline = async () => {
     try {
-      await axios.put(`http://localhost:8080"}/api/polls/${id}`, {
+      await axios.put(`http://localhost:8080/api/polls/${id}`, {
+
         deadline: newDeadline,
       }, {
         withCredentials: true,

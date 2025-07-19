@@ -53,7 +53,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
                 onChange={() => handleChange(option.id)}
                 disabled={readOnly}
               />
-              {option.text}
+              {option.optionText}
             </label>
           </li>
         ))}
