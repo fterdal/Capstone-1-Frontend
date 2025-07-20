@@ -117,12 +117,12 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
     try {
       let res;
       if (initialData) {
-        // Update existing draft
+        // update existing draft - use put endpoint
         res = await axios.put(`http://localhost:8080/api/polls/${initialData.id}`,
           payload, { 
           withCredentials: true});
       } else {
-        // Create new poll
+        // create new poll
         res = await axios.post("http://localhost:8080/api/polls",
           payload, { 
           withCredentials: true});
@@ -130,20 +130,21 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
 
       const data = res.data;
 
-      if (!res.status) {
-        setSubmitError(data.error || "Poll creation failed.");
+      if (res.status < 200 || res.status >= 300) {
+        setSubmitError(data.error || "poll creation/update failed.");
       } else {
-        console.log("✅ Poll created:", JSON.stringify(data, null, 2));
-        console.log("Poll options:", data.poll.PollOptions);
-        console.log("Number of options:", data.poll.PollOptions?.length);
+        console.log("poll created/updated:", JSON.stringify(data, null, 2));
         onClose();
         resetForm(); // clear form
-        if (onPollCreated) onPollCreated(); // Refresh dashboard
-        navigate(`/polls/host/${data.poll.id}`);
+        if (onPollCreated) onPollCreated(); // refresh dashboard
+        
+        // navigate to host view - use initialData.id for updates, data.poll?.id for new polls
+        const pollId = initialData ? initialData.id : (data.poll?.id || data.id);
+        navigate(`/polls/host/${pollId}`);
       }
     } catch (err) {
-      console.error("Error:", err);
-      setSubmitError("Network error. Try again.");
+      console.error("error:", err);
+      setSubmitError("network error. try again.");
     } finally {
       setIsLoading(false);
     }
@@ -167,13 +168,13 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
     try {
       let res;
       if (initialData) {
-        // Update existing draft
+        // update existing draft
         res = await axios.put(`http://localhost:8080/api/polls/${initialData.id}`,
           payload,
           { withCredentials: true }
         );
       } else {
-        // Create new poll
+        // create new poll
         res = await axios.post("http://localhost:8080/api/polls",
           payload,
           { withCredentials: true }
