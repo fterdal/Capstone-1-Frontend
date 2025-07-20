@@ -3,7 +3,7 @@ import "./PollFormModal.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const PollFormModal = ({ isOpen, onClose }) => {
+const PollFormModal = ({ isOpen, onClose, onPollCreated }) => {
   if (!isOpen) return null;
 
   // =============================
@@ -115,6 +115,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
         console.log("Number of options:", data.poll.PollOptions?.length);
         onClose();
         resetForm(); // clear form
+        if (onPollCreated) onPollCreated(); // Refresh dashboard
         navigate(`/polls/host/${data.poll.id}`);
       }
     } catch (err) {
@@ -150,6 +151,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
       console.log(`✅ Poll ${payload.status === "draft" ? "saved as draft" : "published"}:`, res.data);
       resetForm();
       onClose();
+      if (onPollCreated) onPollCreated(); // Refresh dashboard
       navigate("/dashboard");
     } catch (err) {
       console.error(`Error during ${payload.status} save:`, err);
