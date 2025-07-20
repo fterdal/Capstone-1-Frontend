@@ -19,14 +19,17 @@ const Dashboard = ({ currentUser }) => {
   useEffect(() => {
     const fetchPolls = async () => {
       try {
+        console.log('Fetching polls for dashboard...');
         const res = await fetch("http://localhost:8080/api/polls", {
           credentials: "include",
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to fetch polls");
 
+        console.log('Polls received:', data);
         setPolls(data);
       } catch (err) {
+        console.error('Error fetching polls:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -41,7 +44,7 @@ const Dashboard = ({ currentUser }) => {
       const matchesSearch = poll.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesFilter =
         filter === "all" ||
-        (filter === "created" && poll.ownerId === currentUser.id) ||
+        (filter === "created" && poll.userId === currentUser.id) ||
         (filter === "participated" && poll.participated);
       return matchesSearch && matchesFilter;
     })
