@@ -18,26 +18,75 @@ import HostPollView from "./pages/HostPollView";
 const App = () => {
   const [user, setUser] = useState(null);
 
+  const cleanupExpiredGuestSession = () => {
+    const savedGuestSession = localStorage.getItem('guestSession');
+    if (savedGuestSession) {
+      try {
+        const guestUser = JSON.parse(savedGuestSession);
+        const now = Date.now();
+        const sessionAge = now - (guestUser.loginTime || 0);
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours 
+
+        // Kick out expired guest sessions 
+        if (sessionAge > maxAge) {
+          localStorage.removeItem('guestSession');
+          return true; 
+        }
+      } catch (e) {
+        // If the data is corrupted or weird, just delete it
+        localStorage.removeItem('guestSession');
+        return true; // Cleaned up the mess
+      }
+    }
+    return false; //nothing to clean up
+  };
+
   const checkAuth = async () => {
+    // Clean up any old guest sessions first 
+    cleanupExpiredGuestSession();
+
+    // Check if someone's logged in as a guest (stored in browser)
+    const savedGuestSession = localStorage.getItem('guestSession');
+    if (savedGuestSession) {
+      try {
+        const guestUser = JSON.parse(savedGuestSession);
+        if (guestUser.isGuest) {
+          setUser(guestUser);
+          return; // Found guest user, no need to check server
+        }
+      } catch (e) {
+        // Something went wrong with the saved data, just delete it
+        localStorage.removeItem('guestSession');
+      }
+    }
+
+    // Now check if someone's actually logged in with the server
     try {
       const response = await axios.get(`${API_URL}/auth/me`, {
         withCredentials: true,
       });
       setUser(response.data.user);
+      // If they're properly logged in, we don't need the guest session anymore
+      localStorage.removeItem('guestSession');
     } catch {
       console.log("Not authenticated");
       setUser(null);
     }
   };
 
-  // Check authentication status on app load
+  // Check who's logged in when the app first loads
   useEffect(() => {
     checkAuth();
   }, []);
 
   const handleLogout = async () => {
     try {
-      // Logout from our backend
+      // If they're just a guest, just clear their browser data 
+      if (user?.isGuest) {
+        localStorage.removeItem('guestSession');
+        setUser(null);
+        return;
+      }
       await axios.post(
         `${API_URL}/auth/logout`,
         {},
