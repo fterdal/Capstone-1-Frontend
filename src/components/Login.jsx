@@ -139,8 +139,18 @@ const Login = ({ setUser }) => {
   };
 
   const handleGuestLogin = () => {
-    // Set a guest user object without username to indicate guest status
-    setUser({ isGuest: true });
+    // Create guest user object
+    const guestUser = { 
+      isGuest: true,
+      username: "Guest",
+      loginTime: Date.now() // Track when guest logged in
+    };
+    
+    // Persist guest session in localStorage
+    localStorage.setItem('guestSession', JSON.stringify(guestUser));
+    
+    // Set user state and navigate
+    setUser(guestUser);
     navigate("/dashboard");
   };
 
