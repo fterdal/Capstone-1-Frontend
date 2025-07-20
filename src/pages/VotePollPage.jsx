@@ -16,7 +16,7 @@ const VotePollPage = () => {
         if (slug) {
           url = `http://localhost:8080/api/polls/slug/${slug}`;
         } else if (id) {
-          url = `http://localhost:8080/api/polls/${id}`;
+          url = `http://localhost:8080/api/polls/${id}`;  // Backend expects /api/polls/:pollId
         } else {
           setError("No poll ID or slug provided");
           setLoading(false);
@@ -32,7 +32,6 @@ const VotePollPage = () => {
         }
 
         const pollData = await response.json();
-        console.log("Fetched poll data:", pollData);
         setPoll(pollData);
       } catch (err) {
         console.error("Error fetching poll:", err);

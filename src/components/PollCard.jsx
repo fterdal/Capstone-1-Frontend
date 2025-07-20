@@ -36,14 +36,19 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
         }
 
         // Check if user owns the poll and it's published - go to host view
-        if (poll.status === "published" && poll.ownerId === currentUser?.id) {
+        // Note: Check both ownerId and userId in case backend uses different property name
+        const isOwner = (poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id);
+        if (poll.status === "published" && isOwner) {
             navigate(`/polls/host/${poll.id}`);
-        } else if (poll.slug) {
-            // Use slug if available
-            navigate(`/polls/view/${poll.slug}`);
         } else {
-            // Fall back to ID
-            navigate(`/polls/view/${poll.id}`);
+            // For voting, always use slug route - backend expects /api/polls/slug/:slug
+            if (poll.slug) {
+                navigate(`/polls/view/${poll.slug}`);
+            } else {
+                console.error("Poll missing slug for public voting:", poll);
+                alert("This poll cannot be accessed - missing slug");
+                return;
+            }
         }
         };
 
