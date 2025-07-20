@@ -1,0 +1,52 @@
+.host-poll-view {
+  padding: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.host-poll-container {
+  display: flex;
+  gap: 2rem;
+}
+
+.vote-section {
+  flex: 1;
+}
+
+.overview-section {
+  flex: 1;
+}
+
+.poll-stats {
+  margin: 1rem 0;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.deadline-display {
+  display: flex;
+  gap: 1rem;
+}
+
+.deadline-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .host-poll-container {
+    flex-direction: column;
+  }
+}
