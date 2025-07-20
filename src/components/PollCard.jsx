@@ -6,7 +6,6 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
   const navigate = useNavigate();
 
   const timeLeft = (deadline) => {
-    if (!deadline) return "no end date";
     const now = new Date();
     const end = new Date(deadline);
     const diff = Math.max(0, end - now);
@@ -18,9 +17,8 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
     e.stopPropagation();
     const confirmed = window.confirm("Are you sure you want to delete this poll?");
     if (!confirmed) return;
-
     try {
-      await axios.delete("http://localhost:8080/api/polls/${poll.id}", {
+      await axios.delete(`http://localhost:8080/api/polls/${poll.id}`, {
         withCredentials: true,
       });
       console.log("✅ Poll deleted:", poll.id);
@@ -31,8 +29,27 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
     }
   };
 
+  const handleClick = () => {
+        if (!poll?.id) {
+            console.error("Poll is missing ID:", poll);
+            return;
+        }
+
+        // Check if user owns the poll and it's published - go to host view
+        if (poll.status === "published" && poll.ownerId === currentUser?.id) {
+            navigate(`/polls/host/${poll.id}`);
+        } else if (poll.slug) {
+            // Use slug if available
+            navigate(`/polls/view/${poll.slug}`);
+        } else {
+            // Fall back to ID
+            navigate(`/polls/view/${poll.id}`);
+        }
+        };
+
+
   return (
-    <li className="poll-item" onClick={() => navigate(`/polls/view/${poll.id}`)}>
+    <li className="poll-item" onClick={handleClick}>
       <div className="poll-body">
         <div className="poll-left">
           <div className="checkbox-placeholder" />
@@ -75,9 +92,7 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
           <li onClick={() => console.log("Duplicate", poll.id)}>Duplicate</li>
           <li onClick={() => console.log("Invite", poll.id)}>Invite</li>
           <li onClick={() => navigate(`/polls/results/${poll.id}`)}>Results</li>
-          {['draft', 'published'].includes(poll.status) && (
-            <li onClick={handleDelete}>Delete</li>
-          )}
+          <li onClick={handleDelete}>Delete</li>
         </ul>
       )}
     </li>
