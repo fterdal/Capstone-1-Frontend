@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./PollFormModal.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const PollFormModal = ({ isOpen, onClose, onPollCreated }) => {
+const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
   if (!isOpen) return null;
 
   // =============================
@@ -26,6 +26,20 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  // Populate form with initial data when editing a draft
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title || "");
+      setDescription(initialData.description || "");
+      setOptions(initialData.options || ["", ""]);
+      setAllowEndDateTime(!!initialData.deadline);
+      setEndDateTime(initialData.deadline ? new Date(initialData.deadline).toISOString().slice(0, 16) : "");
+      setAllowGuests(!initialData.authRequired);
+      setAllowSharedLinks(initialData.allowSharedLinks || false);
+    } else {
+      resetForm();
+    }
+  }, [initialData]);
 
   // Reset all form fields after submission
   const resetForm = () => {
@@ -101,9 +115,18 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated }) => {
     setSubmitError("");
 
     try {
-      const res = await axios.post( "http://localhost:8080/api/polls",
-        payload, { 
-        withCredentials: true});
+      let res;
+      if (initialData) {
+        // Update existing draft
+        res = await axios.put(`http://localhost:8080/api/polls/${initialData.id}`,
+          payload, { 
+          withCredentials: true});
+      } else {
+        // Create new poll
+        res = await axios.post("http://localhost:8080/api/polls",
+          payload, { 
+          withCredentials: true});
+      }
 
       const data = res.data;
 
@@ -142,11 +165,20 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated }) => {
     setIsLoading(true);
     setSubmitError("");
     try {
-      // Use relative path only (assumes correct proxy or base URL setup)
-      const res = await axios.post( "http://localhost:8080/api/polls",
-        payload,
-        { withCredentials: true }
-      );
+      let res;
+      if (initialData) {
+        // Update existing draft
+        res = await axios.put(`http://localhost:8080/api/polls/${initialData.id}`,
+          payload,
+          { withCredentials: true }
+        );
+      } else {
+        // Create new poll
+        res = await axios.post("http://localhost:8080/api/polls",
+          payload,
+          { withCredentials: true }
+        );
+      }
 
       console.log(`✅ Poll ${payload.status === "draft" ? "saved as draft" : "published"}:`, res.data);
       resetForm();
@@ -165,7 +197,7 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="close-button" onClick={onClose}>×</button>
-        <h2>Create a Poll</h2>
+        <h2>{initialData ? "Edit Draft" : "Create a Poll"}</h2>
 
         <h2>Title</h2>
         <input

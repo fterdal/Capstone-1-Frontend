@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
+const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
   const navigate = useNavigate();
 
   const timeLeft = (deadline) => {
@@ -35,9 +35,16 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
             return;
         }
 
-        // Check if user owns the poll and it's published - go to host view
-        // Note: Check both ownerId and userId in case backend uses different property name
+        // Check if user owns the poll
         const isOwner = (poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id);
+        
+        // If it's a draft and user owns it, open edit modal
+        if (poll.status === "draft" && isOwner) {
+            onEditDraft(poll);
+            return;
+        }
+        
+        // If published and user owns it, go to host view
         if (poll.status === "published" && isOwner) {
             navigate(`/polls/host/${poll.id}`);
         } else {
