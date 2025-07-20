@@ -18,7 +18,7 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
     const confirmed = window.confirm("Are you sure you want to delete this poll?");
     if (!confirmed) return;
     try {
-      await axios.delete(`http://localhost:8080"}/api/polls/${poll.id}`, {
+      await axios.delete(`http://localhost:8080/api/polls/${poll.id}`, {
         withCredentials: true,
       });
       console.log("✅ Poll deleted:", poll.id);
@@ -35,11 +35,14 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
             return;
         }
 
-        if (poll.status === "published" && poll.userId === currentUser?.id) {
+        // Check if user owns the poll and it's published - go to host view
+        if (poll.status === "published" && poll.ownerId === currentUser?.id) {
             navigate(`/polls/host/${poll.id}`);
         } else if (poll.slug) {
+            // Use slug if available
             navigate(`/polls/view/${poll.slug}`);
         } else {
+            // Fall back to ID
             navigate(`/polls/view/${poll.id}`);
         }
         };

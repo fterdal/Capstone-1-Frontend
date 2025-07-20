@@ -5,7 +5,7 @@ import PollCard from "../components/PollCard";
 import "./Dashboard.css";
 
 
-const Dashboard = ({ currentUser }) => {
+const Dashboard = ({ user: currentUser }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [polls, setPolls] = useState([]);

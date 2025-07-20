@@ -1,98 +1,140 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import VoteForm from "../components/VoteForm";
 
 const VotePollPage = () => {
+  const { id, slug } = useParams();
   const navigate = useNavigate();
+  const [poll, setPoll] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const poll = {
-    question: "Rank your preferred front-end frameworks:",
-    options: ["React", "Vue", "Angular", "Svelte"],
-  };
-
-  const [rankings, setRankings] = useState({});
-
-  const handleChange = (option, rank) => {
-    setRankings((prev) => {
-      const updated = { ...prev };
-      for (const key in updated) {
-        if (updated[key] === rank) {
-          updated[key] = "";
+  useEffect(() => {
+    const fetchPoll = async () => {
+      try {
+        let url;
+        if (slug) {
+          url = `http://localhost:8080/api/polls/slug/${slug}`;
+        } else if (id) {
+          url = `http://localhost:8080/api/polls/${id}`;
+        } else {
+          setError("No poll ID or slug provided");
+          setLoading(false);
+          return;
         }
+
+        const response = await fetch(url, {
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch poll: ${response.statusText}`);
+        }
+
+        const pollData = await response.json();
+        console.log("Fetched poll data:", pollData);
+        setPoll(pollData);
+      } catch (err) {
+        console.error("Error fetching poll:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-      updated[option] = rank;
-      return updated;
-    });
-  };
+    };
 
-  const handleSubmit = () => {
-    const assignedRanks = Object.values(rankings);
-    const uniqueRanks = new Set(assignedRanks);
+    fetchPoll();
+  }, [id, slug]);
 
-    if (
-      Object.keys(rankings).length !== poll.options.length ||
-      uniqueRanks.size !== poll.options.length
-    ) {
-      alert("Please assign a unique rank to each option.");
-      return;
-    }
+  if (loading) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <p>Loading poll...</p>
+      </div>
+    );
+  }
 
-    console.log("Ranked vote submitted:", rankings);
-    navigate("/polls/results");
-  };
+  if (error) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
+        <h2>Error</h2>
+        <p>{error}</p>
+        <button 
+          onClick={() => navigate("/dashboard")}
+          style={{ 
+            marginTop: "1rem", 
+            padding: "0.5rem 1rem", 
+            background: "#007bff", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "4px",
+            cursor: "pointer" 
+          }}
+        >
+          Back to Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  if (!poll) {
+    return (
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <p>Poll not found</p>
+        <button 
+          onClick={() => navigate("/dashboard")}
+          style={{ 
+            marginTop: "1rem", 
+            padding: "0.5rem 1rem", 
+            background: "#007bff", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "4px",
+            cursor: "pointer" 
+          }}
+        >
+          Back to Dashboard
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div
       className="vote-page"
       style={{
         padding: "2rem",
-        maxWidth: "600px",
+        maxWidth: "800px",
         margin: "0 auto",
-        textAlign: "center",
       }}
     >
-      <h2>This is the voting page</h2>
-      <h3>{poll.question}</h3>
+      <h2>Vote on Poll</h2>
+      <div style={{ 
+        marginBottom: "2rem", 
+        padding: "1rem", 
+        background: "#f8f9fa", 
+        borderRadius: "8px" 
+      }}>
+        <h3>{poll.question}</h3>
+        {poll.description && <p>{poll.description}</p>}
+      </div>
 
-      <form>
-        {poll.options.map((option, index) => (
-          <div key={index} style={{ margin: "1rem 0", fontSize: "1.1rem" }}>
-            <label>
-              {option}
-              <select
-                value={rankings[option] || ""}
-                onChange={(e) =>
-                  handleChange(option, parseInt(e.target.value))
-                }
-                style={{ marginLeft: "1rem", padding: "0.3rem" }}
-              >
-                <option value="">Select rank</option>
-                {poll.options.map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        ))}
+      <VoteForm poll={poll} />
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          style={{
-            marginTop: "2rem",
-            padding: "0.6rem 1.5rem",
-            fontSize: "1rem",
-            backgroundColor: "#4b2aad",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
+      <div style={{ marginTop: "2rem", textAlign: "center" }}>
+        <button 
+          onClick={() => navigate("/dashboard")}
+          style={{ 
+            padding: "0.5rem 1rem", 
+            background: "#6c757d", 
+            color: "white", 
+            border: "none", 
+            borderRadius: "4px",
+            cursor: "pointer" 
           }}
         >
-          Submit Vote
+          Back to Dashboard
         </button>
-      </form>
+      </div>
     </div>
   );
 };

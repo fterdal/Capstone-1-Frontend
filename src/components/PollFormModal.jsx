@@ -110,7 +110,9 @@ const PollFormModal = ({ isOpen, onClose }) => {
       if (!res.status) {
         setSubmitError(data.error || "Poll creation failed.");
       } else {
-        console.log("✅ Poll created:", data);
+        console.log("✅ Poll created:", JSON.stringify(data, null, 2));
+        console.log("Poll options:", data.poll.PollOptions);
+        console.log("Number of options:", data.poll.PollOptions?.length);
         onClose();
         resetForm(); // clear form
         navigate(`/polls/host/${data.poll.id}`);
