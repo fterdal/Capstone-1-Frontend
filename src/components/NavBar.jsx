@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./NavBarStyles.css";
 
-const NavBar = ({ user, onLogout }) => {
+const NavBar = ({ user, onLogout, onOpenCreatePoll }) => {
   return (
     <nav className="navbar">
       <div className="nav-brand">
@@ -11,14 +11,11 @@ const NavBar = ({ user, onLogout }) => {
       </div>
 
       <div className="nav-links">
-
-        
-
         {user ? (
           <div className="user-section">
             {/* Only show "Create a poll" for authenticated users with username (not guests) */}
             {user.username && (
-              <Link to="/create-poll" className="nav-link">Create a poll</Link>
+              <button className="nav-link" onClick={onOpenCreatePoll}>Create a poll</button>
             )}
 
             <span className="username">Welcome, {user.username || 'Guest'}!</span>
