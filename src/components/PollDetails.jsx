@@ -42,7 +42,7 @@ const PollDetails = ({ user }) => {
   const handleVoteSubmitted = (voteData) => {
     console.log("Vote submitted:", voteData);
     setShowVoteForm(false);
-
+    fetchPoll();
   };
 
   useEffect(() => {
@@ -82,6 +82,8 @@ const PollDetails = ({ user }) => {
   }
 
   const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true;
+  const canVote = isPollActive && (user || poll.allowAnonymous);
+  const showLoginPrompt = isPollActive && !user && !poll.allowAnonymous;
 
   return (
     <div className="poll-details-wrapper">
@@ -122,8 +124,9 @@ const PollDetails = ({ user }) => {
           ) : (
             <p>No options available for this poll.</p>
           )}
-          
-          {isPollActive && (
+
+          {/* Voting section */}
+          {canVote && (
             <button
               onClick={() => setShowVoteForm(!showVoteForm)}
               className="vote-toggle-btn"
@@ -131,9 +134,29 @@ const PollDetails = ({ user }) => {
               {showVoteForm ? "Cancel Vote" : "Vote Now"}
             </button>
           )}
+
+          {/* Login prompt for non-anonymous polls */}
+          {showLoginPrompt && (
+            <div className="login-prompt">
+              <p className="login-message">
+                This poll requires authentication to vote.
+              </p>
+              <a href="/login" className="login-link">
+                Login to vote
+              </a>
+            </div>
+          )}
+
+          {/* Poll ended message */}
+          {!isPollActive && (
+            <div className="poll-ended-message">
+              <p>This poll has ended. No more votes are being accepted.</p>
+            </div>
+          )}
         </div>
 
-        {showVoteForm && isPollActive && (
+        {/* Vote form - only show if user can vote */}
+        {showVoteForm && canVote && (
           <VoteForm
             poll={poll}
             user={user}
@@ -147,6 +170,9 @@ const PollDetails = ({ user }) => {
             {poll.allowAnonymous ? "Allowed" : "Not allowed"}
           </p>
           <p>
+            <strong>Total votes:</strong> {poll.ballots?.length || 0}
+          </p>
+          <p>
             <strong>Created:</strong>{" "}
             {new Date(poll.createdAt).toLocaleDateString()}
           </p>
@@ -154,9 +180,15 @@ const PollDetails = ({ user }) => {
             <strong>Created by:</strong>{" "}
             {userLoading ? "Loading..." : master ? master.username : "Unknown"}
           </p>
-
-          <div>{poll.status === "published" && poll.ballots?.length > 0 && <IRVResults poll={poll} />}</div>
         </div>
+
+        {/* Results section */}
+        {poll.status === "published" && poll.ballots?.length > 0 && (
+          <div className="results-section">
+            <h3>Results</h3>
+            <IRVResults poll={poll} />
+          </div>
+        )}
       </div>
     </div>
   );

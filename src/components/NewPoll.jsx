@@ -261,6 +261,41 @@ const NewPoll = ({ user }) => {
           <button type="submit" className="create-poll-btn">
             Create Poll
           </button>
+          <button
+            type="button"
+            className="save-draft-btn"
+            onClick={async () => {
+            const validOptions = options.filter((opt) => opt.trim() !== "");
+            if (validOptions.length < 2) {
+              return setError("At least two options are required to save.");
+            }
+
+            try {
+                  const draftData = {
+                    creator_id,
+                    title: title.trim(),
+                    description: description.trim(),
+                    allowAnonymous,
+                    status: "draft",
+                    pollOptions: validOptions.map((optionText, index) => ({
+                    optionText,
+                    position: index + 1,
+                })),
+            };
+
+            if (!isIndefinite && endDate) {
+              draftData.endAt = new Date(endDate).toISOString();
+            }
+              const res = await axios.post("http://localhost:8080/api/polls", draftData);
+              navigate(`/edit-draft/${res.data.id}`);
+            } catch (err) {
+            console.error("Error saving draft:", err);
+            setError("Failed to save draft.");
+            }
+          }}
+        >
+          Save as Draft
+        </button>
         </div>
       </form>
     </div>
