@@ -117,8 +117,8 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
     try {
       let res;
       if (initialData) {
-        // update existing draft - use put endpoint
-        res = await axios.put(`http://localhost:8080/api/polls/${initialData.id}`,
+        // update existing draft 
+        res = await axios.patch(`http://localhost:8080/api/polls/${initialData.id}`,
           payload, { 
           withCredentials: true});
       } else {
@@ -168,8 +168,8 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
     try {
       let res;
       if (initialData) {
-        // update existing draft
-        res = await axios.put(`http://localhost:8080/api/polls/${initialData.id}`,
+        // update existing draft 
+        res = await axios.patch(`http://localhost:8080/api/polls/${initialData.id}`,
           payload,
           { withCredentials: true }
         );
