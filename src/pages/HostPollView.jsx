@@ -59,6 +59,22 @@ const HostPollView = () => {
       .catch(() => alert("Failed to copy link."));
   };
 
+  const handleEndPoll = async () => {
+    const endPollNow = new Date().toISOString();
+    try {
+      await axios.patch(`http://localhost:8080/api/polls/${id}`, {
+
+        deadline: endPollNow,
+      }, {
+        withCredentials: true,
+      });
+      setPoll((prev) => ({ ...prev, deadline: endPollNow, }));
+      setEditingDeadline(false);
+    } catch (err) {
+      console.error("Failed to end poll:", err);  
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
   if (!poll) return null;
@@ -120,7 +136,7 @@ const HostPollView = () => {
             <div className="action-buttons">
               <button onClick={handleCopyLink}>Copy Share Link</button>
               {copySuccess && <span className="copy-feedback">{copySuccess}</span>}
-              <button onClick={() => alert("End Poll logic here")}>End Poll</button>
+              <button onClick={handleEndPoll}>End Poll</button>
               <button onClick={() => alert("Results logic here")}>View Results</button>
             </div>
           </div>
