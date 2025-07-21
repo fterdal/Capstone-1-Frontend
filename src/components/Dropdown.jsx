@@ -14,7 +14,7 @@ const Dropdown = () => {
         { name: 'Create Poll', path: '/new-poll'},
         { name: 'Poll List', path: '/poll-list'},
         { name: 'Published Polls', path: '/'},
-        { name: 'Drafted Polls', path: '/drafts'},
+        { name: 'Drafted Polls', path: '/edit-draft'},
     ];
 
     return (

@@ -1,34 +1,73 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import DraftPoll from "./DraftPoll";
+import { useNavigate, useParams, Link } from "react-router-dom";
 
-const NewPoll = ({user}) => {
+const DraftPoll = ({ user }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [drafts, setDrafts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [endDate, setEndDate] = useState("");
-  const [isIndefinite, setIsIndefinite] = useState(true); 
+  const [isIndefinite, setIsIndefinite] = useState(true);
   const [allowAnonymous, setAllowAnonymous] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  if (!user) {
-    return (
-      <div className="new-poll-container">
-        <div className="loading-container">
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
+useEffect(() => {
+  if (!id && user) {
+    axios
+      .get("http://localhost:8080/api/polls")
+      .then((res) => {
+        const userDrafts = res.data.filter(
+          (draft) => draft.creator_id === user.id
+        );
+        setDrafts(userDrafts);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to load drafts:", err);
+        setLoading(false);
+      });
   }
+}, [id, user]);
 
-  const creator_id = user.id;
+useEffect(() => {
+  if (id) {
+    axios.get(`http://localhost:8080/api/polls/${id}`)
+      .then(res => {
+        const data = res.data;
+        setTitle(data.title || "");
+        setDescription(data.description || "");
+        setAllowAnonymous(data.allowAnonymous || false);
+        setIsIndefinite(!data.endAt);
+        setEndDate(data.endAt ? data.endAt.slice(0, 16) : "");
+
+        setOptions(data.pollOptions?.map(opt => opt.text) || ["", ""]);
+      })
+      .catch(err => {
+        console.error("Error loading draft:", err);
+      });
+  }
+}, [id]);
+
+const deleteDraft = async (draftId) => {
+  if (!window.confirm("Are you sure you want to delete this draft?")) return;
+
+  try {
+    await axios.delete(`http://localhost:8080/api/polls/${draftId}`);
+    setDrafts((prev) => prev.filter((d) => d.id !== draftId));
+  } catch (err) {
+    console.error("Failed to delete draft:", err);
+    alert("Failed to delete draft");
+  }
+};
 
   const handleOptionChange = (index, value) => {
-    const updatedOptions = [...options];
-    updatedOptions[index] = value;
-    setOptions(updatedOptions);
+    const updated = [...options];
+    updated[index] = value;
+    setOptions(updated);
   };
 
   const addOptionField = () => {
@@ -36,11 +75,11 @@ const NewPoll = ({user}) => {
   };
 
   const removeOptionField = (index) => {
-    const updatedOptions = options.filter((_, i) => i != index);
-    setOptions(updatedOptions);
+    const updated = options.filter((_, i) => i !== index);
+    setOptions(updated);
   };
 
-  const getMinDateTime = () => {
+    const getMinDateTime = () => {
     const now = new Date();
     now.setHours(now.getHours() + 1); 
     return now.toISOString().slice(0, 16); 
@@ -57,57 +96,56 @@ const NewPoll = ({user}) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    
-    if (!title.trim()) {
-      return setError("Poll title is required.");
-    }
-    
-    if (!isIndefinite) {
-      if (!endDate) {
-        return setError("Please select an end date or remove the end date to make it indefinite.");
-      }
-      
-      const selectedEndDate = new Date(endDate);
-      const now = new Date();
-      if (selectedEndDate <= now) {
-        return setError("End date must be in the future.");
-      }
-    }
-    
-    const validOptions = options.filter(opt => opt.trim() !== "");
-    if (validOptions.length < 2) {
-      return setError("At least two filled options are required.");
-    }
-    
+
+    const validOptions = options.filter((opt) => opt.trim() !== "");
+    if (!title.trim()) return setError("Title required.");
+    if (validOptions.length < 2) return setError("At least 2 options required.");
+
     try {
-      const pollData = {
-        creator_id,
+      await axios.patch(`http://localhost:8080/api/polls/${id}`, {
         title: title.trim(),
         description: description.trim(),
         allowAnonymous,
-        pollOptions: validOptions.map((optionText, index) => ({
-          text: optionText,
-          position: index + 1
-        }))
-      };
+        endAt: isIndefinite ? null : new Date(endDate).toISOString(),
+        pollOptions: validOptions.map((text, i) => ({
+          text,
+          position: i + 1,
+        })),
+      });
 
-      if (!isIndefinite && endDate) {
-        pollData.endAt = new Date(endDate).toISOString();
-      }
-
-      await axios.post("http://localhost:8080/api/polls", pollData);
-      
       navigate("/poll-list");
     } catch (err) {
-      setError("Failed to create poll.");
-      console.error("Poll creation error:", err);
+      console.error("Failed to update draft:", err);
+      setError("Update failed.");
     }
   };
 
+  if (!id) {
+    if (loading) return <p>Loading drafts...</p>;
+    return (
+      <div>
+        <h2>My Draft Polls</h2>
+        {drafts.length === 0 ? (
+          <p>You don't have any saved drafts.</p>
+        ) : (
+          <ul>
+            {drafts.map((draft) => (
+              <li key={draft.id}>
+                <Link to={`/edit-draft/${draft.id}`}>
+                  {draft.title || "(Untitled Draft)"}
+                </Link>
+                 <button onClick={() => deleteDraft(draft.id)}>Delete draft</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="new-poll-container">
-      <h1>Create New Poll</h1>
+      <h1>Edit Drafted Poll</h1>
       {error && <p className="error-message">{error}</p>}
       
       <form onSubmit={handleSubmit}>
@@ -217,51 +255,16 @@ const NewPoll = ({user}) => {
         </div>
 
         <div className="form-actions">
-          <button type="button" onClick={() => navigate("/poll-list")}>
+          <button type="button" onClick={() => navigate("/edit-draft")}>
             Cancel
           </button>
           <button type="submit" className="create-poll-btn">
-            Create Poll
+            Update Draft
           </button>
-          <button
-            type="button"
-            className="save-draft-btn"
-            onClick={async () => {
-            const validOptions = options.filter((opt) => opt.trim() !== "");
-            if (validOptions.length < 2) {
-              return setError("At least two options are required to save.");
-            }
-
-            try {
-                  const draftData = {
-                    creator_id,
-                    title: title.trim(),
-                    description: description.trim(),
-                    allowAnonymous,
-                    isDraft: true,
-                    pollOptions: validOptions.map((text, i) => ({
-                    text,
-                    position: i + 1,
-                })),
-            };
-
-            if (!isIndefinite && endDate) {
-              draftData.endAt = new Date(endDate).toISOString();
-            }
-              const res = await axios.post("http://localhost:8080/api/polls", draftData);
-              navigate(`/edit-draft/${res.data.id}`);
-            } catch (err) {
-            console.error("Error saving draft:", err);
-            setError("Failed to save draft.");
-            }
-          }}
-        >
-          Save as Draft
-        </button>
         </div>
       </form>
     </div>
   );
 };
 
-export default NewPoll;
+export default DraftPoll;

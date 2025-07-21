@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CSS/PollCardStyles.css';
 
-const PollCard = ({ poll }) => {
+const PollCard = ({ poll, onDuplicate }) => {
   const [timeLeft, setTimeLeft] = useState('');
   const [creator, setCreator] = useState(null);
 
@@ -84,6 +84,8 @@ const PollCard = ({ poll }) => {
           <p>{poll.description}</p>
         </div>
       )}
+
+      <button onClick={onDuplicate}>Duplicate</button>
       
       {!isPollActive && (
         <div className="poll-status">
