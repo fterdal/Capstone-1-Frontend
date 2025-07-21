@@ -3,14 +3,10 @@ import axios from "axios";
 import PollCard from "./PollCard";
 import { useNavigate } from "react-router-dom";
 
-const PollList = () => {
+const PollList = ({ poll }) => {
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
-
-
-const PollsList = ({ polls }) => {
   const navigate = useNavigate();
 
   const duplicatePoll = async (poll) => {
