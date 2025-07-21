@@ -18,14 +18,16 @@ const NavBar = ({ user, onLogout }) => {
               <Link to="/me" className="nav-link">
                 Profile
               </Link>
-              <Link to="/users" className="nav-link">
-                Users
-              </Link>
+              {user.role === "admin" && (
+                <Link to="/users" className="nav-link">
+                  Users
+                </Link>
+              )}
               <Link to="/friends" className="nav-link">
                 Friends
               </Link>
             </div>
-              <Dropdown />
+            <Dropdown />
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>
