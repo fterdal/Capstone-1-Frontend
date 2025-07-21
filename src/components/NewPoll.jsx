@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import DraftPoll from "./DraftPoll";
 
 const NewPoll = ({user}) => {
   const [title, setTitle] = useState("");
@@ -238,10 +237,10 @@ const NewPoll = ({user}) => {
                     title: title.trim(),
                     description: description.trim(),
                     allowAnonymous,
-                    isDraft: true,
-                    pollOptions: validOptions.map((text, i) => ({
-                    text,
-                    position: i + 1,
+                    status: "draft",
+                    pollOptions: validOptions.map((optionText, index) => ({
+                    optionText,
+                    position: index + 1,
                 })),
             };
 

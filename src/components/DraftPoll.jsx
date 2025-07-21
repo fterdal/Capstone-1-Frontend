@@ -21,7 +21,7 @@ useEffect(() => {
       .get("http://localhost:8080/api/polls")
       .then((res) => {
         const userDrafts = res.data.filter(
-          (draft) => draft.creator_id === user.id
+          (draft) => (draft.creator_id === user.id && draft.status === "draft")
         );
         setDrafts(userDrafts);
         setLoading(false);
