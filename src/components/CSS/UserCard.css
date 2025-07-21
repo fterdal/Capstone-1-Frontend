@@ -1,0 +1,24 @@
+.user-card-page {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.user-card-pfp {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.user-card-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+.user-card-bio {
+  font-size: 16px;
+  color: #555;
+  margin-top: 8px;
+}

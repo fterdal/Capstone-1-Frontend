@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import './CSS/PollCardStyles.css';
+import './CSS/UserPollCardStyles.css';
 
-
-const PollCard = ({ poll, onClick, onDuplicate }) => {
+const PollCard = ({ poll, onClick }) => {
   const [timeLeft, setTimeLeft] = useState('');
   const [creator, setCreator] = useState(null);
 
@@ -75,9 +74,6 @@ return (
       <div className="poll-header">
         <h3 className="poll-title">{poll.title}</h3>
         <div className="poll-meta">
-          <span className="poll-creator">
-            by {creator ? `@${creator.username}` : 'Loading...'}
-          </span>
           <span className={`poll-time ${!isPollActive ? 'ended' : ''}`}>
             {timeLeft}
           </span>
@@ -89,8 +85,6 @@ return (
           <p>{poll.description}</p>
         </div>
       )}
-
-      <button onClick={onDuplicate}>Duplicate</button>
       
       {!isPollActive && (
         <div className="poll-status">
