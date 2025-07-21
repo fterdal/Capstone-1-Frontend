@@ -1,21 +1,29 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from "../shared";
 import { useNavigate } from "react-router-dom";
 import "./CSS/UsersPage.css";
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/users")
+      .get(`${API_URL}/api/admins/users`, {withCredentials: true})
       .then((response) => {
         setUsers(response.data);
+        setError(null);
       })
       .catch((error) => {
         console.error("Error fetching users:", error);
+        if (error.response && error.response.status === 403) {
+          setError("Access denied. Only users with admin privileges can view this page.");
+        } else {
+          setError("Failed to fetch users. Please try again later.");
+        }
       });
   }, []);
 
@@ -30,6 +38,7 @@ const UsersPage = () => {
   return (
     <div className="users-page">
       <h2>All Users</h2>
+      {error && <p className="error-message">{error}</p>}
       <input
         className="search-input"
         type="text"
@@ -37,9 +46,9 @@ const UsersPage = () => {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      {filteredUsers.length === 0 ? (
+      {filteredUsers.length === 0 && !error ? (
         <p>No users found.</p>
-      ) : (
+      ) : !error ? (
         <ul className="user-list">
           {filteredUsers.map((user) => (
             <li
@@ -55,7 +64,7 @@ const UsersPage = () => {
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
     </div>
   );
 };
