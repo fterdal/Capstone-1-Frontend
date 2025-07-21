@@ -56,10 +56,10 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
       };
 
       const response = await axios.post(`${API_URL}/api/ballots`, voteData);
-
+      
       setSuccess(true);
       setRankings({});
-
+      
       if (onVoteSubmitted) {
         onVoteSubmitted(response.data);
         const confirmationMessage = window.confirm(
@@ -114,7 +114,7 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
                 <span className="option-number">{index + 1}.</span>
                 <span className="option-text">{option.text}</span>
               </div>
-
+              
               <div className="rank-selector">
                 <label htmlFor={`rank-${option.id}`}>Rank:</label>
                 <select
@@ -147,3 +147,4 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
 };
 
 export default VoteForm;
+
