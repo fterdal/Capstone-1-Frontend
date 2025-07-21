@@ -24,8 +24,11 @@ const NavBar = ({ user, onLogout }) => {
               <Link to="/friends" className="nav-link">
                 Friends
               </Link>
+              <Link to="/AboutUs" className="nav-link">
+                About Us
+              </Link>
             </div>
-              <Dropdown />
+            <Dropdown />
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>

@@ -20,6 +20,7 @@ import UsersPage from "./components/UsersPage";
 import UserCard from "./components/UserCard";
 import DraftPoll from "./components/DraftPoll";
 import PollDetails from "./components/PollDetails";
+import AboutUs from "./components/AboutUs";
 
 //Alex branch
 const App = () => {
@@ -90,6 +91,7 @@ const App = () => {
           <Route path="/users/:id" element={<UserCard />} />
           <Route path="/edit-draft" element={<DraftPoll user={user} />} />
           <Route path="/edit-draft/:id" element={<DraftPoll user={user} />} />
+          <Route path="/AboutUs" element={<AboutUs />} />
 
           <Route
             exact
