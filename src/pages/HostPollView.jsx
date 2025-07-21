@@ -35,7 +35,7 @@ const HostPollView = () => {
 
   const handleSaveDeadline = async () => {
     try {
-      await axios.put(`http://localhost:8080/api/polls/${id}`, {
+      await axios.patch(`http://localhost:8080/api/polls/${id}`, {
 
         deadline: newDeadline,
       }, {
