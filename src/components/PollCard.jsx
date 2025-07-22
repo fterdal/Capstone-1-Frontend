@@ -95,7 +95,7 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     poll.status !== "closed" &&
     poll.isActive &&
     (poll.endAt ? new Date(poll.endAt) > new Date() : true);
-
+    
 
   return (
     <div
