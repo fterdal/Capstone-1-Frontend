@@ -344,10 +344,8 @@
 @media (max-width: 768px) {
   .profile-page {
     padding: 16px;
+    gap: 10px;
   }
-  
-  gap: 10px;
-}
 
 .follow-btn,
 .message-btn {
@@ -426,4 +424,5 @@
   .stats {
     justify-content: center;
   }
+
 }
