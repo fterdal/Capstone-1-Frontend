@@ -155,8 +155,7 @@ const PollDetails = ({ user }) => {
             <p>No options available for this poll.</p>
           )}
 
-          {/* Voting section */}
-          {canVote && (
+          {isPollActive && (
             <button
               onClick={() => setShowVoteForm(!showVoteForm)}
               className="vote-toggle-btn"
