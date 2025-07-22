@@ -59,7 +59,6 @@ const EditProfile = ({ user, onProfileUpdated, onCancel }) => {
     return false;
   }
 
-  // Only validate email if it's not empty
   if (formData.email && formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
     setError("Please enter a valid email address");
     return false;
@@ -85,7 +84,7 @@ const EditProfile = ({ user, onProfileUpdated, onCancel }) => {
   setLoading(true);
 
   try {
-    console.log("Submitting profile update:", formData); // Debug log
+    console.log("Submitting profile update:", formData); 
     
     const response = await axios.patch(
       `${API_URL}/api/users/${user.id}`,
@@ -110,7 +109,7 @@ const EditProfile = ({ user, onProfileUpdated, onCancel }) => {
 
   } catch (error) {
     console.error("Profile update error:", error);
-    console.error("Error response:", error.response?.data); // More detailed error logging
+    console.error("Error response:", error.response?.data); 
     
     setError(
       error.response?.data?.error || 

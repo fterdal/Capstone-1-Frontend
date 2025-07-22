@@ -62,7 +62,6 @@ const PollDetails = ({ user }) => {
   const handleVoteSubmitted = (voteData) => {
     console.log("Vote submitted:", voteData);
     setShowVoteForm(false);
-    fetchPoll();
   };
 
   useEffect(() => {
@@ -158,8 +157,7 @@ const PollDetails = ({ user }) => {
             <p>No options available for this poll.</p>
           )}
 
-          {/* Voting section */}
-          {canVote && (
+          {isPollActive && (
             <button
               onClick={() => setShowVoteForm(!showVoteForm)}
               className="vote-toggle-btn"
@@ -213,6 +211,12 @@ const PollDetails = ({ user }) => {
             <strong>Created by:</strong>{" "}
             {userLoading ? "Loading..." : master ? master.username : "Unknown"}
           </p>
+
+          <div>
+            {poll.status === "published" && poll.ballots?.length > 0 && (
+              <IRVResults poll={poll} />
+            )}
+          </div>
         </div>
 
         {/* Results section */}
