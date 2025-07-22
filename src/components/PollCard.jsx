@@ -90,11 +90,6 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
       console.log("No link to copy");
     }
   };
-
-  const isPollActive =
-    poll.status !== "closed" &&
-    poll.isActive &&
-    (poll.endAt ? new Date(poll.endAt) > new Date() : true);
     
 
   return (
