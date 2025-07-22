@@ -109,31 +109,58 @@ const VoteForm = ({ poll, readOnly = false }) => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError(null);
+  setSubmitting(true);
 
-    try {
-      await fetch(`http://localhost:8080/api/polls/${poll.id}/votes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          pollId: poll.id,
-          rankings: rankings,
-        }),
-      });
+  const hasRanked = Object.values(rankings).some(rank => rank !== null);
+  const isExpired = poll?.deadline && new Date() > new Date(poll.deadline);
 
-      alert("Vote submitted!");
-      setSubmitted(true); //to freeze ui
-      setRankings({});
-    } catch (err) {
-      console.error("Failed to submit vote", err);
-      setError("Failed to submit vote. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  if (!hasRanked) {
+    setError("You must rank at least one option before submitting.");
+    setSubmitting(false);
+    return;
+  }
+
+  if (isExpired) {
+    setError("This poll has expired and can no longer be voted on.");
+    setSubmitting(false);
+    return;
+  }
+
+  const votingRanks = orderedOptions.map((option, index) => {
+    const isDeleted = deletedOptions.has(option.id);
+    const rank = rankings[option.id];
+
+    return {
+      pollOptionId: option.id,
+      rank: isDeleted ? null : rank,
+      position: index,
+    };
+  });
+
+  try {
+    await fetch(`http://localhost:8080/api/polls/${poll.id}/votes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        pollId: poll.id,
+        votingRanks: votingRanks,
+      }),
+    });
+
+    alert("Vote submitted!");
+    setSubmitted(true); // freeze UI
+    setRankings({});
+  } catch (err) {
+    console.error("Failed to submit vote", err);
+    setError("Failed to submit vote. Please try again.");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="vote-form">
