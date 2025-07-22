@@ -5,11 +5,13 @@ import { API_URL } from "../shared";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import UserPollCard from "./UserPollCard";
+import EditProfile from "./EditProfile"; // Add this import
 
 const ProfilePage = ({ user, authLoading }) => {
   const [master, setMaster] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showEditProfile, setShowEditProfile] = useState(false); // Add this state
   const navigate = useNavigate();
 
   const fetchUser = async () => {
@@ -27,6 +29,23 @@ const ProfilePage = ({ user, authLoading }) => {
 
   const handleUserClick = (id) => {
     navigate(`/polls/${id}`);
+  };
+
+  // Add this function to handle profile updates
+  const handleProfileUpdated = (updatedUser) => {
+    setMaster(updatedUser);
+    // Optionally update the user state in the parent component
+    // if you have a way to update the global user state
+  };
+
+  // Add this function to handle edit profile button click
+  const handleEditProfile = () => {
+    setShowEditProfile(true);
+  };
+
+  // Add this function to handle closing edit profile
+  const handleCloseEditProfile = () => {
+    setShowEditProfile(false);
   };
 
   useEffect(() => {
@@ -91,8 +110,6 @@ const ProfilePage = ({ user, authLoading }) => {
     );
   }
 
-  console.log(user);
-
   return (
     <div className="profile-page">
       <div className="profile-header">
@@ -131,7 +148,9 @@ const ProfilePage = ({ user, authLoading }) => {
           {master.bio && <p className="bio">{master.bio}</p>}
 
           <div className="profile-actions">
-            <button className="follow-btn">Edit Profile</button>
+            <button className="follow-btn" onClick={handleEditProfile}>
+              Edit Profile
+            </button>
             <button className="message-btn">View Drafts</button>
           </div>
         </div>
@@ -150,6 +169,15 @@ const ProfilePage = ({ user, authLoading }) => {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Add the EditProfile modal */}
+      {showEditProfile && (
+        <EditProfile
+          user={master}
+          onProfileUpdated={handleProfileUpdated}
+          onCancel={handleCloseEditProfile}
+        />
       )}
     </div>
   );
