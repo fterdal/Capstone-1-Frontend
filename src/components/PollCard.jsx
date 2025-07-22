@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./CSS/PollCardStyles.css";
 
-const PollCard = ({ poll, onClick }) => {
+const PollCard = ({ poll, onClick, onDuplicate }) => {
   const [timeLeft, setTimeLeft] = useState("");
   const [creator, setCreator] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -79,6 +80,43 @@ const PollCard = ({ poll, onClick }) => {
     poll.isActive &&
     (poll.endAt ? new Date(poll.endAt) > new Date() : true);
 
+  const copyToClipboard = async (e) => {
+    e.stopPropagation(); 
+    
+    const pollUrl = `${window.location.origin}/polls/${poll.id}`;
+    
+    try {
+      await navigator.clipboard.writeText(pollUrl);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.log("No link to copy");
+    }
+  };
+
+  return (
+    <div
+      className={`poll-card ${!isPollActive ? "poll-ended" : ""}`}
+      onClick={onClick}
+      style={{ cursor: "pointer" }}
+  const copyToClipboard = async (e) => {
+    e.stopPropagation(); 
+    
+    const pollUrl = `${window.location.origin}/polls/${poll.id}`;
+    
+    try {
+      await navigator.clipboard.writeText(pollUrl);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.log("No link to copy");
+    }
+  };
+
   return (
     <div
       className={`poll-card ${!isPollActive ? "poll-ended" : ""}`}
@@ -87,6 +125,17 @@ const PollCard = ({ poll, onClick }) => {
     >
       <div className="poll-header">
         <h3 className="poll-title">{poll.title}</h3>
+        <button
+          className={`copy-btn ${copied ? "copied" : ""}`}
+          onClick={copyToClipboard}
+          title="Copy poll link"
+        >
+          {copied ? (
+            <span className="copy-feedback">✓ Copied!</span>
+          ) : (
+            <span className="copy-icon">📋 Copy Link</span>
+          )}
+        </button>
         <div className="poll-meta">
           <span className="poll-creator">
             by {creator ? `@${creator.username}` : "Loading..."}
@@ -102,6 +151,8 @@ const PollCard = ({ poll, onClick }) => {
           <p>{poll.description}</p>
         </div>
       )}
+
+      <button onClick={onDuplicate}>Duplicate</button>
 
       {!isPollActive && (
         <div className="poll-status">

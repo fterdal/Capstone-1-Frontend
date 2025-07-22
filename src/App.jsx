@@ -18,9 +18,9 @@ import NewPoll from "./components/NewPoll";
 import PollList from "./components/PollList";
 import UsersPage from "./components/UsersPage";
 import UserCard from "./components/UserCard";
+import DraftPoll from "./components/DraftPoll";
 import PollDetails from "./components/PollDetails";
 
-//Alex branch
 const App = () => {
   const [user, setUser] = useState(null);
   const [polls, setPolls] = useState(null);
@@ -87,6 +87,9 @@ const App = () => {
           <Route exact path="new-poll" element={<NewPoll user={user} />} />
           <Route exact path="/users" element={<UsersPage />} />
           <Route path="/users/:id" element={<UserCard />} />
+          <Route path="/edit-draft" element={<DraftPoll user={user} />} />
+          <Route path="/edit-draft/:id" element={<DraftPoll user={user} />} />
+
           <Route
             exact
             path="/me"

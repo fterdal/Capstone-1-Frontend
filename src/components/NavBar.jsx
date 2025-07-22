@@ -34,8 +34,8 @@ const NavBar = ({ user, onLogout }) => {
           </div>
         ) : (
           <div className="auth-links">
-            <Link to="/friends" className="nav-link">
-              FriendsPage
+            <Link to="/poll-list" className="nav-link">
+              Public Polls
             </Link>
             <Link to="/login" className="nav-link">
               Login

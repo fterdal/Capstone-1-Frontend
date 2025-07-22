@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios, { all } from "axios";
 import { useNavigate } from "react-router-dom";
 
-const NewPoll = ({user}) => {
+const NewPoll = ({ user }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [endDate, setEndDate] = useState("");
-  const [isIndefinite, setIsIndefinite] = useState(true); 
+  const [isIndefinite, setIsIndefinite] = useState(true);
   const [allowAnonymous, setAllowAnonymous] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [restrictToUsers, setRestrictToUsers] = useState(false);
+  const [allowedUsersInput, setAllowedUsersInput] = useState("");
 
   if (!user) {
     return (
@@ -41,8 +43,8 @@ const NewPoll = ({user}) => {
 
   const getMinDateTime = () => {
     const now = new Date();
-    now.setHours(now.getHours() + 1); 
-    return now.toISOString().slice(0, 16); 
+    now.setHours(now.getHours() + 1);
+    return now.toISOString().slice(0, 16);
   };
 
   const handleAddEndDate = () => {
@@ -56,51 +58,63 @@ const NewPoll = ({user}) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    
+
     if (!title.trim()) {
       return setError("Poll title is required.");
     }
-    
+
     if (!isIndefinite) {
       if (!endDate) {
-        return setError("Please select an end date or remove the end date to make it indefinite.");
+        return setError(
+          "Please select an end date or remove the end date to make it indefinite."
+        );
       }
-      
+
       const selectedEndDate = new Date(endDate);
       const now = new Date();
       if (selectedEndDate <= now) {
         return setError("End date must be in the future.");
       }
     }
-    
-    const validOptions = options.filter(opt => opt.trim() !== "");
+
+    const validOptions = options.filter((opt) => opt.trim() !== "");
     if (validOptions.length < 2) {
       return setError("At least two filled options are required.");
     }
-    
+
+    const allowedUserIds = restrictToUsers
+      ? allowedUsersInput
+          .split(",")
+          .map((id) => parseInt(id.trim()))
+          .filter((id) => !isNaN(id))
+      : [];
+
+      
+    if (window.confirm("Are you sure you want to create this poll?")) {
     try {
       const pollData = {
         creator_id,
         title: title.trim(),
         description: description.trim(),
         allowAnonymous,
+        allowListOnly: restrictToUsers,
+        allowedUserIds,
+        status: "published",
         pollOptions: validOptions.map((optionText, index) => ({
           text: optionText,
-          position: index + 1
-        }))
+          position: index + 1,
+        })),
       };
-
+    
       if (!isIndefinite && endDate) {
         pollData.endAt = new Date(endDate).toISOString();
       }
-
-      await axios.post("http://localhost:8080/api/polls", pollData);
-      
+        await axios.post("http://localhost:8080/api/polls", pollData);
       navigate("/poll-list");
     } catch (err) {
       setError("Failed to create poll.");
       console.error("Poll creation error:", err);
+    }
     }
   };
 
@@ -108,7 +122,7 @@ const NewPoll = ({user}) => {
     <div className="new-poll-container">
       <h1>Create New Poll</h1>
       {error && <p className="error-message">{error}</p>}
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="title">Poll Title:</label>
@@ -135,14 +149,14 @@ const NewPoll = ({user}) => {
 
         <div className="form-group">
           <label>Poll Duration:</label>
-          
+
           {isIndefinite ? (
             <div className="indefinite-section">
               <div className="indefinite-notice">
                 <span>📅 This poll will run indefinitely</span>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleAddEndDate}
                 className="add-end-date-btn"
               >
@@ -153,8 +167,8 @@ const NewPoll = ({user}) => {
             <div className="date-input-section">
               <div className="date-input-header">
                 <label htmlFor="endDate">Poll End Date & Time:</label>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleRemoveEndDate}
                   className="remove-end-date-btn"
                 >
@@ -186,18 +200,45 @@ const NewPoll = ({user}) => {
         </div>
 
         <div className="form-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={restrictToUsers}
+              onChange={(e) => setRestrictToUsers(e.target.checked)}
+            />
+            Restrict voting to specific users
+          </label>
+          <small>
+            If checked, only the listed user IDs will be allowed to vote
+          </small>
+
+          {restrictToUsers && (
+            <div className="allowed-users-input">
+              <label htmlFor="allowedUserIds">Allowed User IDs:</label>
+              <textarea
+                id="allowedUserIds"
+                value={allowedUsersInput}
+                onChange={(e) => setAllowedUsersInput(e.target.value)}
+                placeholder="e.g. 3, 7, 12"
+                rows="2"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="form-group">
           <label>Poll Options:</label>
           {options.map((option, index) => (
             <div key={index} className="option-input">
-              <input 
+              <input
                 type="text"
                 value={option}
                 onChange={(e) => handleOptionChange(index, e.target.value)}
                 placeholder={`Option ${index + 1}`}
               />
               {options.length > 2 && (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => removeOptionField(index)}
                   className="remove-option-btn"
                 >
@@ -206,8 +247,8 @@ const NewPoll = ({user}) => {
               )}
             </div>
           ))}
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={addOptionField}
             className="add-option-btn"
           >
@@ -222,6 +263,43 @@ const NewPoll = ({user}) => {
           <button type="submit" className="create-poll-btn">
             Create Poll
           </button>
+          <button
+            type="button"
+            className="save-draft-btn"
+            onClick={async () => {
+            const validOptions = options.filter((opt) => opt.trim() !== "");
+            if (validOptions.length < 2) {
+              return setError("At least two options are required to save.");
+            }
+
+            try {
+                  const draftData = {
+                    creator_id,
+                    title: title.trim(),
+                    description: description.trim(),
+                    allowAnonymous,
+                    status: "draft",
+                    pollOptions: validOptions.map((optionText, index) => ({
+                    text: optionText,
+                    position: index + 1,
+                })),
+            };
+
+            if (!isIndefinite && endDate) {
+              draftData.endAt = new Date(endDate).toISOString();
+            }
+            if (window.confirm("Are you sure you want to save this draft?")) {
+              const res = await axios.post("http://localhost:8080/api/polls", draftData);
+              navigate(`/edit-draft/${res.data.id}`);
+            }
+            } catch (err) {
+            console.error("Error saving draft:", err);
+            setError("Failed to save draft.");
+            }
+          }}
+        >
+          Save as Draft
+        </button>
         </div>
       </form>
     </div>
