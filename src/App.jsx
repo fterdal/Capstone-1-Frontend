@@ -86,7 +86,7 @@ const App = () => {
           <Route exact path="/friends" element={<Friends />} />
           <Route exact path="new-poll" element={<NewPoll user={user} />} />
           <Route exact path="/users" element={<UsersPage />} />
-          <Route path="/users/:id" element={<UserCard />} />
+          <Route path="/users/:id" element={<UserCard currentUser={user}/>} />
           <Route path="/edit-draft" element={<DraftPoll user={user} />} />
           <Route path="/edit-draft/:id" element={<DraftPoll user={user} />} />
 
