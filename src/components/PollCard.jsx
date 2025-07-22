@@ -46,6 +46,21 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
     }
   };
 
+  // invite handler: copy poll link to clipboard and show message
+  const handleInvite = (e) => {
+    e.stopPropagation();
+    const pollUrl = poll.slug
+      ? `${window.location.origin}/polls/view/${poll.slug}`
+      : `${window.location.origin}/polls/results/${poll.id}`;
+    navigator.clipboard.writeText(pollUrl)
+      .then(() => {
+        alert("Link copied to clipboard! Share this to invite others to vote.");
+      })
+      .catch(() => {
+        alert("Failed to copy link.");
+      });
+  };
+
   const handleClick = () => {
         if (!poll?.id) {
             console.error("Poll is missing ID:", poll);
@@ -135,7 +150,7 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
             </>
           )}
           <li onClick={handleDuplicate}>Duplicate</li>
-          <li onClick={() => console.log("Invite", poll.id)}>Invite</li>
+          <li onClick={handleInvite}>Invite</li>
           <li onClick={() => navigate(`/polls/results/${poll.id}`)}>Results</li>
         </ul>
       )}
