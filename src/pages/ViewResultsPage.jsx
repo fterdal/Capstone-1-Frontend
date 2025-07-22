@@ -5,7 +5,7 @@ import YourRankList from "../components/result/YourRankList";
 
 const dummyPoll = {
   title: "Where should we get catering from?",
-   deadline: new Date(Date.now() + 3 * 60 * 1000).toISOString(),
+   deadline: new Date(Date.now() + 1 * 60 * 1000).toISOString(),
 };
 
 const dummyRankedResults = [
@@ -71,9 +71,9 @@ const ViewResultsPage = ({ user }) => {
           }}
         >
           <div style={{ flex: 1, minWidth: "300px" }}>
-            <h3>Live Results</h3>
+            <h3>{isPollEnded ? "Final Results" : "Live Results"}</h3>
             <CurrentRank data={dummyRankedResults} poll={dummyPoll} isEnded={isPollEnded} />
-          </div>
+            </div>
 
           <div style={{ flex: 1, minWidth: "300px" }}>
             <h3>Your Ranking</h3>
