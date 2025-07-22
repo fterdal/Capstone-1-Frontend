@@ -75,6 +75,12 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     }
   }, [poll.creator_id]);
 
+
+  const isPollActive =
+    poll.status !== "closed" &&
+    poll.isActive &&
+    (poll.endAt ? new Date(poll.endAt) > new Date() : true);
+  
   const copyToClipboard = async (e) => {
     e.stopPropagation(); 
     
@@ -91,10 +97,6 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     }
   };
     
-  const isPollActive =
-    poll.status !== "closed" &&
-    poll.isActive &&
-    (poll.endAt ? new Date(poll.endAt) > new Date() : true);
 
   return (
     <div

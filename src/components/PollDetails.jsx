@@ -100,8 +100,12 @@ const PollDetails = ({ user }) => {
     );
   }
 
-  const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true;
-  
+  const isPollActive =
+    poll.status !== "closed" &&
+    poll.isActive &&
+    (poll.endAt ? new Date(poll.endAt) > new Date() : true);
+  const canVote = isPollActive && (user || poll.allowAnonymous);
+  const showLoginPrompt = isPollActive && !user && !poll.allowAnonymous;
 
   return (
     <div className="poll-details-wrapper">

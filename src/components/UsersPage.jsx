@@ -12,6 +12,7 @@ const UsersPage = () => {
 
   useEffect(() => {
     axios
+
       .get(`${API_URL}/api/admins/users`, {withCredentials: true})
       .then((response) => {
         setUsers(response.data);
