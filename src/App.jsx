@@ -13,10 +13,12 @@ import VotePollPage from "./pages/VotePollPage";
 import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
 import HostPollView from "./pages/HostPollView";
+import PollFormModal from "./components/PollFormModal";
 
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
 
   const cleanupExpiredGuestSession = () => {
     const savedGuestSession = localStorage.getItem('guestSession');
@@ -100,9 +102,16 @@ const App = () => {
     }
   };
 
+  const handleOpenCreatePoll = () => {
+    setIsCreatePollOpen(true);
+  };
+  const handleCloseCreatePoll = () => {
+    setIsCreatePollOpen(false);
+  };
+
   return (
     <div>
-      <NavBar user={user} onLogout={handleLogout} />
+      <NavBar user={user} onLogout={handleLogout} onOpenCreatePoll={handleOpenCreatePoll} />
       <div className="app">
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />
@@ -117,6 +126,9 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+      {isCreatePollOpen && (
+        <PollFormModal isOpen={isCreatePollOpen} onClose={handleCloseCreatePoll} />
+      )}
     </div>
   );
 };

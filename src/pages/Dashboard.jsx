@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PollFormModal from "../components/PollFormModal";
 import PollCard from "../components/PollCard";
 import "./Dashboard.css";
@@ -7,7 +7,9 @@ import "./Dashboard.css";
 
 const Dashboard = ({ user: currentUser }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingDraft, setEditingDraft] = useState(null);
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -16,25 +18,37 @@ const Dashboard = ({ user: currentUser }) => {
   const [sortOrder, setSortOrder] = useState("newest");
   const [openMenuId, setOpenMenuId] = useState(null);
 
+  const fetchPolls = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:8080/api/polls", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch polls");
+
+      setPolls(data);
+      setError("");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPolls = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/api/polls", {
-          credentials: "include",
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to fetch polls");
-
-        setPolls(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPolls();
-  }, []);
+  }, [location.pathname]); // Re-fetch when navigating to dashboard
+
+  const handleEditDraft = (draftPoll) => {
+    setEditingDraft(draftPoll);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingDraft(null);
+  };
 
   const filteredAndSortedPolls = [...polls]
     .filter((poll) => {
@@ -100,10 +114,16 @@ const Dashboard = ({ user: currentUser }) => {
             isOpen={openMenuId === poll.id}
             onToggleMenu={(id) => setOpenMenuId(openMenuId === id ? null : id)}
             currentUser={currentUser}
+            onEditDraft={handleEditDraft}
           />
         ))}
       </ul>
-      <PollFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <PollFormModal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal} 
+        onPollCreated={fetchPolls}
+        initialData={editingDraft}
+      />
     </div>
   );
 };
