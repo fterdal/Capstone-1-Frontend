@@ -13,6 +13,7 @@ const PollDetails = ({ user }) => {
   const [master, setMaster] = useState(null);
   const [userLoading, setUserLoading] = useState(false);
   const [showVoteForm, setShowVoteForm] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   const fetchPoll = async () => {
     try {
@@ -39,10 +40,28 @@ const PollDetails = ({ user }) => {
     }
   };
 
+  const handleClosePoll = async () => {
+    if (!window.confirm("Are you sure you want to close this poll?")) return;
+    try {
+      setClosing(true);
+      await axios.patch(
+        `${API_URL}/api/admin/polls/${poll.id}/close`,
+        {},
+        { withCredentials: true }
+      );
+      await fetchPoll(); 
+      setShowVoteForm(false);
+    } catch (err) {
+      console.error("Error closing poll:", err);
+      setError("Failed to close poll");
+    } finally {
+      setClosing(false);
+    }
+  };
+
   const handleVoteSubmitted = (voteData) => {
     console.log("Vote submitted:", voteData);
     setShowVoteForm(false);
-
   };
 
   useEffect(() => {
@@ -81,7 +100,10 @@ const PollDetails = ({ user }) => {
     );
   }
 
-  const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true;
+  const isPollActive =
+    poll.status !== "closed" &&
+    poll.isActive &&
+    (poll.endAt ? new Date(poll.endAt) > new Date() : true);
 
   return (
     <div className="poll-details-wrapper">
@@ -104,6 +126,16 @@ const PollDetails = ({ user }) => {
             )}
             {!poll.endAt && <span className="poll-end-time">No end date</span>}
           </div>
+
+          {user?.role === "admin" && poll.status !== "closed" && (
+            <button
+              onClick={handleClosePoll}
+              disabled={closing}
+              className="close-poll-btn"
+            >
+              {closing ? "Closing..." : "Close Poll"}
+            </button>
+          )}
         </div>
 
         <div className="poll-options">
@@ -122,7 +154,7 @@ const PollDetails = ({ user }) => {
           ) : (
             <p>No options available for this poll.</p>
           )}
-          
+
           {isPollActive && (
             <button
               onClick={() => setShowVoteForm(!showVoteForm)}
@@ -155,7 +187,11 @@ const PollDetails = ({ user }) => {
             {userLoading ? "Loading..." : master ? master.username : "Unknown"}
           </p>
 
-          <div>{poll.status === "published" && poll.ballots?.length > 0 && <IRVResults poll={poll} />}</div>
+          <div>
+            {poll.status === "published" && poll.ballots?.length > 0 && (
+              <IRVResults poll={poll} />
+            )}
+          </div>
         </div>
       </div>
     </div>
