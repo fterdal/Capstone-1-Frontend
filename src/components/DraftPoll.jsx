@@ -114,8 +114,8 @@ const deleteDraft = async (draftId) => {
           position: i + 1,
         })),
       });
-    }
       navigate("/poll-list");
+    }
     } catch (err) {
       console.error("Failed to update draft:", err);
       setError("Update failed.");
