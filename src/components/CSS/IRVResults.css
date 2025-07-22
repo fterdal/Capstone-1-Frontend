@@ -1,0 +1,44 @@
+ /* https://coolors.co/palette/fffcf2-ccc5b9-403d39-252422-eb5e28 */
+
+.irv-results {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #fffcf2;
+  color: #403d39;
+  padding: 1.25rem 1.75rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(37, 36, 34, 0.12);
+}
+
+.irv-results h3 {
+  color: #252422;
+  margin-bottom: 0.25rem;
+  font-size: 1.35rem;
+}
+
+.irv-results p {
+  margin: 0 0 1rem;
+  color: #403d39;
+}
+
+@media (max-width: 768px) {
+  .irv-results {
+    padding: 1rem;
+  }
+  .irv-results h3 {
+    font-size: 1.2rem;
+  }
+}
+@media (max-width: 540px) {
+  .irv-results {
+    padding: 0.75rem;
+  }
+  .irv-results h3 {
+    font-size: 1.1rem;
+  }
+  .irv-results p {
+    font-size: 0.9rem;
+  }
+}
