@@ -1,19 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import CurrentRank from "../components/result/CurrentRank";
 import YourRankList from "../components/result/YourRankList";
 
-// Dummy poll and rankings
 const dummyPoll = {
   title: "Where should we get catering from?",
-  deadline: "2025-08-01T12:00:00Z",
+   deadline: new Date(Date.now() + 3 * 60 * 1000).toISOString(),
 };
 
 const dummyRankedResults = [
-  { optionText: "Taco Palace", count: 48 },
-  { optionText: "Pizza Central", count: 37 },
-  { optionText: "Noodle House", count: 21 },
-  { optionText: "Sushi Wave", count: 14 },
+  { optionText: "Sushi Wave", count: 20 },
+  { optionText: "Noodle House", count: 14 },
+  { optionText: "Taco Palace", count: 12 },
+  { optionText: "Pizza Central", count: 7 },
 ];
 
 const dummyUserRanking = [
@@ -24,12 +23,44 @@ const dummyUserRanking = [
 ];
 
 const ViewResultsPage = ({ user }) => {
+  const [timeLeft, setTimeLeft] = useState("");
+  const [isPollEnded, setIsPollEnded] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      const end = new Date(dummyPoll.deadline);
+      const diff = end - now;
+
+      if (diff <= 0) {
+        setIsPollEnded(true);
+        setTimeLeft("Poll has ended.");
+        clearInterval(interval);
+      } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
-      <NavBar user={user} />
       <div className="view-results-page" style={{ padding: "2rem" }}>
         <h2>{dummyPoll.title}</h2>
-        <p>Poll ends: {new Date(dummyPoll.deadline).toLocaleString()}</p>
+        <p>
+          Poll ends: {new Date(dummyPoll.deadline).toLocaleString()}
+          <br />
+          {isPollEnded ? (
+            <strong style={{ color: "green" }}>Poll has ended</strong>
+          ) : (
+            <span style={{ color: "#888" }}>Time left: {timeLeft}</span>
+          )}
+        </p>
 
         <div
           style={{
@@ -41,7 +72,7 @@ const ViewResultsPage = ({ user }) => {
         >
           <div style={{ flex: 1, minWidth: "300px" }}>
             <h3>Live Results</h3>
-            <CurrentRank data={dummyRankedResults} />
+            <CurrentRank data={dummyRankedResults} poll={dummyPoll} isEnded={isPollEnded} />
           </div>
 
           <div style={{ flex: 1, minWidth: "300px" }}>

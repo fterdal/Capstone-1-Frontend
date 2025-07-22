@@ -110,7 +110,7 @@ const App = () => {
           <Route exact path="/" element={<Home />} />
           <Route path="/demo" element={<Demo />} />
           <Route path="/vote" element={<VotePollPage />} />
-          <Route path="/polls/results" element={<ViewResultsPage />}/>
+          <Route path="/results" element={<ViewResultsPage user={user} />} />
           <Route path="/dashboard" element={<Dashboard user={user} />} />
           <Route path="/polls/host/:id" element={<HostPollView />} />
           <Route path="/polls/view/:id" element={<VotePollPage />} />
