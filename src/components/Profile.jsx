@@ -10,6 +10,7 @@ const ProfilePage = ({ user, authLoading }) => {
   const [master, setMaster] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [polls, setPolls] = useState([]);
   const navigate = useNavigate();
 
   const fetchUser = async () => {
@@ -17,6 +18,10 @@ const ProfilePage = ({ user, authLoading }) => {
       setLoading(true);
       const response = await axios.get(`${API_URL}/api/users/${user.id}`);
       setMaster(response.data);
+      const userPublished = response.data.polls.filter(
+        (published) => (published.creator_id === user.id && published.status === "published")
+      );
+      setPolls(userPublished);
     } catch (error) {
       console.error("Error fetching user:", error);
       setError("Failed to load user");
@@ -28,6 +33,20 @@ const ProfilePage = ({ user, authLoading }) => {
   const handleUserClick = (id) => {
     navigate(`/polls/${id}`);
   };
+
+  const handleDraftClick = (id) => {
+    navigate(`/edit-draft`);
+  };
+
+const handleDeletePoll = async (id) => {
+  try {
+    await axios.delete(`${API_URL}/api/polls/${id}`);
+    setPolls((prevPolls) => prevPolls.filter((p) => p.id !== id));
+  } catch (err) {
+    console.error("Failed to delete poll:", err);
+    alert("Failed to delete poll");
+  }
+};
 
   useEffect(() => {
     if (authLoading === false && !user) {
@@ -114,7 +133,7 @@ const ProfilePage = ({ user, authLoading }) => {
           <div className="stats">
             <div className="stat-item">
               <span className="stat-count">
-                {master.polls ? master.polls.length : 0}
+                {polls ? polls.length : 0}
               </span>
               <span className="stat-label">Polls</span>
             </div>
@@ -132,20 +151,21 @@ const ProfilePage = ({ user, authLoading }) => {
 
           <div className="profile-actions">
             <button className="follow-btn">Edit Profile</button>
-            <button className="message-btn">View Drafts</button>
+            <button onClick={() => handleDraftClick()} className="message-btn">View Drafts</button>
           </div>
         </div>
       </div>
 
-      {master.polls && master.polls.length > 0 && (
+      {polls && polls.length > 0 && (
         <div className="user-polls-section">
-          <h2>My Polls ({master.polls.length})</h2>
+          <h2>My Polls ({polls.length})</h2>
           <div className="polls-container">
-            {master.polls.map((poll) => (
+            {polls.map((poll) => (
               <UserPollCard
                 key={poll.id}
                 poll={poll}
                 onClick={() => handleUserClick(poll.id)}
+                onDelete={handleDeletePoll}
               />
             ))}
           </div>

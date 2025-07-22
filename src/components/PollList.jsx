@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PollCard from "./PollCard";
 import { useNavigate } from "react-router-dom";
+import "./CSS/UsersPage.css";
 
 const PollList = ({ poll }) => {
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   const duplicatePoll = async (poll) => {
@@ -70,12 +72,26 @@ const PollList = ({ poll }) => {
   if (loading) return <p>Loading polls...</p>;
   if (error) return <p>{error}</p>;
 
+  const filteredPolls = polls.filter((poll) => {
+    const Title = poll.title?.toLowerCase().includes(search.toLowerCase());
+    const Description = poll.description?.toLowerCase().includes(search.toLowerCase());
+    return Title || Description;
+});
+
   return (
     <div className="polls-container">
-      {polls.length === 0 ? (
+      <h2>All Polls</h2>
+      <input 
+        className="search-input"
+        type="text"
+        placeholder="Search polls"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      {filteredPolls.length === 0 ? (
         <p>No polls available.</p>
       ) : (
-        polls.map((poll) => (
+        filteredPolls.map((poll) => (
           <PollCard
             key={poll.id}
             poll={poll}

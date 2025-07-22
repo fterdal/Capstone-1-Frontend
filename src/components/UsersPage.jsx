@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./CSS/UsersPage.css";
+
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");

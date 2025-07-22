@@ -97,6 +97,7 @@ const NewPoll = ({ user }) => {
         allowAnonymous,
         allowListOnly: restrictToUsers,
         allowedUserIds,
+        status: "published",
         pollOptions: validOptions.map((optionText, index) => ({
           text: optionText,
           position: index + 1,
@@ -107,7 +108,9 @@ const NewPoll = ({ user }) => {
         pollData.endAt = new Date(endDate).toISOString();
       }
 
-      await axios.post("http://localhost:8080/api/polls", pollData);
+      if (!window.confirm("Are you sure you want to create this poll?")) {
+        await axios.post("http://localhost:8080/api/polls", pollData);
+      }
 
       navigate("/poll-list");
     } catch (err) {
@@ -278,7 +281,7 @@ const NewPoll = ({ user }) => {
                     allowAnonymous,
                     status: "draft",
                     pollOptions: validOptions.map((optionText, index) => ({
-                    optionText,
+                    text: optionText,
                     position: index + 1,
                 })),
             };
@@ -286,8 +289,10 @@ const NewPoll = ({ user }) => {
             if (!isIndefinite && endDate) {
               draftData.endAt = new Date(endDate).toISOString();
             }
+            if (window.confirm("Are you sure you want to save this draft?")) {
               const res = await axios.post("http://localhost:8080/api/polls", draftData);
               navigate(`/edit-draft/${res.data.id}`);
+            }
             } catch (err) {
             console.error("Error saving draft:", err);
             setError("Failed to save draft.");
