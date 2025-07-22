@@ -89,6 +89,8 @@ const NewPoll = ({ user }) => {
           .filter((id) => !isNaN(id))
       : [];
 
+      
+    if (window.confirm("Are you sure you want to create this poll?")) {
     try {
       const pollData = {
         creator_id,
@@ -103,19 +105,16 @@ const NewPoll = ({ user }) => {
           position: index + 1,
         })),
       };
-
+    
       if (!isIndefinite && endDate) {
         pollData.endAt = new Date(endDate).toISOString();
       }
-
-      if (!window.confirm("Are you sure you want to create this poll?")) {
         await axios.post("http://localhost:8080/api/polls", pollData);
-      }
-
       navigate("/poll-list");
     } catch (err) {
       setError("Failed to create poll.");
       console.error("Poll creation error:", err);
+    }
     }
   };
 
