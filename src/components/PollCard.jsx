@@ -95,12 +95,25 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
 
       {isOpen && (
         <ul className="poll-menu" onClick={(e) => e.stopPropagation()}>
-          <li
-            className={poll.participated ? "disabled" : ""}
-            onClick={() => {
-              if (!poll.participated) navigate(`/polls/edit/${poll.id}`);
-            }}
-          >Edit</li>
+          {((poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id)) && (
+            <li
+              onClick={() => {
+                if (poll.status === "draft") {
+                  if (onEditDraft) {
+                    onEditDraft(poll);
+                  } else {
+                    navigate(`/polls/edit/${poll.id}`);
+                  }
+                } else if (poll.status === "published") {
+                  if (typeof window.onEditDeadlineModal === "function") {
+                    window.onEditDeadlineModal(poll);
+                  } else {
+                    navigate(`/polls/host/${poll.id}`);
+                  }
+                }
+              }}
+            >Edit</li>
+          )}
           <li onClick={() => console.log("Duplicate", poll.id)}>Duplicate</li>
           <li onClick={() => console.log("Invite", poll.id)}>Invite</li>
           <li onClick={() => navigate(`/polls/results/${poll.id}`)}>Results</li>
