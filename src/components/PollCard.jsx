@@ -26,6 +26,11 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
           (difference % (1000 * 60 * 60)) / (1000 * 60)
         );
 
+        if (poll.status === "closed" || !poll.isActive) {
+          setTimeLeft("Ended by admin");
+          return;
+        }
+
         if (days > 0) {
           setTimeLeft(`${days}d ${hours}h left`);
         } else if (hours > 0) {
@@ -70,8 +75,6 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     }
   }, [poll.creator_id]);
 
-  const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true;
-
   const copyToClipboard = async (e) => {
     e.stopPropagation(); 
     
@@ -87,6 +90,12 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
       console.log("No link to copy");
     }
   };
+
+  const isPollActive =
+    poll.status !== "closed" &&
+    poll.isActive &&
+    (poll.endAt ? new Date(poll.endAt) > new Date() : true);
+
 
   return (
     <div
