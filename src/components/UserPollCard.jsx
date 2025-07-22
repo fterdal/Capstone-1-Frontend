@@ -8,6 +8,7 @@ const PollCard = ({ poll, onClick, onDelete }) => {
   const [creator, setCreator] = useState(null);
   const [polls, setPolls] = useState([]);
   const navigate = useNavigate();
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -82,6 +83,32 @@ if(!poll){
     <h1>No polls made yet</h1>
     </div>
   )};
+  
+  const copyToClipboard = async (e) => {
+    e.stopPropagation(); 
+    
+    const pollUrl = `${window.location.origin}/polls/${poll.id}`;
+    
+    try {
+      await navigator.clipboard.writeText(pollUrl);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = pollUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    }
+  };
 
 return (
     <div 
@@ -91,6 +118,21 @@ return (
     >
       <div className="poll-header">
         <h3 className="poll-title">{poll.title}</h3>
+        <button
+            className={`copy-btn ${copied ? 'copied' : ''}`}
+            onClick={copyToClipboard}
+            title="Copy poll link"
+          >
+            {copied ? (
+              <span className="copy-feedback">
+                ✓ Copied!
+              </span>
+            ) : (
+              <span className="copy-icon">
+                📋 Copy Link
+              </span>
+            )}
+          </button>
         <div className="poll-meta">
           <span className={`poll-time ${!isPollActive ? 'ended' : ''}`}>
             {timeLeft}

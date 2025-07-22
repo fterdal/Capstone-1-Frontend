@@ -5,12 +5,14 @@ import { API_URL } from "../shared";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import UserPollCard from "./UserPollCard";
+import EditProfile from "./EditProfile"; // Add this import
 
 const ProfilePage = ({ user, authLoading }) => {
   const [master, setMaster] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [polls, setPolls] = useState([]);
+  const [showEditProfile, setShowEditProfile] = useState(false); // Add this state
   const navigate = useNavigate();
 
   const fetchUser = async () => {
@@ -47,6 +49,22 @@ const handleDeletePoll = async (id) => {
     alert("Failed to delete poll");
   }
 };
+  // Add this function to handle profile updates
+  const handleProfileUpdated = (updatedUser) => {
+    setMaster(updatedUser);
+    // Optionally update the user state in the parent component
+    // if you have a way to update the global user state
+  };
+
+  // Add this function to handle edit profile button click
+  const handleEditProfile = () => {
+    setShowEditProfile(true);
+  };
+
+  // Add this function to handle closing edit profile
+  const handleCloseEditProfile = () => {
+    setShowEditProfile(false);
+  };
 
   useEffect(() => {
     if (authLoading === false && !user) {
@@ -110,8 +128,6 @@ const handleDeletePoll = async (id) => {
     );
   }
 
-  console.log(user);
-
   return (
     <div className="profile-page">
       <div className="profile-header">
@@ -150,8 +166,10 @@ const handleDeletePoll = async (id) => {
           {master.bio && <p className="bio">{master.bio}</p>}
 
           <div className="profile-actions">
-            <button className="follow-btn">Edit Profile</button>
             <button onClick={() => handleDraftClick()} className="message-btn">View Drafts</button>
+            <button className="follow-btn" onClick={handleEditProfile}>
+              Edit Profile
+            </button>
           </div>
         </div>
       </div>
@@ -170,6 +188,15 @@ const handleDeletePoll = async (id) => {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Add the EditProfile modal */}
+      {showEditProfile && (
+        <EditProfile
+          user={master}
+          onProfileUpdated={handleProfileUpdated}
+          onCancel={handleCloseEditProfile}
+        />
       )}
     </div>
   );
