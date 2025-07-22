@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./CSS/Friends.css";
 
 const FriendsPage = () => {
   const [search, setSearch] = useState("");
