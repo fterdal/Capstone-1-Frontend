@@ -101,27 +101,6 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
       className={`poll-card ${!isPollActive ? "poll-ended" : ""}`}
       onClick={onClick}
       style={{ cursor: "pointer" }}
-  const copyToClipboard = async (e) => {
-    e.stopPropagation(); 
-    
-    const pollUrl = `${window.location.origin}/polls/${poll.id}`;
-    
-    try {
-      await navigator.clipboard.writeText(pollUrl);
-      setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch (err) {
-      console.log("No link to copy");
-    }
-  };
-
-  return (
-    <div
-      className={`poll-card ${!isPollActive ? "poll-ended" : ""}`}
-      onClick={onClick}
-      style={{ cursor: "pointer" }}
     >
       <div className="poll-header">
         <h3 className="poll-title">{poll.title}</h3>
