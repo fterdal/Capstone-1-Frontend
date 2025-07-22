@@ -62,7 +62,6 @@ const PollDetails = ({ user }) => {
   const handleVoteSubmitted = (voteData) => {
     console.log("Vote submitted:", voteData);
     setShowVoteForm(false);
-    fetchPoll();
   };
 
   useEffect(() => {
@@ -102,8 +101,7 @@ const PollDetails = ({ user }) => {
   }
 
   const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true;
-  const canVote = isPollActive && (user || poll.allowAnonymous);
-  const showLoginPrompt = isPollActive && !user && !poll.allowAnonymous;
+  
 
   return (
     <div className="poll-details-wrapper">
