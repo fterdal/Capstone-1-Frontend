@@ -13,6 +13,7 @@ const PollDetails = ({ user }) => {
   const [master, setMaster] = useState(null);
   const [userLoading, setUserLoading] = useState(false);
   const [showVoteForm, setShowVoteForm] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   const fetchPoll = async () => {
     try {
@@ -36,6 +37,25 @@ const PollDetails = ({ user }) => {
       console.error("Error fetching user:", error);
     } finally {
       setUserLoading(false);
+    }
+  };
+
+  const handleClosePoll = async () => {
+    if (!window.confirm("Are you sure you want to close this poll?")) return;
+    try {
+      setClosing(true);
+      await axios.patch(
+        `${API_URL}/api/admin/polls/${poll.id}/close`,
+        {},
+        { withCredentials: true }
+      );
+      await fetchPoll(); 
+      setShowVoteForm(false);
+    } catch (err) {
+      console.error("Error closing poll:", err);
+      setError("Failed to close poll");
+    } finally {
+      setClosing(false);
     }
   };
 
@@ -81,7 +101,10 @@ const PollDetails = ({ user }) => {
     );
   }
 
-  const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true;
+  const isPollActive =
+    poll.status !== "closed" &&
+    poll.isActive &&
+    (poll.endAt ? new Date(poll.endAt) > new Date() : true);
   const canVote = isPollActive && (user || poll.allowAnonymous);
   const showLoginPrompt = isPollActive && !user && !poll.allowAnonymous;
 
@@ -106,6 +129,16 @@ const PollDetails = ({ user }) => {
             )}
             {!poll.endAt && <span className="poll-end-time">No end date</span>}
           </div>
+
+          {user?.role === "admin" && poll.status !== "closed" && (
+            <button
+              onClick={handleClosePoll}
+              disabled={closing}
+              className="close-poll-btn"
+            >
+              {closing ? "Closing..." : "Close Poll"}
+            </button>
+          )}
         </div>
 
         <div className="poll-options">
