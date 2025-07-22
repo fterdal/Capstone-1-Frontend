@@ -29,6 +29,23 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
     }
   };
 
+  // Duplicate poll handler
+  const handleDuplicate = async (e) => {
+    e.stopPropagation();
+    try {
+      const res = await axios.post(`http://localhost:8080/api/polls/${poll.id}/duplicate`, {}, { withCredentials: true });
+      const newPollId = res.data?.id;
+      if (newPollId) {
+        navigate(`/polls/edit/${newPollId}`);
+      } else {
+        window.location.reload(); // fallback, but no alert
+      }
+    } catch (err) {
+      console.error(" Failed to duplicate poll:", err);
+      alert("Could not duplicate poll.");
+    }
+  };
+
   const handleClick = () => {
         if (!poll?.id) {
             console.error("Poll is missing ID:", poll);
@@ -96,28 +113,30 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
       {isOpen && (
         <ul className="poll-menu" onClick={(e) => e.stopPropagation()}>
           {((poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id)) && (
-            <li
-              onClick={() => {
-                if (poll.status === "draft") {
-                  if (onEditDraft) {
-                    onEditDraft(poll);
-                  } else {
-                    navigate(`/polls/edit/${poll.id}`);
+            <>
+              <li
+                onClick={() => {
+                  if (poll.status === "draft") {
+                    if (onEditDraft) {
+                      onEditDraft(poll);
+                    } else {
+                      navigate(`/polls/edit/${poll.id}`);
+                    }
+                  } else if (poll.status === "published") {
+                    if (typeof window.onEditDeadlineModal === "function") {
+                      window.onEditDeadlineModal(poll);
+                    } else {
+                      navigate(`/polls/host/${poll.id}`);
+                    }
                   }
-                } else if (poll.status === "published") {
-                  if (typeof window.onEditDeadlineModal === "function") {
-                    window.onEditDeadlineModal(poll);
-                  } else {
-                    navigate(`/polls/host/${poll.id}`);
-                  }
-                }
-              }}
-            >Edit</li>
+                }}
+              >Edit</li>
+              <li onClick={handleDelete}>Delete</li>
+            </>
           )}
-          <li onClick={() => console.log("Duplicate", poll.id)}>Duplicate</li>
+          <li onClick={handleDuplicate}>Duplicate</li>
           <li onClick={() => console.log("Invite", poll.id)}>Invite</li>
           <li onClick={() => navigate(`/polls/results/${poll.id}`)}>Results</li>
-          <li onClick={handleDelete}>Delete</li>
         </ul>
       )}
     </li>
