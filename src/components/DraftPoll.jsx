@@ -53,8 +53,7 @@ useEffect(() => {
 }, [id]);
 
 const deleteDraft = async (draftId) => {
-  if (!window.confirm("Are you sure you want to delete this draft?")) return;
-
+  if (window.confirm("Are you sure you want to delete this draft?")) {
   try {
     await axios.delete(`http://localhost:8080/api/polls/${draftId}`);
     setDrafts((prev) => prev.filter((d) => d.id !== draftId));
@@ -62,6 +61,7 @@ const deleteDraft = async (draftId) => {
     console.error("Failed to delete draft:", err);
     alert("Failed to delete draft");
   }
+}
 };
 
   const handleOptionChange = (index, value) => {
@@ -102,17 +102,19 @@ const deleteDraft = async (draftId) => {
     if (validOptions.length < 2) return setError("At least 2 options required.");
 
     try {
+      if (window.confirm("Are you sure you want to publish this draft?")) {
       await axios.patch(`http://localhost:8080/api/polls/${id}`, {
         title: title.trim(),
         description: description.trim(),
         allowAnonymous,
+        status: "published",
         endAt: isIndefinite ? null : new Date(endDate).toISOString(),
         pollOptions: validOptions.map((text, i) => ({
           text,
           position: i + 1,
         })),
       });
-
+    }
       navigate("/poll-list");
     } catch (err) {
       console.error("Failed to update draft:", err);
@@ -259,7 +261,7 @@ const deleteDraft = async (draftId) => {
             Cancel
           </button>
           <button type="submit" className="create-poll-btn">
-            Update Draft
+            Publish Draft
           </button>
         </div>
       </form>

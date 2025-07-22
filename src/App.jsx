@@ -21,7 +21,6 @@ import UserCard from "./components/UserCard";
 import DraftPoll from "./components/DraftPoll";
 import PollDetails from "./components/PollDetails";
 
-//Alex branch
 const App = () => {
   const [user, setUser] = useState(null);
   const [polls, setPolls] = useState(null);

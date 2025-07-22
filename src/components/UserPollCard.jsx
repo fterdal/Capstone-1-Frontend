@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './CSS/UserPollCardStyles.css';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const PollCard = ({ poll, onClick }) => {
+const PollCard = ({ poll, onClick, onDelete }) => {
   const [timeLeft, setTimeLeft] = useState('');
   const [creator, setCreator] = useState(null);
+  const [polls, setPolls] = useState([]);
+  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -66,6 +70,20 @@ const PollCard = ({ poll, onClick }) => {
 
   const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true; 
 
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this poll?")) {
+      onDelete(poll.id);
+    }
+  };
+
+if(!poll){
+  return(
+    <div>
+    <h1>No polls made yet</h1>
+    </div>
+  )};
+  
   const copyToClipboard = async (e) => {
     e.stopPropagation(); 
     
@@ -127,6 +145,8 @@ return (
           <p>{poll.description}</p>
         </div>
       )}
+
+      <button onClick={handleDelete}>Delete</button>
       
       {!isPollActive && (
         <div className="poll-status">
