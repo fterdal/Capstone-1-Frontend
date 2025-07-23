@@ -112,7 +112,7 @@ const App = () => {
           <Route path="/vote" element={<VotePollPage />} />
           <Route path="/results/:id" element={<ViewResultsPage user={user} />} />
           <Route path="/dashboard" element={<Dashboard user={user} />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin" element={user?.isAdmin ? (<AdminDashboard user={user} />) : (<Navigate to="/" replace />)}/>
           <Route path="/polls/host/:id" element={<HostPollView />} />
           <Route path="/polls/view/:id" element={<VotePollPage />} />
           <Route path="/polls/view/:slug" element={<VotePollPage />} />
