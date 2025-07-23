@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import PollFormModal from "../components/PollFormModal";
 import PollCard from "../components/PollCard";
+import { API_URL } from "../shared";
 import "./Dashboard.css";
 
 
@@ -21,7 +22,7 @@ const Dashboard = ({ user: currentUser }) => {
   const fetchPolls = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/api/polls", {
+      const res = await fetch(`${API_URL}/api/polls`, {
         credentials: "include",
       });
       const data = await res.json();
