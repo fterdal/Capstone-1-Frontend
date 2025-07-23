@@ -32,6 +32,32 @@ const HostPollView = () => {
     fetchPoll();
   }, [id]);
 
+  // Auto-end poll when deadline passes
+  useEffect(() => {
+    if (!poll?.deadline || poll.status === "ended") return;
+
+    const interval = setInterval(async () => {
+      const now = new Date();
+      const deadlineTime = new Date(poll.deadline);
+
+      if (now >= deadlineTime) {
+        clearInterval(interval);
+        try {
+          await axios.put(`http://localhost:8080/api/polls/${id}`, {
+            status: "ended",
+          }, {
+            withCredentials: true,
+          });
+          setPoll((prev) => ({ ...prev, status: "ended" }));
+        } catch (err) {
+          console.error("Failed to auto-end poll:", err);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [poll, id]);
+
   const handleSaveDeadline = async () => {
     try {
       await axios.put(
@@ -62,6 +88,19 @@ const HostPollView = () => {
       .catch(() => alert("Failed to copy link."));
   };
 
+  const handleEndPoll = async () => {
+    try {
+      await axios.put(`http://localhost:8080/api/polls/${id}`, {
+        status: "ended",
+      }, {
+        withCredentials: true,
+      });
+      setPoll((prev) => ({ ...prev, status: "ended" }));
+    } catch (err) {
+      alert("Failed to end poll.");
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
   if (!poll) return null;
@@ -71,7 +110,11 @@ const HostPollView = () => {
       <div className="host-poll-container">
         <div className="vote-section">
           <h3>Vote on Your Poll</h3>
-          <VoteForm poll={poll} readOnly={false} />
+          {poll.status === "ended" ? (
+            <p style={{ color: "#888" }}><em>This poll has ended. Voting is disabled.</em></p>
+          ) : (
+            <VoteForm poll={poll} readOnly={false} />
+          )}
         </div>
 
         <div className="overview-section">
@@ -113,7 +156,7 @@ const HostPollView = () => {
             ) : (
               <div className="deadline-display">
                 <span>{poll.deadline ? new Date(poll.deadline).toLocaleString() : "No deadline"}</span>
-                <button onClick={() => setEditingDeadline(true)}>Edit</button>
+                <button onClick={() => setEditingDeadline(true)} disabled={poll.status === "ended"}>Edit</button>
               </div>
             )}
           </div>
@@ -123,7 +166,7 @@ const HostPollView = () => {
             <div className="action-buttons">
               <button onClick={handleCopyLink}>Copy Share Link</button>
               {copySuccess && <span className="copy-feedback">{copySuccess}</span>}
-              <button onClick={() => alert("End Poll logic here")}>End Poll</button>
+              <button onClick={handleEndPoll} disabled={poll.status === "ended"}>End Poll</button>
               <button onClick={() => navigate(`/results/${poll.id}`)}>View Results</button>
             </div>
           </div>
