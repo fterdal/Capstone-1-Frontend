@@ -13,7 +13,7 @@ module.exports = {
   devtool: "source-map",
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL || "http://localhost:3000"),
+      'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL || "http://localhost:8080"),
     }),
   ],
   module: {
