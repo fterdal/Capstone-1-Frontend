@@ -1,0 +1,102 @@
+/* Home.css */
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background-color: #0f111a;
+  color: #ffffff;
+}
+
+.home-container {
+  padding: 60px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+section {
+  margin-bottom: 80px;
+}
+
+h1,
+h2 {
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+p {
+  color: #cbd5e1;
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+button {
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 12px;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #4f46e5;
+}
+
+button:disabled {
+  background-color: #3f3f46;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+li {
+  flex: 1 1 200px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #d1d5db;
+}
+
+span {
+  color: #818cf8;
+  font-weight: bold;
+}
+
+/* CTA section */
+.cta {
+  background: linear-gradient(to right, #1e293b, #111827);
+  padding: 40px 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.cta h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.cta div {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.styled-paragraph {
+  color: #cbd5e1;
+  max-width: 700px;
+  line-height: 1.6;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
