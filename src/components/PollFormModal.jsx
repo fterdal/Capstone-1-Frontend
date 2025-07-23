@@ -31,13 +31,25 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
     if (initialData) {
       setTitle(initialData.title || "");
       setDescription(initialData.description || "");
-      setOptions(initialData.options || ["", ""]);
+      setOptions(initialData.pollOptions || ["", ""]);
       setAllowEndDateTime(!!initialData.deadline);
       setEndDateTime(initialData.deadline ? new Date(initialData.deadline).toISOString().slice(0, 16) : "");
       setAllowGuests(!initialData.authRequired);
       setAllowSharedLinks(initialData.allowSharedLinks || false);
-    } else {
-      resetForm();
+
+      const optionsData =  initialData.pollOptions || [];
+      
+      if (optionsData.length > 0) {
+        // Convert from backend format to form format
+        const formOptions = optionsData.map(opt => {
+          if (typeof opt === 'string') {
+            return opt;
+          }
+          // Handle object format - check all possible property names
+          return opt.optionText || '';
+        });
+        setOptions(formOptions);
+      }
     }
   }, [initialData]);
 
@@ -91,13 +103,16 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
       newErrors.endDateTime = "Please enter an end date/time.";
     }
     setErrors(newErrors);
-    // For publish: require all fields; for draft: only block on date/time if enabled
     if (status === "published") {
-      return Object.keys(newErrors).length === 0;
-    } else {
-      // For draft, only block if date/time error
-      return !newErrors.endDateTime;
+      const normalizedOptions = options.map(opt => normalizeOption(opt));
+      const uniqueOptions = new Set(normalizedOptions);
+      if (normalizedOptions.some(opt => !opt)) {
+        newErrors.options = "All options must be filled.";
+      } else if (uniqueOptions.size < options.length) {
+        newErrors.options = "Options must be unique (ignoring case and spaces).";
+      }
     }
+    return Object.keys(newErrors).length === 0;
   };
 
   // Unified handler for submit & draft
@@ -154,8 +169,7 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
     }
   };
 
-  const handleSaveDraft = async (status) => {
-    if (!validateAll(status)) return;
+  const handleSaveDraft = async (status) => { 
     // Skip validation for drafts to allow partial saves
   const payload = {
       title,
