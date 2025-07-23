@@ -16,6 +16,7 @@ const Dashboard = ({ user: currentUser }) => {
   const [filter, setFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [loadingDraft, setLoadingDraft] = useState(false); 
 
   const fetchPolls = async () => {
     setLoading(true);
@@ -55,9 +56,40 @@ const Dashboard = ({ user: currentUser }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleEditDraft = (draftPoll) => {
-    setEditingDraft(draftPoll);
-    setIsModalOpen(true);
+   //  Fetch complete poll data including options
+   const fetchPollWithOptions = async (pollId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/polls/${pollId}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch poll details");
+      
+      console.log("Fetched poll with options:", data); // Debug log
+      return data;
+    } catch (err) {
+      console.error("Error fetching poll details:", err);
+      setError(err.message);
+      return null;
+    }
+  };
+
+  const handleEditDraft = async (draftPoll) => {
+    console.log("Editing draft poll:", draftPoll); // Debug log
+    setLoadingDraft(true);
+    
+    // Fetch the complete poll data including options
+    const fullPollData = await fetchPollWithOptions(draftPoll.id);
+    
+    if (fullPollData) {
+      console.log("Setting editing draft with full data:", fullPollData); // Debug log
+      setEditingDraft(fullPollData);
+      setIsModalOpen(true);
+    } else {
+      alert("Failed to load draft data");
+    }
+    
+    setLoadingDraft(false);
   };
 
   const handleCloseModal = () => {
