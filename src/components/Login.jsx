@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 import "./CSS/AuthStyles.css";
@@ -11,7 +11,17 @@ const Login = ({ setUser }) => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -40,14 +50,22 @@ const Login = ({ setUser }) => {
     }
 
     setIsLoading(true);
+    setSuccessMessage("");
+    
     try {
       const response = await axios.post(`${API_URL}/auth/login`, formData, {
         withCredentials: true,
       });
 
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+
       setUser(response.data.user);
-      navigate("/");
+
+      navigate("/poll-list");
     } catch (error) {
+      console.error("Login error:", error);
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
       } else {
@@ -65,7 +83,6 @@ const Login = ({ setUser }) => {
       [name]: value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -78,6 +95,10 @@ const Login = ({ setUser }) => {
     <div className="auth-container">
       <div className="auth-form">
         <h2>Login</h2>
+
+        {successMessage && (
+          <div className="success-message">{successMessage}</div>
+        )}
 
         {errors.general && (
           <div className="error-message">{errors.general}</div>
@@ -93,6 +114,7 @@ const Login = ({ setUser }) => {
               value={formData.username}
               onChange={handleChange}
               className={errors.username ? "error" : ""}
+              placeholder="Enter your username"
             />
             {errors.username && (
               <span className="error-text">{errors.username}</span>
@@ -108,13 +130,14 @@ const Login = ({ setUser }) => {
               value={formData.password}
               onChange={handleChange}
               className={errors.password ? "error" : ""}
+              placeholder="Enter your password"
             />
             {errors.password && (
               <span className="error-text">{errors.password}</span>
             )}
           </div>
 
-          <button type="submit" disabled={isLoading}>
+          <button type="submit" disabled={isLoading} className="submit-btn">
             {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>

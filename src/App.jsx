@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import axios from "axios";
 import "./AppStyles.css";
@@ -23,27 +23,42 @@ import PollDetails from "./components/PollDetails";
 
 const App = () => {
   const [user, setUser] = useState(null);
-  const [polls, setPolls] = useState(null);
+  const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
   const fetchPolls = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/polls`);
+      const response = await axios.get(`${API_URL}/api/polls`, {
+        headers: getAuthHeaders()
+      });
       setPolls(response.data);
-    } catch {
-      console.log("failed to get polls");
+    } catch (error) {
+      console.log("Failed to get polls:", error);
       setPolls([]);
     }
   };
 
   const checkAuth = async () => {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       const response = await axios.get(`${API_URL}/auth/me`, {
-        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` }
       });
       setUser(response.data);
     } catch (error) {
       console.error("Auth check failed:", error);
+      localStorage.removeItem('token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -59,20 +74,17 @@ const App = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post(
-        `${API_URL}/auth/logout`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-      setUser(null);
+      await axios.post(`${API_URL}/auth/logout`, {}, {
+        headers: getAuthHeaders()
+      });
     } catch (error) {
       console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem('token');
+      setUser(null);
+      navigate("/");
     }
   };
-
-  console.log(user);
 
   return (
     <div>

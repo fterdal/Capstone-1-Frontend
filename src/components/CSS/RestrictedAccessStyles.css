@@ -1,0 +1,127 @@
+.restricted-access-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  padding: 20px;
+}
+
+.restricted-access-content {
+  text-align: center;
+  max-width: 500px;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e8ed;
+}
+
+.restricted-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.restricted-access-content h2 {
+  color: #14171a;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+}
+
+.restricted-message {
+  color: #657786;
+  font-size: 16px;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.login-prompt {
+  margin-top: 20px;
+}
+
+.login-prompt p {
+  color: #14171a;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.login-btn, .register-btn, .back-btn {
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  border: none;
+}
+
+.login-btn {
+  background: #1da1f2;
+  color: white;
+}
+
+.login-btn:hover {
+  background: #1991db;
+}
+
+.register-btn {
+  background: white;
+  color: #1da1f2;
+  border: 1px solid #1da1f2;
+}
+
+.register-btn:hover {
+  background: #f7f9fa;
+}
+
+.back-btn {
+  background: #657786;
+  color: white;
+  margin-top: 16px;
+}
+
+.back-btn:hover {
+  background: #556b7a;
+}
+
+.restricted-info {
+  margin-top: 20px;
+}
+
+.restricted-info p {
+  color: #14171a;
+  margin-bottom: 16px;
+}
+
+.restricted-info ul {
+  text-align: left;
+  color: #657786;
+  margin: 16px 0;
+  padding-left: 20px;
+}
+
+.restricted-info li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .restricted-access-content {
+    padding: 30px 20px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .login-btn, .register-btn {
+    width: 100%;
+  }
+}
