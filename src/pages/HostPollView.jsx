@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import VoteForm from "../components/VoteForm";
 import "./HostPollView.css";
 
 const HostPollView = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingDeadline, setEditingDeadline] = useState(false);
   const [newDeadline, setNewDeadline] = useState("");
   const [copySuccess, setCopySuccess] = useState("");
-
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -32,15 +32,17 @@ const HostPollView = () => {
     fetchPoll();
   }, [id]);
 
-
   const handleSaveDeadline = async () => {
     try {
-      await axios.put(`http://localhost:8080/api/polls/${id}`, {
-
-        deadline: newDeadline,
-      }, {
-        withCredentials: true,
-      });
+      await axios.put(
+        `http://localhost:8080/api/polls/${id}`,
+        {
+          deadline: newDeadline,
+        },
+        {
+          withCredentials: true,
+        }
+      );
       setPoll((prev) => ({ ...prev, deadline: newDeadline }));
       setEditingDeadline(false);
     } catch (err) {
@@ -54,7 +56,8 @@ const HostPollView = () => {
       return;
     }
     const shareURL = `${window.location.origin}/polls/view/${poll.slug}`;
-    navigator.clipboard.writeText(shareURL)
+    navigator.clipboard
+      .writeText(shareURL)
       .then(() => setCopySuccess("Link copied to clipboard!"))
       .catch(() => alert("Failed to copy link."));
   };
@@ -121,7 +124,7 @@ const HostPollView = () => {
               <button onClick={handleCopyLink}>Copy Share Link</button>
               {copySuccess && <span className="copy-feedback">{copySuccess}</span>}
               <button onClick={() => alert("End Poll logic here")}>End Poll</button>
-              <button onClick={() => alert("Results logic here")}>View Results</button>
+              <button onClick={() => navigate(`/results/${poll.id}`)}>View Results</button>
             </div>
           </div>
         </div>
