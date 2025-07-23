@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import "./CSS/AuthStyles.css";
 import { API_URL } from "../shared";
+import "./CSS/AuthStyles.css";
 
 const Signup = ({ setUser }) => {
   const [formData, setFormData] = useState({
@@ -21,6 +21,8 @@ const Signup = ({ setUser }) => {
       newErrors.username = "Username is required";
     } else if (formData.username.length < 3 || formData.username.length > 20) {
       newErrors.username = "Username must be between 3 and 20 characters";
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      newErrors.username = "Username can only contain letters, numbers, and underscores";
     }
 
     if (!formData.password) {
@@ -47,23 +49,39 @@ const Signup = ({ setUser }) => {
     }
 
     setIsLoading(true);
-    try {
-      const response = await axios.post(
-        `${API_URL}/auth/signup`,
-        {
-          username: formData.username,
-          password: formData.password,
-        },
-        { withCredentials: true }
-      );
+    setErrors({}); 
 
-      setUser(response.data.user);
-      navigate("/");
+    try {
+      const response = await axios.post(`${API_URL}/auth/signup`, {
+        username: formData.username,
+        password: formData.password,
+      }, {
+        withCredentials: true,
+      });
+
+      console.log("Signup successful:", response.data);
+      
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+      }
+
+      navigate("/login", { 
+        state: { 
+          message: "Account created successfully! Please log in with your new credentials." 
+        } 
+      });
+
     } catch (error) {
-      if (error.response?.data?.error) {
+      console.error("Signup error:", error);
+      
+      if (error.response?.status === 409) {
+        setErrors({ username: "This username is already taken. Please choose a different one." });
+      } else if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
+      } else if (error.response?.status === 400) {
+        setErrors({ general: "Please check your input and try again." });
       } else {
-        setErrors({ general: "An error occurred during signup" });
+        setErrors({ general: "An error occurred during signup. Please try again." });
       }
     } finally {
       setIsLoading(false);
@@ -77,11 +95,17 @@ const Signup = ({ setUser }) => {
       [name]: value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
         [name]: "",
+      }));
+    }
+
+    if (errors.general) {
+      setErrors((prev) => ({
+        ...prev,
+        general: "",
       }));
     }
   };
@@ -105,6 +129,7 @@ const Signup = ({ setUser }) => {
               value={formData.username}
               onChange={handleChange}
               className={errors.username ? "error" : ""}
+              placeholder="Choose a username (3-20 characters)"
             />
             {errors.username && (
               <span className="error-text">{errors.username}</span>
@@ -120,6 +145,7 @@ const Signup = ({ setUser }) => {
               value={formData.password}
               onChange={handleChange}
               className={errors.password ? "error" : ""}
+              placeholder="Enter a password (minimum 6 characters)"
             />
             {errors.password && (
               <span className="error-text">{errors.password}</span>
@@ -135,19 +161,20 @@ const Signup = ({ setUser }) => {
               value={formData.confirmPassword}
               onChange={handleChange}
               className={errors.confirmPassword ? "error" : ""}
+              placeholder="Confirm your password"
             />
             {errors.confirmPassword && (
               <span className="error-text">{errors.confirmPassword}</span>
             )}
           </div>
 
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Sign Up"}
+          <button type="submit" disabled={isLoading} className="submit-btn">
+            {isLoading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
 
         <p className="auth-link">
-          Already have an account? <Link to="/login">Login</Link>
+          Already have an account? <Link to="/login">Log in</Link>
         </p>
       </div>
     </div>

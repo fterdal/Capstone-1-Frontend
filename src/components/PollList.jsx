@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PollCard from "./PollCard";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../shared";
 import "./CSS/UsersPage.css";
 
 const PollList = ({ poll }) => {
@@ -54,17 +55,20 @@ const PollList = ({ poll }) => {
 
   useEffect(() => {
     const fetchPolls = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("http://localhost:8080/api/polls");
-        setPolls(response.data);
-      } catch (err) {
-        setError("Failed to fetch polls.");
-        console.error("Error fetching polls:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  try {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
+    const response = await axios.get(`${API_URL}/api/polls`, { headers });
+    setPolls(response.data);
+  } catch (err) {
+    setError("Failed to fetch polls.");
+    console.error("Error fetching polls:", err);
+  } finally {
+    setLoading(false);
+  }
+};
     
     fetchPolls();
   }, []);

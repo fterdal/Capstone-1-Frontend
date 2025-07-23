@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import axios, { all } from "axios";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../shared";
+import UserSearchInput from "./UserSearchInput";
 
 const NewPoll = ({ user }) => {
   const [title, setTitle] = useState("");
@@ -10,9 +12,12 @@ const NewPoll = ({ user }) => {
   const [isIndefinite, setIsIndefinite] = useState(true);
   const [allowAnonymous, setAllowAnonymous] = useState(false);
   const [error, setError] = useState("");
+  const [viewRestriction, setViewRestriction] = useState("public");
+  const [voteRestriction, setVoteRestriction] = useState("public");
+  const [customViewUsers, setCustomViewUsers] = useState([]);
+  const [customVoteUsers, setCustomVoteUsers] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const [restrictToUsers, setRestrictToUsers] = useState(false);
-  const [allowedUsersInput, setAllowedUsersInput] = useState("");
 
   if (!user) {
     return (
@@ -37,7 +42,7 @@ const NewPoll = ({ user }) => {
   };
 
   const removeOptionField = (index) => {
-    const updatedOptions = options.filter((_, i) => i != index);
+    const updatedOptions = options.filter((_, i) => i !== index);
     setOptions(updatedOptions);
   };
 
@@ -56,66 +61,109 @@ const NewPoll = ({ user }) => {
     setEndDate("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const validatePoll = (isDraft = false) => {
+  if (!title.trim()) {
+    return "Poll title is required.";
+  }
 
-    if (!title.trim()) {
-      return setError("Poll title is required.");
-    }
+  const validOptions = options.filter((opt) => opt.trim() !== "");
+  if (validOptions.length < 1) {
+    return "At least one option is required.";
+  }
 
+  if (!isDraft) {
     if (!isIndefinite) {
       if (!endDate) {
-        return setError(
-          "Please select an end date or remove the end date to make it indefinite."
-        );
+        return "Please select an end date or remove the end date to make it indefinite.";
       }
 
       const selectedEndDate = new Date(endDate);
       const now = new Date();
       if (selectedEndDate <= now) {
-        return setError("End date must be in the future.");
+        return "End date must be in the future.";
       }
     }
 
-    const validOptions = options.filter((opt) => opt.trim() !== "");
     if (validOptions.length < 2) {
-      return setError("At least two filled options are required.");
+      return "At least two filled options are required for publishing.";
     }
+  }
 
-    const allowedUserIds = restrictToUsers
-      ? allowedUsersInput
-          .split(",")
-          .map((id) => parseInt(id.trim()))
-          .filter((id) => !isNaN(id))
-      : [];
+  return null;
+};
 
-      
-    if (window.confirm("Are you sure you want to create this poll?")) {
-    try {
-      const pollData = {
-        creator_id,
-        title: title.trim(),
-        description: description.trim(),
-        allowAnonymous,
-        allowListOnly: restrictToUsers,
-        allowedUserIds,
-        status: "published",
-        pollOptions: validOptions.map((optionText, index) => ({
-          text: optionText,
-          position: index + 1,
-        })),
-      };
+  const createPollData = (status) => {
+  const validOptions = options.filter((opt) => opt.trim() !== "");
+  
+  const pollData = {
+    creator_id,
+    title: title.trim(),
+    description: description.trim(),
+    allowAnonymous: allowAnonymous && voteRestriction === "public",
+    status: status,
+    viewRestriction,
+    voteRestriction,
+    customViewUsers: viewRestriction === "custom" ? customViewUsers.map(u => u.id) : [],
+    customVoteUsers: voteRestriction === "custom" ? customVoteUsers.map(u => u.id) : [],
+    pollOptions: validOptions.map((optionText, index) => ({
+      text: optionText.trim(),
+      position: index + 1,
+    })),
+  };
+
+  if (!isIndefinite && endDate) {
+    pollData.endAt = new Date(endDate).toISOString();
+  }
+
+  console.log("Creating poll data:", pollData); 
+
+  return pollData;
+};
+
+  const handleSubmit = async (e, isDraft = false) => {
+    e.preventDefault();
     
-      if (!isIndefinite && endDate) {
-        pollData.endAt = new Date(endDate).toISOString();
+    const validationError = validatePoll(isDraft);
+    if (validationError) {
+      return setError(validationError);
+    }
+
+    const confirmMessage = isDraft 
+      ? "Save this poll as a draft?" 
+      : "Are you sure you want to publish this poll?";
+
+    if (window.confirm(confirmMessage)) {
+      setIsSubmitting(true);
+      try {
+        const pollData = createPollData(isDraft ? "draft" : "published");
+        
+        await axios.post(`${API_URL}/api/polls`, pollData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (isDraft) {
+          alert("Poll saved as draft successfully!");
+        }
+        
+        navigate("/poll-list");
+      } catch (err) {
+        const action = isDraft ? "save draft" : "publish poll";
+        setError(`Failed to ${action}.`);
+        console.error(`Poll ${action} error:`, err);
+      } finally {
+        setIsSubmitting(false);
       }
-        await axios.post("http://localhost:8080/api/polls", pollData);
-      navigate("/poll-list");
-    } catch (err) {
-      setError("Failed to create poll.");
-      console.error("Poll creation error:", err);
     }
-    }
+  };
+
+  const handleSaveAsDraft = (e) => {
+    handleSubmit(e, true);
+  };
+
+  const handlePublish = (e) => {
+    handleSubmit(e, false);
   };
 
   return (
@@ -123,7 +171,7 @@ const NewPoll = ({ user }) => {
       <h1>Create New Poll</h1>
       {error && <p className="error-message">{error}</p>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handlePublish}>
         <div className="form-group">
           <label htmlFor="title">Poll Title:</label>
           <input
@@ -147,9 +195,124 @@ const NewPoll = ({ user }) => {
           />
         </div>
 
+        {/* View Restrictions */}
+        <div className="form-group">
+          <label>Who can view this poll?</label>
+          <div className="restriction-options">
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="viewRestriction"
+                value="public"
+                checked={viewRestriction === "public"}
+                onChange={(e) => setViewRestriction(e.target.value)}
+              />
+              Public (anyone with the link)
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="viewRestriction"
+                value="followers"
+                checked={viewRestriction === "followers"}
+                onChange={(e) => setViewRestriction(e.target.value)}
+              />
+              Followers only
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="viewRestriction"
+                value="friends"
+                checked={viewRestriction === "friends"}
+                onChange={(e) => setViewRestriction(e.target.value)}
+              />
+              Friends only (mutual followers)
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="viewRestriction"
+                value="custom"
+                checked={viewRestriction === "custom"}
+                onChange={(e) => setViewRestriction(e.target.value)}
+              />
+              Choose specific users
+            </label>
+          </div>
+
+          {viewRestriction === "custom" && (
+            <div className="custom-users-section">
+              <label>Search and select users who can view:</label>
+              <UserSearchInput
+                selectedUsers={customViewUsers}
+                onUsersChange={setCustomViewUsers}
+                placeholder="Search users by username..."
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Vote Restrictions */}
+        <div className="form-group">
+          <label>Who can vote on this poll?</label>
+          <div className="restriction-options">
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="voteRestriction"
+                value="public"
+                checked={voteRestriction === "public"}
+                onChange={(e) => setVoteRestriction(e.target.value)}
+              />
+              Public (anyone who can view)
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="voteRestriction"
+                value="followers"
+                checked={voteRestriction === "followers"}
+                onChange={(e) => setVoteRestriction(e.target.value)}
+              />
+              Followers only
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="voteRestriction"
+                value="friends"
+                checked={voteRestriction === "friends"}
+                onChange={(e) => setVoteRestriction(e.target.value)}
+              />
+              Friends only (mutual followers)
+            </label>
+            <label className="radio-label">
+              <input
+                type="radio"
+                name="voteRestriction"
+                value="custom"
+                checked={voteRestriction === "custom"}
+                onChange={(e) => setVoteRestriction(e.target.value)}
+              />
+              Choose specific users
+            </label>
+          </div>
+
+          {voteRestriction === "custom" && (
+            <div className="custom-users-section">
+              <label>Search and select users who can vote:</label>
+              <UserSearchInput
+                selectedUsers={customVoteUsers}
+                onUsersChange={setCustomVoteUsers}
+                placeholder="Search users by username..."
+              />
+            </div>
+          )}
+        </div>
+
         <div className="form-group">
           <label>Poll Duration:</label>
-
           {isIndefinite ? (
             <div className="indefinite-section">
               <div className="indefinite-notice">
@@ -187,44 +350,19 @@ const NewPoll = ({ user }) => {
           )}
         </div>
 
-        <div className="form-group">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={allowAnonymous}
-              onChange={(e) => setAllowAnonymous(e.target.checked)}
-            />
-            Allow anonymous voting
-          </label>
-          <small>If checked, users can vote without logging in</small>
-        </div>
-
-        <div className="form-group">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={restrictToUsers}
-              onChange={(e) => setRestrictToUsers(e.target.checked)}
-            />
-            Restrict voting to specific users
-          </label>
-          <small>
-            If checked, only the listed user IDs will be allowed to vote
-          </small>
-
-          {restrictToUsers && (
-            <div className="allowed-users-input">
-              <label htmlFor="allowedUserIds">Allowed User IDs:</label>
-              <textarea
-                id="allowedUserIds"
-                value={allowedUsersInput}
-                onChange={(e) => setAllowedUsersInput(e.target.value)}
-                placeholder="e.g. 3, 7, 12"
-                rows="2"
+        {voteRestriction === "public" && (
+          <div className="form-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={allowAnonymous}
+                onChange={(e) => setAllowAnonymous(e.target.checked)}
               />
-            </div>
-          )}
-        </div>
+              Allow anonymous voting
+            </label>
+            <small>If checked, users can vote without logging in</small>
+          </div>
+        )}
 
         <div className="form-group">
           <label>Poll Options:</label>
@@ -257,49 +395,28 @@ const NewPoll = ({ user }) => {
         </div>
 
         <div className="form-actions">
-          <button type="button" onClick={() => navigate("/poll-list")}>
+          <button 
+            type="button" 
+            onClick={() => navigate("/poll-list")}
+            disabled={isSubmitting}
+          >
             Cancel
           </button>
-          <button type="submit" className="create-poll-btn">
-            Create Poll
-          </button>
-          <button
-            type="button"
+          <button 
+            type="button" 
+            onClick={handleSaveAsDraft}
             className="save-draft-btn"
-            onClick={async () => {
-            const validOptions = options.filter((opt) => opt.trim() !== "");
-            if (validOptions.length < 2) {
-              return setError("At least two options are required to save.");
-            }
-
-            try {
-                  const draftData = {
-                    creator_id,
-                    title: title.trim(),
-                    description: description.trim(),
-                    allowAnonymous,
-                    status: "draft",
-                    pollOptions: validOptions.map((optionText, index) => ({
-                    text: optionText,
-                    position: index + 1,
-                })),
-            };
-
-            if (!isIndefinite && endDate) {
-              draftData.endAt = new Date(endDate).toISOString();
-            }
-            if (window.confirm("Are you sure you want to save this draft?")) {
-              const res = await axios.post("http://localhost:8080/api/polls", draftData);
-              navigate(`/edit-draft/${res.data.id}`);
-            }
-            } catch (err) {
-            console.error("Error saving draft:", err);
-            setError("Failed to save draft.");
-            }
-          }}
-        >
-          Save as Draft
-        </button>
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Save as Draft"}
+          </button>
+          <button 
+            type="submit" 
+            className="publish-poll-btn"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Publishing..." : "Publish Poll"}
+          </button>
         </div>
       </form>
     </div>
