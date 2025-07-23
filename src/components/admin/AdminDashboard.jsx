@@ -41,7 +41,36 @@ const AdminDashboard = () => {
         </div>
         )}
 
-      {activeTab === "users" && <div>User Management View (coming soon)</div>}
+      {activeTab === "users" && (
+        <div>
+            <h3>All Users</h3>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+                <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {[...Array(5)].map((_, i) => (
+                <tr key={i} style={{ borderTop: "1px solid #ccc" }}>
+                    <td>{`User ${i + 1}`}</td>
+                    <td>{`user${i + 1}@email.com`}</td>
+                    <td>{i === 0 ? "Admin" : "User"}</td>
+                    <td>
+                    <button style={{ background: "#dc3545", color: "white" }}>
+                        Disable
+                    </button>
+                    </td>
+                </tr>
+                ))}
+            </tbody>
+            </table>
+        </div>
+        )}
+
       {activeTab === "myPolls" && <div>Admin’s Own Polls (reuse existing component)</div>}
     </div>
   );
