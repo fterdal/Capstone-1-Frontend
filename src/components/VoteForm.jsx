@@ -6,8 +6,6 @@ const VoteForm = ({ poll, readOnly = false }) => {
   const [orderedOptions, setOrderedOptions] = useState([]);
   const [draggedItem, setDraggedItem] = useState(null);
   const [deletedOptions, setDeletedOptions] = useState(new Set());
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
 
   console.log("VoteForm rendered with poll:", poll);
   console.log("Poll options:", poll?.pollOptions);
@@ -30,7 +28,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
         // Find the position among non-deleted options
         const nonDeletedBefore = orderedOptions
           .slice(0, index)
-          .filter((opt) => !deletedOptions.has(opt.id)).length;
+          .filter(opt => !deletedOptions.has(opt.id)).length;
         newRankings[option.id] = nonDeletedBefore + 1;
       }
     });
@@ -77,17 +75,17 @@ const VoteForm = ({ poll, readOnly = false }) => {
   const handleDragOver = (e, index) => {
     e.preventDefault();
     if (draggedItem === null) return;
-
+    
     if (draggedItem !== index) {
       const newOrderedOptions = [...orderedOptions];
       const draggedOption = newOrderedOptions[draggedItem];
-
+      
       // Remove the dragged item
       newOrderedOptions.splice(draggedItem, 1);
-
+      
       // Insert at new position
       newOrderedOptions.splice(index, 0, draggedOption);
-
+      
       setOrderedOptions(newOrderedOptions);
       setDraggedItem(index);
     }
@@ -98,97 +96,68 @@ const VoteForm = ({ poll, readOnly = false }) => {
   };
 
   const handleDeleteOption = (optionId) => {
-    setDeletedOptions((prev) => new Set([...prev, optionId]));
+    setDeletedOptions(prev => new Set([...prev, optionId]));
   };
 
   const handleRestoreOption = (optionId) => {
-    setDeletedOptions((prev) => {
+    setDeletedOptions(prev => {
       const newSet = new Set(prev);
       newSet.delete(optionId);
       return newSet;
     });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError(null);
-  setSubmitting(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
 
-  const hasRanked = Object.values(rankings).some(rank => rank !== null);
-  const isExpired = poll?.deadline && new Date() > new Date(poll.deadline);
+    try {
+       await fetch(`http://localhost:8080/api/polls/${poll.id}/votes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          pollId: poll.id,
+          rankings: rankings,
+        }),
+      });
 
-  if (!hasRanked) {
-    setError("You must rank at least one option before submitting.");
-    setSubmitting(false);
-    return;
-  }
-
-  if (isExpired) {
-    setError("This poll has expired and can no longer be voted on.");
-    setSubmitting(false);
-    return;
-  }
-
-  const votingRanks = orderedOptions.map((option, index) => {
-    const isDeleted = deletedOptions.has(option.id);
-    const rank = rankings[option.id];
-
-    return {
-      pollOptionId: option.id,
-      rank: isDeleted ? null : rank,
-      position: index,
-    };
-  });
-
-  try {
-    await fetch(`http://localhost:8080/api/polls/${poll.id}/votes`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        pollId: poll.id,
-        votingRanks: votingRanks,
-      }),
-    });
-
-    alert("Vote submitted!");
-    setSubmitted(true); // freeze UI
-    setRankings({});
-  } catch (err) {
-    console.error("Failed to submit vote", err);
-    setError("Failed to submit vote. Please try again.");
-  } finally {
-    setSubmitting(false);
-  }
-};
+      alert("Vote submitted!");
+      setRankings({});
+    } catch (err) {
+      console.error("Failed to submit vote", err);
+      alert("Failed to submit vote.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="vote-form">
-      <h4>
-        Drag to rank the options (top = highest rank). Click X to remove options
-        from ranking:
-      </h4>
+      <h4>Drag to rank the options (top = highest rank). Click X to remove options from ranking:</h4>
       <div className="ranking-options">
         {orderedOptions?.map((option, index) => {
           const isDeleted = deletedOptions.has(option.id);
           const currentRank = rankings[option.id];
-
+          
           return (
-            <div
-              key={option.id}
-              className={`ranking-item ${
-                draggedItem === index ? "dragging" : ""
-              } ${isDeleted ? "deleted" : ""}`}
-              draggable={!readOnly && !isDeleted && !submitted}
+            <div 
+              key={option.id} 
+              className={`ranking-item ${draggedItem === index ? 'dragging' : ''} ${isDeleted ? 'deleted' : ''}`}
+              draggable={!readOnly && !isDeleted}
               onDragStart={(e) => !isDeleted && handleDragStart(e, index)}
               onDragOver={(e) => !isDeleted && handleDragOver(e, index)}
               onDragEnd={handleDragEnd}
             >
               <div className="ranking-content">
                 {!isDeleted && <span className="drag-handle">⋮⋮</span>}
-                <span className="option-text">{option.optionText}</span>
+                <span className="option-text">
+                  {option.optionText}
+                </span>
                 {!isDeleted && currentRank && (
-                  <span className="rank-badge">#{currentRank}</span>
+                  <span className="rank-badge">
+                    #{currentRank}
+                  </span>
                 )}
               </div>
               <div className="option-actions">
@@ -221,39 +190,21 @@ const VoteForm = ({ poll, readOnly = false }) => {
           {orderedOptions.map((option) => {
             const rank = rankings[option.id];
             const isDeleted = deletedOptions.has(option.id);
-
+            
             return (
               <li key={option.id}>
                 {isDeleted ? (
-                  <span>
-                    <strong>Unranked</strong>: {option.optionText} (excluded)
-                  </span>
+                  <span><strong>Unranked</strong>: {option.optionText} (excluded)</span>
                 ) : (
-                  <span>
-                    <strong>#{rank}</strong>: {option.optionText}
-                  </span>
+                  <span><strong>#{rank}</strong>: {option.optionText}</span>
                 )}
               </li>
             );
           })}
         </ul>
-        <p>
-          <small>
-            Note: Deleted options are sent as null/unranked for RCV processing
-          </small>
-        </p>
       </div>
 
-      {error && (
-        <div
-          className="submit-error"
-          style={{ color: "red" }}
-        >
-          {error}
-        </div>
-      )}
-
-      <button type="submit" disabled={readOnly || submitting || submitted}>
+      <button type="submit" disabled={readOnly || submitting}>
         Submit Vote
       </button>
     </form>
