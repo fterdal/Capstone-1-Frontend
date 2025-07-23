@@ -14,7 +14,7 @@ import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
 import HostPollView from "./pages/HostPollView";
 import SmartPollView from "./pages/SmartPollView";
-
+import AdminDashboard from "./components/admin/AdminDashboard";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -112,6 +112,7 @@ const App = () => {
           <Route path="/vote" element={<VotePollPage />} />
           <Route path="/results/:id" element={<ViewResultsPage user={user} />} />
           <Route path="/dashboard" element={<Dashboard user={user} />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/polls/host/:id" element={<HostPollView />} />
           <Route path="/polls/view/:id" element={<VotePollPage />} />
           <Route path="/polls/view/:slug" element={<VotePollPage />} />
