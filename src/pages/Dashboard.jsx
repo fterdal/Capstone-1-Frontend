@@ -4,7 +4,6 @@ import PollFormModal from "../components/PollFormModal";
 import PollCard from "../components/PollCard";
 import "./Dashboard.css";
 
-
 const Dashboard = ({ user: currentUser }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,6 +39,22 @@ const Dashboard = ({ user: currentUser }) => {
     fetchPolls();
   }, [location.pathname]); // Re-fetch when navigating to dashboard
 
+  // Automatically close polls after deadline without refresh
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      setPolls((prevPolls) =>
+        prevPolls.map((poll) =>
+          poll.deadline && new Date(poll.deadline) < now
+            ? { ...poll, status: "closed" }
+            : poll
+        )
+      );
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   const handleEditDraft = (draftPoll) => {
     setEditingDraft(draftPoll);
     setIsModalOpen(true);
@@ -52,7 +67,9 @@ const Dashboard = ({ user: currentUser }) => {
 
   const filteredAndSortedPolls = [...polls]
     .filter((poll) => {
-      const matchesSearch = poll.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = poll.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
       const matchesFilter =
         filter === "all" ||
         (filter === "created" && poll.ownerId === currentUser.id) ||
@@ -60,8 +77,10 @@ const Dashboard = ({ user: currentUser }) => {
       return matchesSearch && matchesFilter;
     })
     .sort((a, b) => {
-      if (sortOrder === "newest") return new Date(b.createdAt) - new Date(a.createdAt);
-      if (sortOrder === "oldest") return new Date(a.createdAt) - new Date(b.createdAt);
+      if (sortOrder === "newest")
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      if (sortOrder === "oldest")
+        return new Date(a.createdAt) - new Date(b.createdAt);
       if (sortOrder === "status-az") return a.status.localeCompare(b.status);
       if (sortOrder === "status-za") return b.status.localeCompare(a.status);
       return 0;
@@ -72,7 +91,9 @@ const Dashboard = ({ user: currentUser }) => {
     const end = new Date(deadline);
     const diff = Math.max(0, end - now);
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return days === 0 ? "no end date" : `ends in ${days} day${days > 1 ? "s" : ""}`;
+    return days === 0
+      ? "no end date"
+      : `ends in ${days} day${days > 1 ? "s" : ""}`;
   };
 
   return (
@@ -94,7 +115,10 @@ const Dashboard = ({ user: currentUser }) => {
           <option value="published">Created</option>
           <option value="participated">Participated</option>
         </select>
-        <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+        <select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
           <option value="status-az">Status A → Z</option>
@@ -104,7 +128,9 @@ const Dashboard = ({ user: currentUser }) => {
 
       {loading && <p>Loading polls...</p>}
       {error && <p className="error">{error}</p>}
-      {!loading && filteredAndSortedPolls.length === 0 && <p>No polls to display.</p>}
+      {!loading && filteredAndSortedPolls.length === 0 && (
+        <p>No polls to display.</p>
+      )}
 
       <ul className="poll-list">
         {filteredAndSortedPolls.map((poll) => (
@@ -118,9 +144,9 @@ const Dashboard = ({ user: currentUser }) => {
           />
         ))}
       </ul>
-      <PollFormModal 
-        isOpen={isModalOpen} 
-        onClose={handleCloseModal} 
+      <PollFormModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
         onPollCreated={fetchPolls}
         initialData={editingDraft}
       />
