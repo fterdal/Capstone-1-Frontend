@@ -1,11 +1,15 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { API_URL } from "../shared";
 
 const VoteForm = ({ poll, readOnly = false }) => {
   const [rankings, setRankings] = useState({});
+  console.log("this is rankins---->", rankings)
   const [submitting, setSubmitting] = useState(false);
   const [orderedOptions, setOrderedOptions] = useState([]);
+  console.log("this is ordered options", orderedOptions)
   const [draggedItem, setDraggedItem] = useState(null);
+  console.log("dragged--->", draggedItem)
   const [deletedOptions, setDeletedOptions] = useState(new Set());
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
@@ -22,7 +26,7 @@ const VoteForm = ({ poll, readOnly = false }) => {
 
   // Update rankings whenever the order changes
   useEffect(() => {
-    const newRankings = {};
+    let newRankings = [];
     orderedOptions.forEach((option, index) => {
       if (deletedOptions.has(option.id)) {
         // Keep deleted options as null for algorrithm
@@ -32,7 +36,15 @@ const VoteForm = ({ poll, readOnly = false }) => {
         const nonDeletedBefore = orderedOptions
           .slice(0, index)
           .filter((opt) => !deletedOptions.has(opt.id)).length;
-        newRankings[option.id] = nonDeletedBefore + 1;
+
+        newRankings.push({
+          optionId: option.id,
+          rank: nonDeletedBefore + 1
+        })
+
+        // newRankings.optionId = option.id,
+        //   newRankings.ranking = index
+        // newRankings.optionId = option.id
       }
     });
     setRankings(newRankings);
@@ -115,7 +127,11 @@ const VoteForm = ({ poll, readOnly = false }) => {
     setSubmitting(true);
 
     try {
+
+      
+
       await fetch(`${API_URL}/api/polls/${poll.id}/votes`, {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -124,6 +140,10 @@ const VoteForm = ({ poll, readOnly = false }) => {
           rankings: rankings,
         }),
       });
+      // await axios.post("http://localhost:8080/api/:pollId/vote",
+      //   rankings,
+      //   {withCredentials: true}
+      //  )
 
       alert("Vote submitted!");
       setSubmitted(true); //to freeze ui
@@ -150,9 +170,8 @@ const VoteForm = ({ poll, readOnly = false }) => {
           return (
             <div
               key={option.id}
-              className={`ranking-item ${
-                draggedItem === index ? "dragging" : ""
-              } ${isDeleted ? "deleted" : ""}`}
+              className={`ranking-item ${draggedItem === index ? "dragging" : ""
+                } ${isDeleted ? "deleted" : ""}`}
               draggable={!readOnly && !isDeleted && !submitted}
               onDragStart={(e) => !isDeleted && handleDragStart(e, index)}
               onDragOver={(e) => !isDeleted && handleDragOver(e, index)}
