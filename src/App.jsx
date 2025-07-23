@@ -16,6 +16,7 @@ import HostPollView from "./pages/HostPollView";
 import SmartPollView from "./pages/SmartPollView";
 import AdminDashboard from "./components/admin/AdminDashboard";
 
+
 const App = () => {
   const [user, setUser] = useState(null);
 

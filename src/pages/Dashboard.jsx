@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PollFormModal from "../components/PollFormModal";
 import PollCard from "../components/PollCard";
+import AdminDashboard from "../components/admin/AdminDashboard";
 import "./Dashboard.css";
 
 
@@ -104,6 +105,12 @@ const Dashboard = ({ user: currentUser }) => {
         ))}
       </ul>
       <PollFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {currentUser?.isAdmin && (
+        <section style={{ marginTop: "3rem" }}>
+          <hr style={{ marginBottom: "1rem" }} />
+          <AdminDashboard />
+        </section>
+      )}
     </div>
   );
 };
