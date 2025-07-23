@@ -211,15 +211,9 @@ const PollDetails = ({ user }) => {
             <strong>Created by:</strong>{" "}
             {userLoading ? "Loading..." : master ? master.username : "Unknown"}
           </p>
-
-          <div>
-            {poll.status === "published" && poll.ballots?.length > 0 && (
-              <IRVResults poll={poll} />
-            )}
-          </div>
         </div>
 
-        {/* Results section */}
+        {/* Results section only for published polls*/}
         {poll.status === "published" && poll.ballots?.length > 0 && (
           <div className="results-section">
             <h3>Results</h3>
