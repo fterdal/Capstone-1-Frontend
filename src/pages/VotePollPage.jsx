@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import VoteForm from "../components/VoteForm";
+import { API_URL } from "../shared";
 
 const VotePollPage = () => {
   const { id, slug } = useParams();
@@ -14,9 +15,9 @@ const VotePollPage = () => {
       try {
         let url;
         if (slug) {
-          url = `http://localhost:8080/api/polls/slug/${slug}`;
+          url = `${API_URL}/api/polls/slug/${slug}`;
         } else if (id) {
-          url = `http://localhost:8080/api/polls/${id}`;  // Backend expects /api/polls/:pollId
+          url = `${API_URL}/api/polls/${id}`;  // Backend expects /api/polls/:pollId
         } else {
           setError("No poll ID or slug provided");
           setLoading(false);

@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../shared";
 
 const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
     const confirmed = window.confirm("Are you sure you want to delete this poll?");
     if (!confirmed) return;
     try {
-      await axios.delete(`http://localhost:8080/api/polls/${poll.id}`, {
+      await axios.delete(`${API_URL}/api/polls/${poll.id}`, {
         withCredentials: true,
       });
       console.log("✅ Poll deleted:", poll.id);
