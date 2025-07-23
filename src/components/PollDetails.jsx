@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
-import "./CSS/PollDetailsStyles.css";
 import RestrictedAccess from "./RestrictedAccess";
 import VoteForm from "./VoteForm";
 import IRVResults from "./IRVResults";
+import "./CSS/PollDetailsStyles.css";
 
 const PollDetails = ({ user }) => {
   const { id } = useParams();
@@ -13,6 +13,7 @@ const PollDetails = ({ user }) => {
 
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true);
   const [error, setError] = useState(null);
   const [requiresLogin, setRequiresLogin] = useState(false);
   const [userBallot, setUserBallot] = useState(null);
@@ -45,9 +46,9 @@ const PollDetails = ({ user }) => {
           pollData.pollOptions = pollData.PollOptions;
         }
         if (pollData.Ballots) {
-          pollData.ballots = pollData.Ballots.map(ballot => ({
+          pollData.ballots = pollData.Ballots.map((ballot) => ({
             ...ballot,
-            ballotRankings: ballot.BallotRankings || []
+            ballotRankings: ballot.BallotRankings || [],
           }));
         }
 
@@ -128,11 +129,11 @@ const PollDetails = ({ user }) => {
   const handleVoteSubmitted = async (voteData) => {
     try {
       const refreshResponse = await axios.get(`${API_URL}/api/polls/${id}`, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
       });
-      
+
       const updatedPollData = refreshResponse.data;
-      
+
       if (!updatedPollData.PollOptions && updatedPollData.pollOptions) {
         updatedPollData.PollOptions = updatedPollData.pollOptions;
       }
@@ -140,24 +141,25 @@ const PollDetails = ({ user }) => {
         updatedPollData.pollOptions = updatedPollData.PollOptions;
       }
       if (updatedPollData.Ballots) {
-        updatedPollData.ballots = updatedPollData.Ballots.map(ballot => ({
+        updatedPollData.ballots = updatedPollData.Ballots.map((ballot) => ({
           ...ballot,
-          ballotRankings: ballot.BallotRankings || []
+          ballotRankings: ballot.BallotRankings || [],
         }));
       }
-      
+
       setPoll(updatedPollData);
-      
+
       if (updatedPollData.Ballots && user) {
-        const userBallotData = updatedPollData.Ballots.find(ballot => ballot.user_id === user.id);
+        const userBallotData = updatedPollData.Ballots.find(
+          (ballot) => ballot.user_id === user.id
+        );
         if (userBallotData) {
           setUserBallot(userBallotData);
         }
       }
-      
+
       setVoteSubmitted(true);
       setShowResults(true);
-      
     } catch (error) {
       console.error("Error refreshing poll data:", error);
       setVoteSubmitted(true);
@@ -222,129 +224,154 @@ const PollDetails = ({ user }) => {
   }
 
   return (
-    <div className="poll-details-container">
-      <div className="poll-header">
-        <button onClick={() => navigate("/poll-list")} className="back-button">
-          ← Back to Polls
-        </button>
+      <div className="poll-details-container">
+        <div className="poll-header">
+          <button
+            onClick={() => navigate("/poll-list")}
+            className="back-button"
+          >
+            ← Back to Polls
+          </button>
 
-        <div className="poll-meta">
-          {poll.creator && (
-            <div className="creator-info">
-              <img
-                src={
-                  poll.creator.imageUrl ||
-                  "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
-                }
-                alt={poll.creator.username}
-                className="creator-avatar"
-              />
-              <span className="creator-name">by @{poll.creator.username}</span>
-            </div>
-          )}
-
-          <div className="poll-restrictions">
-            {poll.viewRestriction !== "public" && (
-              <span className="restriction-badge view">
-                👁️ {poll.viewRestriction} view
-              </span>
+          <div className="poll-meta">
+            {poll.creator && (
+              <div className="creator-info">
+                <img
+                  src={
+                    poll.creator.imageUrl ||
+                    "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
+                  }
+                  alt={poll.creator.username}
+                  className="creator-avatar"
+                />
+                <span className="creator-name">
+                  by @{poll.creator.username}
+                </span>
+              </div>
             )}
-            {poll.voteRestriction !== "public" && (
-              <span className="restriction-badge vote">
-                🗳️ {poll.voteRestriction} vote
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
 
-      <div className="poll-content">
-        <h1 className="poll-title">{poll.title}</h1>
-
-        {poll.description && (
-          <p className="poll-description">{poll.description}</p>
-        )}
-
-        <div className="poll-status">
-          {poll.endAt && (
-            <div className={`poll-timer ${!isPollActive ? "ended" : ""}`}>
-              {isPollActive ? `⏰ Time left: ${timeLeft}` : "⏰ Poll ended"}
-            </div>
-          )}
-
-          <div className="vote-count">
-            📊 {poll.ballots?.length || 0} votes cast
-          </div>
-        </div>
-
-        {/* Use VoteForm component for voting */}
-        {canVote && (
-          <VoteForm 
-            poll={poll} 
-            user={user} 
-            onVoteSubmitted={handleVoteSubmitted}
-          />
-        )}
-
-        {/* Show voting disabled message */}
-        {!canVote && !showResults && (
-          <div className="voting-disabled">
-            <p>
-              {!user
-                ? "Please log in to vote"
-                : !poll.permissions?.canVote
-                ? "You don't have permission to vote on this poll"
-                : !isPollActive
-                ? "This poll has ended"
-                : "You have already voted on this poll"}
-            </p>
-            {!isPollActive || voteSubmitted ? (
-              <button
-                onClick={() => setShowResults(true)}
-                className="show-results-btn"
-              >
-                Show Results
-              </button>
-            ) : null}
-          </div>
-        )}
-
-        {/* Use IRVResults component for results */}
-        {showResults && (
-          <div className="results-section">
-            <IRVResults poll={poll} />
-            
-            {!voteSubmitted && canVote && (
-              <button
-                onClick={() => setShowResults(false)}
-                className="back-to-voting-btn"
-              >
-                Back to Voting
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Show user's vote if they voted */}
-        {userBallot && userBallot.BallotRankings && (
-          <div className="user-vote-section">
-            <h4>Your Vote:</h4>
-            <div className="user-rankings">
-              {userBallot.BallotRankings.sort((a, b) => a.rank - b.rank).map(
-                (ranking) => (
-                  <div key={ranking.id} className="user-ranking">
-                    <span className="rank-number">{ranking.rank}.</span>
-                    <span className="rank-option">
-                      {ranking.PollOption?.text || "Unknown option"}
-                    </span>
-                  </div>
-                )
+            <div className="poll-restrictions">
+              {poll.viewRestriction !== "public" && (
+                <span className="restriction-badge view">
+                  👁️ {poll.viewRestriction} view
+                </span>
+              )}
+              {poll.voteRestriction !== "public" && (
+                <span className="restriction-badge vote">
+                  🗳️ {poll.voteRestriction} vote
+                </span>
               )}
             </div>
           </div>
-        )}
+        </div>
+
+        <div className="poll-content">
+          <h1 className="poll-title">{poll.title}</h1>
+
+          {poll.description && (
+            <p className="poll-description">{poll.description}</p>
+          )}
+
+          <div className="poll-status">
+            {poll.endAt && (
+              <div className={`poll-timer ${!isPollActive ? "ended" : ""}`}>
+                {isPollActive ? `⏰ Time left: ${timeLeft}` : "⏰ Poll ended"}
+              </div>
+            )}
+
+            <div className="poll-info">
+              <p>📊 {poll.ballots?.length || 0} votes cast</p>
+              <p>
+                <strong>Anonymous voting:</strong>{" "}
+                {poll.allowAnonymous ? "Allowed" : "Not allowed"}
+              </p>
+              <p>
+                <strong>Total votes:</strong> {poll.ballots?.length || 0}
+              </p>
+              <p>
+                <strong>Created:</strong>{" "}
+                {new Date(poll.createdAt).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Created by:</strong>{" "}
+                {userLoading
+                  ? "Loading..."
+                  : master
+                  ? master.username
+                  : "Unknown"}
+              </p>
+            </div>
+
+            {/* Use VoteForm component for voting */}
+            {canVote && (
+              <VoteForm
+                poll={poll}
+                user={user}
+                onVoteSubmitted={handleVoteSubmitted}
+              />
+            )}
+
+            {/* Show voting disabled message */}
+            {!canVote && !showResults && (
+              <div className="voting-disabled">
+                <p>
+                  {!user
+                    ? "Please log in to vote"
+                    : !poll.permissions?.canVote
+                    ? "You don't have permission to vote on this poll"
+                    : !isPollActive
+                    ? "This poll has ended"
+                    : "You have already voted on this poll"}
+                </p>
+                {!isPollActive || voteSubmitted ? (
+                  <button
+                    onClick={() => setShowResults(true)}
+                    className="show-results-btn"
+                  >
+                    Show Results
+                  </button>
+                ) : null}
+              </div>
+            )}
+
+            {/* Use IRVResults component for results */}
+            {poll.status === "published" && poll.ballots?.length > 0 && (
+              <div className="results-section">
+                <h3>Results</h3>
+                <IRVResults poll={poll} />
+
+                {!voteSubmitted && canVote && (
+                  <button
+                    onClick={() => setShowResults(false)}
+                    className="back-to-voting-btn"
+                  >
+                    Back to Voting
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Show user's vote if they voted */}
+            {userBallot && userBallot.BallotRankings && (
+              <div className="user-vote-section">
+                <h4>Your Vote:</h4>
+                <div className="user-rankings">
+                  {userBallot.BallotRankings.sort(
+                    (a, b) => a.rank - b.rank
+                  ).map((ranking) => (
+                    <div key={ranking.id} className="user-ranking">
+                      <span className="rank-number">{ranking.rank}.</span>
+                      <span className="rank-option">
+                        {ranking.PollOption?.text || "Unknown option"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
   );
 };
 

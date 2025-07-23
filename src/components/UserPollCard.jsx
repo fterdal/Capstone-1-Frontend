@@ -112,7 +112,7 @@ if(!poll){
 
 return (
     <div 
-      className={`poll-card ${!isPollActive ? 'poll-ended' : ''}`}
+      className={`user-poll-card ${!isPollActive ? 'poll-ended' : ''}`}
       onClick={onClick} 
       style={{ cursor: 'pointer' }} 
     >
