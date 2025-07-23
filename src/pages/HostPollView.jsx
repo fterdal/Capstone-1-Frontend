@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import VoteForm from "../components/VoteForm";
+import { API_URL } from "../shared";
 import "./HostPollView.css";
 
 const HostPollView = () => {
@@ -17,7 +18,7 @@ const HostPollView = () => {
   useEffect(() => {
     const fetchPoll = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/polls/${id}`, {
+        const res = await axios.get(`${API_URL}/api/polls/${id}`, {
           withCredentials: true,
         });
         setPoll(res.data);
@@ -35,7 +36,7 @@ const HostPollView = () => {
 
   const handleSaveDeadline = async () => {
     try {
-      await axios.patch(`http://localhost:8080/api/polls/${id}`, {
+      await axios.patch(`${API_URL}/api/polls/${id}`, {
 
         deadline: newDeadline,
       }, {
@@ -62,7 +63,7 @@ const HostPollView = () => {
   const handleEndPoll = async () => {
     const endPollNow = new Date().toISOString();
     try {
-      await axios.patch(`http://localhost:8080/api/polls/${id}`, {
+      await axios.patch(`${API_URL}/api/polls/${id}`, {
 
         deadline: endPollNow,
       }, {

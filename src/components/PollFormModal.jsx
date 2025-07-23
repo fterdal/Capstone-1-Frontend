@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./PollFormModal.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../shared";
 
 const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
   if (!isOpen) return null;
@@ -137,12 +138,12 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
       let res;
       if (initialData) {
         // update existing draft 
-        res = await axios.patch(`http://localhost:8080/api/polls/${initialData.id}`,
+        res = await axios.patch(`${API_URL}/api/polls/${initialData.id}`,
           payload, { 
           withCredentials: true});
       } else {
         // create new poll
-        res = await axios.post("http://localhost:8080/api/polls",
+        res = await axios.post(`${API_URL}/api/polls`,
           payload, { 
           withCredentials: true});
       }
@@ -188,13 +189,13 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
       let res;
       if (initialData) {
         // update existing draft 
-        res = await axios.patch(`http://localhost:8080/api/polls/${initialData.id}`,
+        res = await axios.patch(`${API_URL}/api/polls/${initialData.id}`,
           payload,
           { withCredentials: true }
         );
       } else {
         // create new poll
-        res = await axios.post("http://localhost:8080/api/polls",
+        res = await axios.post(`${API_URL}/api/polls`,
           payload,
           { withCredentials: true }
         );
