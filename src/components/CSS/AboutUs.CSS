@@ -1,0 +1,44 @@
+/* AboutUs.css */
+
+.about-container {
+  padding: 60px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  color: #e2e8f0;
+  background-color: #0f111a;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+.about-container h1,
+.about-container h2 {
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+.about-container p {
+  color: #cbd5e1;
+  font-size: 17px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  max-width: 800px;
+}
+
+.about-container ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-bottom: 40px;
+}
+
+.about-container li {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.about-container a {
+  color: #818cf8;
+  text-decoration: underline;
+}
+
+.about-container a:hover {
+  color: #6366f1;
+}
