@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Card, Button, Badge, Row, Col, Spinner, Container, Stack } from "react-bootstrap";
 import "./CSS/PollCardStyles.css";
 
 const PollCard = ({ poll, onClick, onDuplicate }) => {
@@ -99,12 +100,80 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     
 
   return (
-    <div
-      className={`poll-card ${!isPollActive ? "poll-ended" : ""}`}
+    <Card
+      className={`mb-4 shadow-sm ${!isPollActive ? "opacity-50" : ""}`}
       onClick={onClick}
-      style={{ cursor: "pointer" }}
+      style={{ cursor: "pointer", height: "250px", overflow: "hidden" }}
     >
-      <div className="poll-header">
+      <Card.Body as={Stack} gap={3} className="d-flex flex-column h-100">
+        <Stack gap={1}>
+          <Card.Title className="text-truncate">
+            {poll.title}
+          </Card.Title>
+            <Card.Text 
+              style={{
+                minHeight: "50px", 
+                maxHeight: "50px", 
+                overflow: "hidden", 
+                fontSize: "0.9rem",
+              }}>
+              {poll.description}
+            </Card.Text>
+        </Stack>
+
+        <Stack className="mt-auto" gap={2}>
+            <Row className="justify-content-center mt-1">
+              <Col className="text-end">
+                  <Badge bg={isPollActive ? "primary" : "danger"}>
+                    {isPollActive ? "Live" : "Ended"}
+                  </Badge>
+              </Col>
+            </Row>
+          <Row className="align-itmes-center">
+            <Col xs="auto" className="text-muted small">
+              by {creator ? `@${creator.username}` : <Spinner animation="border" size="sm"/>}
+            </Col>
+            <Col className="text-end small">
+              <small className={!isPollActive ? "text-danger" : "text-primary"}>
+                {timeLeft}
+              </small>
+            </Col>
+          </Row>
+
+          <Row className="justify-content-between">
+            <Col xs="auto">
+              <Button 
+                size="sm" 
+                variant="outline-secondary" 
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  onDuplicate();
+                }}
+              >
+                Duplicate
+              </Button>
+            </Col>
+            <Col xs="auto">
+              <Button 
+                variant="outline-secondary" 
+                size="sm" 
+                onClick={copyToClipboard}
+              >
+                {copied ? "✓ Copied!" : "📋 Copy Link"}
+              </Button>
+            </Col>
+          </Row>
+
+
+        </Stack>
+      </Card.Body>
+    </Card>
+  );
+};
+
+export default PollCard;
+
+/*      <div className="poll-header">
         <h3 className="poll-title">{poll.title}</h3>
         <button
           className={`copy-btn ${copied ? "copied" : ""}`}
@@ -139,9 +208,4 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
         <div className="poll-status">
           <span className="status-badge">Ended</span>
         </div>
-      )}
-    </div>
-  );
-};
-
-export default PollCard;
+      )}*/ 

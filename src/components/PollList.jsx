@@ -3,7 +3,10 @@ import axios from "axios";
 import PollCard from "./PollCard";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
-import "./CSS/UsersPage.css";
+import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
+import "./CSS/PollList.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const PollList = ({ poll }) => {
   const [polls, setPolls] = useState([]);
@@ -83,28 +86,50 @@ const PollList = ({ poll }) => {
 });
 
   return (
-    <div className="polls-container">
+    <Container className="py-4">
       <h2>All Polls</h2>
-      <input 
-        className="search-input"
-        type="text"
-        placeholder="Search polls"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      {filteredPolls.length === 0 ? (
-        <p>No polls available.</p>
-      ) : (
-        filteredPolls.map((poll) => (
-          <PollCard
-            key={poll.id}
-            poll={poll}
-            onClick={() => handleUserClick(poll.id)}
-            onDuplicate={() => duplicatePoll(poll)}
-          />
-        ))
+      <Form.Group className="mb-4">
+        <Form.Control 
+          className="shadow-sm rounded"
+          type="text"
+          placeholder="Search polls"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </Form.Group>
+
+      {loading && (
+        <div className="text-center my-5">
+          <Spinner animation="border" variant="primary" />
+        </div>
       )}
-    </div>
+
+      {error && (
+        <Alert variant="danger">
+          {error}
+        </Alert>
+      )}
+      
+      {!loading && !error && (
+        <>
+          {filteredPolls.length === 0 ? (
+            <p>No polls available.</p>
+          ) : (
+            <Row xs={1} sm={2} md={3} className="g-4">
+              {filteredPolls.map((poll) => (
+                <Col key={poll.id}>
+                  <PollCard 
+                    poll={poll} 
+                    onClick={() => handleUserClick(poll.id)} 
+                    onDuplicate={() => duplicatePoll(poll)}
+                  />
+                </Col>
+              ))}
+           </Row>
+          )}
+        </>
+      )}
+    </Container>
   );
 };
 

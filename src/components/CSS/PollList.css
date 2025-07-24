@@ -1,0 +1,56 @@
+.poll-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 12px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.poll-header {
+  margin-bottom: 16px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 16px;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #1da1f2;
+  box-shadow: 0 0 3px rgba(29, 161, 242, 0.3);
+}
+
+.polls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1000px) {
+  .polls-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .polls-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.poll-card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
