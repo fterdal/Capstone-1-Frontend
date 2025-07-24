@@ -7,7 +7,9 @@ const NavBar = ({ user, onLogout, onOpenCreatePoll }) => {
     <nav className="navbar">
       <div className="nav-brand">
         <Link to={user ? "/dashboard" : "/"}>Rankzilla</Link>
-        <Link to="/demo" className="nav-link">Demo</Link>
+        <Link to="/demo" className="nav-link">
+          Demo
+        </Link>
       </div>
 
       <div className="nav-links">
@@ -15,10 +17,22 @@ const NavBar = ({ user, onLogout, onOpenCreatePoll }) => {
           <div className="user-section">
             {/* Only show "Create a poll" for authenticated users with username (not guests) */}
             {user.username && (
-              <button className="nav-link" onClick={onOpenCreatePoll}>Create a poll</button>
+              <button className="nav-link" onClick={onOpenCreatePoll}>
+                Create a poll
+              </button>
             )}
 
-            <span className="username">Welcome, {user.username || 'Guest'}!</span>
+            <span className="username">
+              Welcome,{" "}
+              {user.username ? (
+                <Link to={`/users/${user.id}`} className="username-link">
+                  {user.username}
+                </Link>
+              ) : (
+                "Guest"
+              )}
+              !
+            </span>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>

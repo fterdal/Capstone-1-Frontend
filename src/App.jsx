@@ -14,6 +14,7 @@ import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
 import HostPollView from "./pages/HostPollView";
 import PollFormModal from "./components/PollFormModal";
+import UserProfile from "./pages/UserProfile";
 
 
 const App = () => {
@@ -123,6 +124,7 @@ const App = () => {
           <Route path="/polls/host/:id" element={<HostPollView />} />
           <Route path="/polls/view/:id" element={<VotePollPage />} />
           <Route path="/polls/view/:slug" element={<VotePollPage />} />
+          <Route path="/users/:id" element={<UserProfile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

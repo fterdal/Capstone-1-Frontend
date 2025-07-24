@@ -1,5 +1,5 @@
-import React from "react";
-import { useParams } from "react-router-dom";
+import React, {useState, useEffect} from "react";
+import { useParams} from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 
@@ -27,6 +27,16 @@ const UserProfile = () => {
     };
     fetchUser();
   }, [userId]);
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
+
+  if (!user) {
+    // User data hasn't loaded yet
+    return <div>Loading user profile...</div>;
+  }
+
 
   return (
     <div className="user-profile">
