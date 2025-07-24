@@ -75,7 +75,7 @@ const UserProfile = () => {
         formData,
         { withCredentials: true }
       );
-      setUser(res.data);
+      setUser(res.data.user);
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to update profile:", error);
