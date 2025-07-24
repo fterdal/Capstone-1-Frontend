@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from "react";
-import { useParams} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 
@@ -13,7 +13,7 @@ const UserProfile = () => {
     lastName: "",
     username: "",
     email: "",
-    image: "",
+    img: "",
   });
 
   useEffect(() => {
@@ -36,14 +36,14 @@ const UserProfile = () => {
     fetchUser();
   }, [userId]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (user) {
       setFormData({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
         username: user.username || "",
         email: user.email || "",
-        image: user.image || "",
+        img: user.img || "",
       });
     }
   }, [user]);
@@ -62,48 +62,105 @@ const UserProfile = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-}
-    const handleEditToggle = () => {
+  };
+  const handleEditToggle = () => {
     setIsEditing((prev) => !prev);
-    }
+  };
 
-    const handleSave = async () => {
-        e.preventDefault();
-        try {
-            const res = await axios.patch(
-                `${API_URL}/api/users/${userId}`,
-                formData,
-                { withCredentials: true }
-            );
-            setUser(res.data);
-            setIsEditing(false);
-        } catch (error) {
-            console.error("Failed to update profile:", error);
-            setError("Failed to update profile. Please try again.");
-        }
+  const handleSubmit = async () => {
+    e.preventDefault();
+    try {
+      const res = await axios.patch(
+        `${API_URL}/api/users/${userId}`,
+        formData,
+        { withCredentials: true }
+      );
+      setUser(res.data);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      setError("Failed to update profile. Please try again.");
     }
+  };
 
   return (
-    <div className="user-profile">
-      <h2>User Profile</h2>
-      <div className="profile-info">
-        <img
-          src={user.image || "https://static.vecteezy.com/system/resources/thumb…atar-profile-icon-of-social-media-user-vector.jpg"}
-          alt={`${user.firstName}'s avatar`}
-          className="user-profile-image"
-        />
-        <h2>
-          {user.firstName} {user.lastName}
-        </h2>
-        <p>
-          <strong>Username:</strong> {user.username}
-        </p>
-        <p>
-          <strong>Email:</strong> {user.email}
-        </p>
-        {user.isAdmin && <span className="admin-badge">Admin</span>}
-      </div>
+    <div className="user-profile-container">
+      {isEditing ? (
+        <form onSubmit={handleSubmit} className="user-profile-edit-form">
+          <h1>Edit Profile</h1>
+          <h2>Update your profile information</h2>
+
+          <h3>First Name</h3>
+          <input
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+          />
+            <h3>Last Name</h3>
+          <input
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+          />
+            <h3>Username</h3>
+          <input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+          />
+            <h3>Email</h3>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
+            <h3>Profile Image</h3>
+          <input
+            type="text"
+            name="img"
+            value={formData.img}
+            onChange={handleChange}
+            placeholder="Image URL"
+          />
+          <button type="submit">Save</button>
+          <button type="button" onClick={handleEditToggle}>
+            Cancel
+          </button>
+        </form>
+      ) : (
+        <div className="user-profile">
+          <h2>User Profile</h2>
+          <div className="profile-info">
+            <img
+              src={
+                user.img ||
+                "https://static.vecteezy.com/system/resources/thumb…atar-profile-icon-of-social-media-user-vector.jpg"
+              }
+              alt={`${user.firstName}'s avatar`}
+              className="user-profile-img"
+            />
+            <h2>
+              {user.firstName} {user.lastName}
+            </h2>
+            <p>
+              <strong>Username:</strong> {user.username}
+            </p>
+            <p>
+              <strong>Email:</strong> {user.email}
+            </p>
+            {user.isAdmin && <span className="admin-badge">Admin</span>}
+            <button onClick={handleEditToggle} className="edit-button">
+              Edit 
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 export default UserProfile;
