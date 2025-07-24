@@ -4,7 +4,7 @@ import axios from "axios";
 import { API_URL } from "../shared";
 
 const UserProfile = () => {
-  const { userId } = useParams(); 
+  const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
 
@@ -12,7 +12,7 @@ const UserProfile = () => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/users/${userId}`, {
-          withCredentials: true, 
+          withCredentials: true,
         });
         setUser(response.data);
       } catch (err) {
@@ -31,7 +31,22 @@ const UserProfile = () => {
   return (
     <div className="user-profile">
       <h2>User Profile</h2>
-      <div className="profile-info"></div>
+      <div className="profile-info">
+        <img
+          src={user.image || "/default-avatar.png"}
+          alt={`${user.firstName}'s avatar`}
+          className="user-profile-image"
+        />
+        <h2>
+          {user.firstName} {user.lastName}
+        </h2>
+        <p>
+          <strong>Username:</strong> {user.username}
+        </p>
+        <p>
+          <strong>Email:</strong> {user.email}
+        </p>
+      </div>
     </div>
   );
 };
