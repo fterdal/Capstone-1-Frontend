@@ -1,10 +1,13 @@
 .profile-page {
-
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 100%;
   padding: 20px;
   background: white;
   min-height: 100vh;
+}
+
+.profile-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .loading-container {
@@ -216,9 +219,14 @@
 }
 
 .polls-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 12px;
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 .followers-modal-overlay {

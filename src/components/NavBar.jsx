@@ -1,52 +1,82 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Dropdown from "./Dropdown";
+import { Navbar, Nav, Container, Dropdown, Button } from "react-bootstrap";
+import NavDropdown from "react-bootstrap/NavDropdown";
 import "./CSS/NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
-  return (
-    <nav className="navbar">
-      <div className="nav-brand">
-        <Link to="/">Home</Link>
-      </div>
+  const [pollsDropdownOpen, setPollsDropdownOpen] = useState(false);
+  
+  const handleDropdwonClick = () => {
+    setPollsDropdownOpen(false);
+    setTimeout(() => {
+      const dropdown = document.getElementById('polls-nav-dropdown');
+      if (dropdown) dropdown.blur();
+    }, 100);
+  }
 
-      <div className="nav-links">
-        {user ? (
-          <div className="user-section">
-            <span>Welcome, {user.username}!</span>
-            <div>
-              <Link to="/me" className="nav-link">
-                Profile
-              </Link>
-              {user.role === "admin" && (
-                <Link to="/users" className="nav-link">
-                  Users
-                </Link>
-              )}
-              <Link to="/friends" className="nav-link">
-                Friends
-              </Link>
-            </div>
-            <Dropdown />
-            <button onClick={onLogout} className="logout-btn">
-              Logout
-            </button>
-          </div>
-        ) : (
-          <div className="auth-links">
-            <Link to="/poll-list" className="nav-link">
-              Public Polls
-            </Link>
-            <Link to="/login" className="nav-link">
-              Login
-            </Link>
-            <Link to="/signup" className="nav-link">
-              Sign Up
-            </Link>
-          </div>
-        )}
-      </div>
-    </nav>
+return (
+    <Navbar bg="light" expand="md" className="mb-3">
+      <Container>
+        <Navbar.Brand as={Link} to="/">Home</Navbar.Brand>
+        <Navbar.Toggle aria-controls="main-navbar-nav"/>
+        <Navbar.Collapse id="main-navbar-nav">
+          <Nav className="ms-auto">
+            {user ? (
+              <>
+                <Navbar.Text className="me-4">
+                  Welcome, <strong>{user.username}</strong>!
+                </Navbar.Text>
+                <Nav.Link as={Link} to="/me" className="me-2">Profile</Nav.Link>
+                {user.role === "admin" && (
+                  <Nav.Link as={Link} to="/users" className="me-2">Users</Nav.Link>
+                )}
+                <Nav.Link as={Link} to="/friends" className="me-2">Friends</Nav.Link>
+
+                <Dropdown
+                  className="nav-item dropdown hover-dropdown me-2"
+                  onMouseEnter={() => setPollsDropdownOpen(true)}
+                  onMouseLeave={() => setPollsDropdownOpen(false)}
+                  show={pollsDropdownOpen}
+                >
+                  <Dropdown.Toggle
+                    as="a"
+                    className="nav-link"
+                    href="#"
+                    id="polls-nav-dropdown"
+                  >
+                    Polls <span className={`arrow ${pollsDropdownOpen ? "rotate" : ""}`}>&#9662;</span>
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item as={Link} to="/new-poll" onClick={handleDropdwonClick}>Create Poll</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/poll-list" onClick={handleDropdwonClick}>Poll List</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/edit-draft" onClick={handleDropdwonClick}>Drafted Polls</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+
+                <Nav.Item className="d-flex align-items-center">
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    className="ms-3"
+                    onClick={onLogout}
+                  >
+                    Logout
+                  </Button>
+                </Nav.Item>
+              </>
+            ) : (
+              <>
+                <Nav.Link as={Link} to="/poll-list" className="me-2">Public Polls</Nav.Link>
+                <Nav.Link as={Link} to="/login" className="me-2">Login</Nav.Link>
+                <Nav.Link as={Link} to="/signup" className="me-2">Sign Up</Nav.Link>
+              </>
+            )}
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
   );
 };
 

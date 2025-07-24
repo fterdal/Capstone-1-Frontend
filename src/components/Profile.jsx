@@ -156,7 +156,8 @@ const ProfilePage = ({ user, authLoading }) => {
 
   return (
     <>
-      <div className="profile-page">
+    <div className="profile-wrapper">
+            <div className="profile-page">
         <div className="profile-header">
           <div className="profile-picture">
             <img
@@ -237,6 +238,7 @@ const ProfilePage = ({ user, authLoading }) => {
           />
         )}
       </div>
+    </div>
 
       {showFollowers && (
         <div className="followers-modal-overlay" onClick={handleCloseModal}>
