@@ -7,6 +7,14 @@ const UserProfile = () => {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [error, setError] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    image: "",
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -27,6 +35,18 @@ const UserProfile = () => {
     };
     fetchUser();
   }, [userId]);
+
+    useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        username: user.username || "",
+        email: user.email || "",
+        image: user.image || "",
+      });
+    }
+  }, [user]);
 
   if (error) {
     return <div className="error">{error}</div>;
