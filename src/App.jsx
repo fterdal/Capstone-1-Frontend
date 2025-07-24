@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard"
 import HostPollView from "./pages/HostPollView";
 import SmartPollView from "./pages/SmartPollView";
 import AdminDashboard from "./pages/AdminDashboard";
+import { jwtDecode } from "jwt-decode";
 
 
 const App = () => {
@@ -61,6 +62,21 @@ const App = () => {
         localStorage.removeItem('guestSession');
       }
     }
+    // Decode token from cookie
+  const token = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("token="))
+    ?.split("=")[1];
+
+  if (token) {
+    try {
+      const decoded = jwtDecode(token);
+      setUser(decoded); // includes isAdmin if present
+      return;
+    } catch (err) {
+      console.error("Token decode failed", err);
+    }
+  }
 
     // Now check if someone's actually logged in with the server
     try {
