@@ -30,9 +30,22 @@ const AdminDashboard = ({ user }) => {
         </button>
       </div>
 
-      {activeTab === "polls" && <AdminPollsTab />}
-      {activeTab === "users" && <AdminUsersTab />}
-      {activeTab === "myPolls" && <MyPollsTab user={user} />}
+      {activeTab === "polls" && (
+        <div>
+          <h3>All Polls</h3>
+          <AdminPollsTab />
+        </div>
+      )}
+
+      {activeTab === "users" && (
+        <div>
+          <h3>All Users</h3>
+          <AdminUsersTab />
+        </div>
+      )}
+
+      {activeTab === "myPolls" && <MyPollsTab currentUser={user} />}
+
     </div>
   );
 };
