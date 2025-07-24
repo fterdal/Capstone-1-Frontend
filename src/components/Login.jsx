@@ -99,7 +99,11 @@ const Login = ({ setUser }) => {
       });
 
       setUser(response.data.user);
+      if (response.data.user?.isAdmin) {
       navigate("/");
+    } else {
+      navigate("/dashboard");
+    }
     } catch (error) {
       if (error.response?.data?.error) {
         setErrors({ general: error.response.data.error });
