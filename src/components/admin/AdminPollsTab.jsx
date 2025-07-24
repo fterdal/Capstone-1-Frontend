@@ -9,7 +9,7 @@ const AdminPollsTab = () => {
   const fetchPolls = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/polls/all`, {
+      const res = await fetch(`${API_URL}/api/polls/admin/all`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -48,7 +48,7 @@ const AdminPollsTab = () => {
         <tr>
           <th>Title</th>
           <th>Status</th>
-          <th>Creator</th>
+          <th>Poll ID</th>
           <th>Disable</th>
         </tr>
       </thead>
@@ -57,7 +57,7 @@ const AdminPollsTab = () => {
           <tr key={poll.id} style={{ borderTop: "1px solid #ccc" }}>
             <td>{poll.title}</td>
             <td>{poll.status}</td>
-            <td>{poll.owner?.email || "Unknown"}</td>
+            <td>{poll.id}</td>
             <td>
               <button
                 style={{

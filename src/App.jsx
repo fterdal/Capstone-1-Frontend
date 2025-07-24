@@ -15,7 +15,7 @@ import Dashboard from "./pages/Dashboard"
 import HostPollView from "./pages/HostPollView";
 import SmartPollView from "./pages/SmartPollView";
 import AdminDashboard from "./pages/AdminDashboard";
-import { jwtDecode } from "jwt-decode";
+
 
 
 const App = () => {
@@ -43,6 +43,7 @@ const App = () => {
     }
     return false; //nothing to clean up
   };
+    console.log("Current user:", user);
 
   const checkAuth = async () => {
     // Clean up any old guest sessions first 
@@ -62,28 +63,14 @@ const App = () => {
         localStorage.removeItem('guestSession');
       }
     }
-    // Decode token from cookie
-  const token = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("token="))
-    ?.split("=")[1];
 
-  if (token) {
-    try {
-      const decoded = jwtDecode(token);
-      setUser(decoded); // includes isAdmin if present
-      return;
-    } catch (err) {
-      console.error("Token decode failed", err);
-    }
-  }
 
     // Now check if someone's actually logged in with the server
     try {
       const response = await axios.get(`${API_URL}/auth/me`, {
         withCredentials: true,
       });
-      setUser(response.data.user);
+      setUser(response.data);
       // If they're properly logged in, we don't need the guest session anymore
       localStorage.removeItem('guestSession');
     } catch {
