@@ -33,7 +33,7 @@ const UserProfile = () => {
       <h2>User Profile</h2>
       <div className="profile-info">
         <img
-          src={user.image || "/default-avatar.png"}
+          src={user.image || "https://static.vecteezy.com/system/resources/thumb…atar-profile-icon-of-social-media-user-vector.jpg"}
           alt={`${user.firstName}'s avatar`}
           className="user-profile-image"
         />
@@ -46,6 +46,7 @@ const UserProfile = () => {
         <p>
           <strong>Email:</strong> {user.email}
         </p>
+        {user.isAdmin && <span className="admin-badge">Admin</span>}
       </div>
     </div>
   );
