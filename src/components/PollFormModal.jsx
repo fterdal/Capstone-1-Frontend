@@ -101,7 +101,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
     setSubmitError("");
 
     try {
-      const res = await axios.post( "http://localhost:8080/api/polls",
+      const res = await axios.post( `${API_URL}/api/polls`,
         payload, { 
         withCredentials: true});
 
@@ -142,7 +142,7 @@ const PollFormModal = ({ isOpen, onClose }) => {
     setSubmitError("");
     try {
       // Use relative path only (assumes correct proxy or base URL setup)
-      const res = await axios.post( "http://localhost:8080/api/polls",
+      const res = await axios.post( `${API_URL}/api/polls`,
         payload,
         { withCredentials: true }
       );

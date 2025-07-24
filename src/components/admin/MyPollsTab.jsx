@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PollCard from "../PollCard";
 import PollFormModal from "../PollFormModal";
+import { API_URL } from "../../shared";
 
 const MyPollsTab = ({ user }) => {
   const [polls, setPolls] = useState([]);
@@ -11,7 +12,7 @@ const MyPollsTab = ({ user }) => {
   useEffect(() => {
     const fetchMyPolls = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/polls", {
+        const res = await fetch(`${API_URL}/api/polls`, {
           credentials: "include",
         });
         const data = await res.json();
