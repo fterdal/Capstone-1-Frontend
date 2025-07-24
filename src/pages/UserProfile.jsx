@@ -67,7 +67,7 @@ const UserProfile = () => {
     setIsEditing((prev) => !prev);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.patch(
