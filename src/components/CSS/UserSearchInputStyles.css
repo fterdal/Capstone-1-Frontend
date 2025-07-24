@@ -1,0 +1,172 @@
+.user-search-input {
+  width: 100%;
+}
+
+.search-input-container {
+  position: relative;
+}
+
+.user-search-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.user-search-field:focus {
+  border-color: #1da1f2;
+}
+
+.search-loading {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #657786;
+  font-size: 12px;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e8ed;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.search-result-item:hover {
+  background: #f8f9fa;
+}
+
+.search-result-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.search-result-username {
+  font-size: 14px;
+  color: #14171a;
+}
+
+.no-results {
+  padding: 10px;
+  text-align: center;
+  color: #657786;
+  font-style: italic;
+}
+
+.selected-users {
+  margin-top: 10px;
+}
+
+.selected-users-label {
+  font-size: 14px;
+  color: #14171a;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.selected-users-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-user-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e8f5fd;
+  border: 1px solid #1da1f2;
+  border-radius: 16px;
+  padding: 4px 8px 4px 4px;
+  font-size: 12px;
+}
+
+.selected-user-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.selected-user-name {
+  color: #1da1f2;
+  font-weight: 500;
+}
+
+.remove-user-btn {
+  background: none;
+  border: none;
+  color: #1da1f2;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.remove-user-btn:hover {
+  background: rgba(29, 161, 242, 0.1);
+}
+
+/* Form styling for restrictions */
+.restriction-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  margin: 0;
+}
+
+.custom-users-section {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e1e8ed;
+}
+
+.custom-users-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #14171a;
+}

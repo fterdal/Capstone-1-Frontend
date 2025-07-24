@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import PollCard from "./PollCard";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../shared";
 import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
 import "./CSS/PollList.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -57,17 +58,20 @@ const PollList = ({ poll }) => {
 
   useEffect(() => {
     const fetchPolls = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get("http://localhost:8080/api/polls");
-        setPolls(response.data);
-      } catch (err) {
-        setError("Failed to fetch polls.");
-        console.error("Error fetching polls:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  try {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
+    const response = await axios.get(`${API_URL}/api/polls`, { headers });
+    setPolls(response.data);
+  } catch (err) {
+    setError("Failed to fetch polls.");
+    console.error("Error fetching polls:", err);
+  } finally {
+    setLoading(false);
+  }
+};
     
     fetchPolls();
   }, []);
@@ -130,29 +134,3 @@ const PollList = ({ poll }) => {
 };
 
 export default PollList;
-
-/*          {filteredPolls.map((poll) => (
-                <Col key={poll.id}>
-                  <Card className="shadow-sm rounded h-100">
-                    <Card.Body onClick={() => handleUserClick(poll.id)} style={{ cursor: "pointer"}}>
-                      <Card.Title>
-                        {poll.title}
-                      </Card.Title>
-                      <Card.Text>
-                        {poll.description}
-                      </Card.Text>
-                    </Card.Body>
-                    <Card.Footer>
-                      <Button variant="outline-primary" size="sm" onClick={() => duplicatePoll(poll)}>
-                        Duplicate
-                      </Button>
-                    </Card.Footer>
-                  </Card>
-                </Col>
-              ))}    
-
-
-key={poll.id}
-                  poll={poll}
-                  onClick={() => handleUserClick(poll.id)}
-                  onDuplicate={() => duplicatePoll(poll)}*/

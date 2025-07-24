@@ -17,6 +17,7 @@ const UserCard = ({ currentUser }) => {
   const [followLoading, setFollowLoading] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [toggling, setToggling] = useState(false);
 
   useEffect(() => {
     const fetchUserAndPolls = async () => {
@@ -38,7 +39,8 @@ const UserCard = ({ currentUser }) => {
         );
 
         const pollsByUser = allPollsRes.data.filter(
-          (poll) => poll.creator_id === userData.id && poll.status === "published"
+          (poll) =>
+            poll.creator_id === userData.id && poll.status === "published"
         );
         setUserPolls(pollsByUser);
 
@@ -53,14 +55,39 @@ const UserCard = ({ currentUser }) => {
     fetchUserAndPolls();
   }, [id, currentUser?.id]);
 
+  const handleToggleDisable = async () => {
+    if (
+      !window.confirm(
+        `${user.disabled ? "Re-enable" : "Disable"} this account?`
+      )
+    )
+      return;
+    try {
+      setToggling(true);
+      const { data } = await axios.patch(
+        `${API_URL}/api/admin/users/${user.id}/disable`,
+        {},
+        { withCredentials: true }
+      );
+      setUser((prev) => ({ ...prev, disabled: data.disabled }));
+    } catch (err) {
+      console.error("Error toggling disable:", err);
+      alert("Failed to modify account");
+    } finally {
+      setToggling(false);
+    }
+  };
+
   const checkFollowStatus = async (userId) => {
     if (!currentUser?.id) return;
 
     try {
-      const response = await axios.get(`${API_URL}/api/follows/${currentUser.id}/status/${userId}`);
+      const response = await axios.get(
+        `${API_URL}/api/follows/${currentUser.id}/status/${userId}`
+      );
       setIsFollowing(response.data.isFollowing);
     } catch (error) {
-      console.error('Error checking follow status:', error);
+      console.error("Error checking follow status:", error);
     }
   };
 
@@ -73,21 +100,21 @@ const UserCard = ({ currentUser }) => {
         await axios.delete(`${API_URL}/api/follows`, {
           data: {
             follower_id: currentUser.id,
-            following_id: user.id
-          }
+            following_id: user.id,
+          },
         });
         setIsFollowing(false);
-        setFollowersCount(prev => prev - 1);
+        setFollowersCount((prev) => prev - 1);
       } else {
         await axios.post(`${API_URL}/api/follows`, {
           follower_id: currentUser.id,
-          following_id: user.id
+          following_id: user.id,
         });
         setIsFollowing(true);
-        setFollowersCount(prev => prev + 1);
+        setFollowersCount((prev) => prev + 1);
       }
     } catch (error) {
-      console.error('Error updating follow status:', error);
+      console.error("Error updating follow status:", error);
     } finally {
       setFollowLoading(false);
     }
@@ -96,6 +123,8 @@ const UserCard = ({ currentUser }) => {
   if (!user) return <p>Loading...</p>;
 
   const isOwnProfile = currentUser?.id === user.id;
+  const canAdminDisable =
+    currentUser?.role === "admin" && user.role !== "admin" && !isOwnProfile;
 
   return (
     <div className="user-card-page">
@@ -105,10 +134,15 @@ const UserCard = ({ currentUser }) => {
             <img src={user.imageUrl} alt="profile" className="user-card-pfp" />
           )}
           <div className="user-details">
-            <h2 className="user-card-name">{user.username}</h2>
+            <h2 className="user-card-name">
+              {user.username}{" "}
+              {user.disabled && (
+                <span className="disabled-tag">(disabled)</span>
+              )}
+            </h2>
             <p className="user-handle">@{user.username}</p>
             {user.bio && <p className="user-card-bio">{user.bio}</p>}
-            
+
             <div className="user-stats">
               <div className="stat-item">
                 <span className="stat-count">{followersCount}</span>
@@ -129,18 +163,32 @@ const UserCard = ({ currentUser }) => {
         {!isOwnProfile && currentUser && (
           <div className="user-actions">
             <button
-              className={`follow-btn ${isFollowing ? 'following' : ''}`}
+              className={`follow-btn ${isFollowing ? "following" : ""}`}
               onClick={handleFollow}
               disabled={followLoading}
             >
               {followLoading ? (
-                'Loading...'
+                "Loading..."
               ) : isFollowing ? (
                 <span className="follow-text">Following</span>
               ) : (
-                'Follow'
+                "Follow"
               )}
             </button>
+            
+            {canAdminDisable && (
+              <button
+                className="disable-btn"
+                onClick={handleToggleDisable}
+                disabled={toggling}
+              >
+                {toggling
+                  ? "Processing..."
+                  : user.disabled
+                  ? "Re-enable Account"
+                  : "Disable Account"}
+              </button>
+            )}
           </div>
         )}
       </div>
