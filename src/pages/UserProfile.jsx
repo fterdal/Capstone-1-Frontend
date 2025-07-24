@@ -57,6 +57,31 @@ const UserProfile = () => {
     return <div>Loading user profile...</div>;
   }
 
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+}
+    const handleEditToggle = () => {
+    setIsEditing((prev) => !prev);
+    }
+
+    const handleSave = async () => {
+        e.preventDefault();
+        try {
+            const res = await axios.patch(
+                `${API_URL}/api/users/${userId}`,
+                formData,
+                { withCredentials: true }
+            );
+            setUser(res.data);
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Failed to update profile:", error);
+            setError("Failed to update profile. Please try again.");
+        }
+    }
 
   return (
     <div className="user-profile">
