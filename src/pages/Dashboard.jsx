@@ -104,6 +104,7 @@ const Dashboard = ({ user: currentUser }) => {
         ))}
       </ul>
       <PollFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+    
     </div>
   );
 };

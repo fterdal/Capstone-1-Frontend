@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import axios from "axios";
 import "./AppStyles.css";
 import NavBar from "./components/NavBar";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Home from "./pages/Home";
 import Demo from "./pages/Demo";
@@ -14,7 +14,7 @@ import ViewResultsPage from "./pages/ViewResultsPage";
 import Dashboard from "./pages/Dashboard"
 import HostPollView from "./pages/HostPollView";
 import SmartPollView from "./pages/SmartPollView";
-import AdminDashboard from "./components/admin/AdminDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 
 const App = () => {
@@ -112,8 +112,7 @@ const App = () => {
           <Route path="/demo" element={<Demo />} />
           <Route path="/vote" element={<VotePollPage />} />
           <Route path="/results/:id" element={<ViewResultsPage user={user} />} />
-          <Route path="/dashboard" element={<Dashboard user={user} />} />
-          <Route path="/admin" element={user?.isAdmin ? (<AdminDashboard user={user} />) : (<Navigate to="/" replace />)}/>
+          <Route path="/dashboard" element={user?.isAdmin ? <AdminDashboard user={user} /> : <Dashboard user={user} />} />
           <Route path="/polls/host/:id" element={<HostPollView />} />
           <Route path="/polls/view/:id" element={<VotePollPage />} />
           <Route path="/polls/view/:slug" element={<VotePollPage />} />

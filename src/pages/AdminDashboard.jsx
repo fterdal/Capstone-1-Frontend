@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import MyPollsTab from "./MyPollsTab";
-import AdminUsersTab from "./AdminUsersTab";
-import AdminPollsTab from "./AdminPollsTab";
+import MyPollsTab from "../components/admin/MyPollsTab";
+import AdminUsersTab from "../components/admin/AdminUsersTab";
+import AdminPollsTab from "../components/admin/AdminPollsTab";
 
 const AdminDashboard = ({ user }) => {
   const [activeTab, setActiveTab] = useState("polls");
@@ -44,7 +44,7 @@ const AdminDashboard = ({ user }) => {
         </div>
       )}
 
-      {activeTab === "myPolls" && <MyPollsTab currentUser={user} />}
+      <MyPollsTab user={user} />
 
     </div>
   );
