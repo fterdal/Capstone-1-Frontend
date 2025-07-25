@@ -38,8 +38,8 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
       setAllowGuests(!initialData.authRequired);
       setAllowSharedLinks(initialData.allowSharedLinks || false);
 
-      const optionsData =  initialData.pollOptions || [];
-      
+      const optionsData = initialData.pollOptions || [];
+
       if (optionsData.length > 0) {
         // Convert from backend format to form format
         const formOptions = optionsData.map(opt => {
@@ -133,19 +133,24 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
 
     setIsLoading(true);
     setSubmitError("");
-
+    // const token = localStorage.getItem("token");
     try {
       let res;
       if (initialData) {
         // update existing draft 
         res = await axios.patch(`${API_URL}/api/polls/${initialData.id}`,
-          payload, { 
-          withCredentials: true});
+          payload, {
+          withCredentials: true
+        });
       } else {
         // create new poll
         res = await axios.post(`${API_URL}/api/polls`,
-          payload, { 
-          withCredentials: true});
+          payload, {
+          // headers: {
+          //   Authorization: `Bearer ${token}`,
+          // },
+          withCredentials: true
+        });
       }
 
       const data = res.data;
@@ -157,7 +162,7 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
         onClose();
         resetForm(); // clear form
         if (onPollCreated) onPollCreated(); // refresh dashboard
-        
+
         // navigate to host view - use initialData.id for updates, data.poll?.id for new polls
         const pollId = initialData ? initialData.id : (data.poll?.id || data.id);
         navigate(`/polls/host/${pollId}`);
@@ -170,9 +175,9 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
     }
   };
 
-  const handleSaveDraft = async (status) => { 
+  const handleSaveDraft = async (status) => {
     // Skip validation for drafts to allow partial saves
-  const payload = {
+    const payload = {
       title,
       description,
       options,
@@ -268,11 +273,11 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
         <h3>Settings</h3>
         <div className="checkbox-row">
           <label>
-            <input 
-           type="checkbox" 
-           checked={allowGuests}
-           onChange={(e) => setAllowGuests(e.target.checked)} /> 
-          Allow guest voters</label>
+            <input
+              type="checkbox"
+              checked={allowGuests}
+              onChange={(e) => setAllowGuests(e.target.checked)} />
+            Allow guest voters</label>
           <label>
             <input
               type="checkbox"
@@ -281,24 +286,24 @@ const PollFormModal = ({ isOpen, onClose, onPollCreated, initialData }) => {
             />
             End date/time
           </label>
-              {allowEndDateTime && (
-                <div className="datetime-picker">
-                  <label>Choose end date/time:</label>
-                  <input
-                    type="datetime-local"
-                    value={endDateTime}
-                    onChange={(e) => setEndDateTime(e.target.value)}
-                  />
-                  {errors.endDateTime && (
-                    <p className="error" style={{ color: 'red' }}>{errors.endDateTime}</p>
-                  )}
-                </div>
+          {allowEndDateTime && (
+            <div className="datetime-picker">
+              <label>Choose end date/time:</label>
+              <input
+                type="datetime-local"
+                value={endDateTime}
+                onChange={(e) => setEndDateTime(e.target.value)}
+              />
+              {errors.endDateTime && (
+                <p className="error" style={{ color: 'red' }}>{errors.endDateTime}</p>
               )}
-          <label><input 
+            </div>
+          )}
+          <label><input
             type="checkbox"
             checked={allowSharedLinks}
-            onChange={(e) => setAllowSharedLinks(e.target.checked)}/> 
-          Allow shared links
+            onChange={(e) => setAllowSharedLinks(e.target.checked)} />
+            Allow shared links
           </label>
         </div>
 
