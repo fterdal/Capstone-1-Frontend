@@ -104,7 +104,7 @@ const Login = ({ setUser }) => {
       navigate("/");
     } else {
       navigate("/dashboard");
-      window.location.reload();
+      //window.location.reload();
 
     }
     

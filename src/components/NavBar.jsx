@@ -6,7 +6,10 @@ const NavBar = ({ user, onLogout }) => {
   return (
     <nav className="navbar">
       <div className="nav-brand">
-        <Link to={user ? "/dashboard" : "/"}>Rankzilla</Link>
+        <img src="https://i.imgur.com/yn48odO.png" alt="Rankzilla Logo" className="logo-img" />
+        <Link to={user ? "/dashboard" : "/"} className="logo-link">
+          <span className="brand-text">Rankzilla</span>
+        </Link>
         <Link to="/demo" className="nav-link">Demo</Link>
       </div>
 
