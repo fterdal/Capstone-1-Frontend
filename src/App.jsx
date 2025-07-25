@@ -3,7 +3,8 @@ import { createRoot } from "react-dom/client";
 import axios from "axios";
 import "./AppStyles.css";
 import NavBar from "./components/NavBar";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
+
 import Login from "./components/Login";
 import Home from "./pages/Home";
 import Demo from "./pages/Demo";
@@ -16,6 +17,7 @@ import HostPollView from "./pages/HostPollView";
 import PollFormModal from "./components/PollFormModal";
 import UserProfile from "./pages/UserProfile";
 
+const RouterComponent = process.env.NODE_ENV === 'development' ? HashRouter : BrowserRouter;
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -33,7 +35,7 @@ const App = () => {
         // Kick out expired guest sessions 
         if (sessionAge > maxAge) {
           localStorage.removeItem('guestSession');
-          return true; 
+          return true;
         }
       } catch (e) {
         // If the data is corrupted or weird, just delete it
@@ -119,12 +121,16 @@ const App = () => {
           <Route exact path="/" element={<Home />} />
           <Route path="/demo" element={<Demo />} />
           <Route path="/vote" element={<VotePollPage />} />
-          <Route path="/polls/results" element={<ViewResultsPage />}/>
+          <Route path="/polls/results" element={<ViewResultsPage />} />
           <Route path="/dashboard" element={<Dashboard user={user} />} />
           <Route path="/polls/host/:id" element={<HostPollView />} />
+          <Route path="/polls/view/:identifier" element={<VotePollPage />} />
+          {/* <Route path="/polls/view/:slug" element={<VotePollPage />} /> */}
+
           <Route path="/polls/view/:id" element={<VotePollPage />} />
           <Route path="/polls/view/:slug" element={<VotePollPage />} />
           <Route path="/users/:userId" element={<UserProfile />} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
@@ -137,9 +143,9 @@ const App = () => {
 
 const Root = () => {
   return (
-    <Router>
+    <RouterComponent>
       <App />
-    </Router>
+    </RouterComponent>
   );
 };
 

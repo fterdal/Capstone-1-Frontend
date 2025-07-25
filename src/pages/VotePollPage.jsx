@@ -4,7 +4,7 @@ import VoteForm from "../components/VoteForm";
 import { API_URL } from "../shared";
 
 const VotePollPage = () => {
-  const { id, slug } = useParams();
+  const { identifier } = useParams();
   const navigate = useNavigate();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -14,19 +14,19 @@ const VotePollPage = () => {
     const fetchPoll = async () => {
       try {
         let url;
-        if (slug) {
-          url = `${API_URL}/api/polls/slug/${slug}`;
-        } else if (id) {
-          url = `${API_URL}/api/polls/${id}`;  // Backend expects /api/polls/:pollId
+
+
+        if (isNaN(Number(identifier))) {
+          // it's a slug
+          url = `${API_URL}/api/polls/slug/${identifier}`;
         } else {
-          setError("No poll ID or slug provided");
-          setLoading(false);
-          return;
+          // it's a numeric ID
+          url = `${API_URL}/api/polls/${identifier}`;
         }
 
-        const response = await fetch(url, {
-          credentials: "include",
-        });
+
+        console.log("📡 Fetching poll from:", url);
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch poll: ${response.statusText}`);
@@ -43,7 +43,7 @@ const VotePollPage = () => {
     };
 
     fetchPoll();
-  }, [id, slug]);
+  }, [identifier]);
 
   if (loading) {
     return (
@@ -58,16 +58,16 @@ const VotePollPage = () => {
       <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
         <h2>Error</h2>
         <p>{error}</p>
-        <button 
+        <button
           onClick={() => navigate("/dashboard")}
-          style={{ 
-            marginTop: "1rem", 
-            padding: "0.5rem 1rem", 
-            background: "#007bff", 
-            color: "white", 
-            border: "none", 
+          style={{
+            marginTop: "1rem",
+            padding: "0.5rem 1rem",
+            background: "#007bff",
+            color: "white",
+            border: "none",
             borderRadius: "4px",
-            cursor: "pointer" 
+            cursor: "pointer"
           }}
         >
           Back to Dashboard
@@ -80,16 +80,16 @@ const VotePollPage = () => {
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
         <p>Poll not found</p>
-        <button 
+        <button
           onClick={() => navigate("/dashboard")}
-          style={{ 
-            marginTop: "1rem", 
-            padding: "0.5rem 1rem", 
-            background: "#007bff", 
-            color: "white", 
-            border: "none", 
+          style={{
+            marginTop: "1rem",
+            padding: "0.5rem 1rem",
+            background: "#007bff",
+            color: "white",
+            border: "none",
             borderRadius: "4px",
-            cursor: "pointer" 
+            cursor: "pointer"
           }}
         >
           Back to Dashboard
@@ -108,11 +108,11 @@ const VotePollPage = () => {
       }}
     >
       <h2>Vote on Poll</h2>
-      <div style={{ 
-        marginBottom: "2rem", 
-        padding: "1rem", 
-        background: "#f8f9fa", 
-        borderRadius: "8px" 
+      <div style={{
+        marginBottom: "2rem",
+        padding: "1rem",
+        background: "#f8f9fa",
+        borderRadius: "8px"
       }}>
         <h3>{poll.question}</h3>
         {poll.description && <p>{poll.description}</p>}
@@ -121,15 +121,15 @@ const VotePollPage = () => {
       <VoteForm poll={poll} />
 
       <div style={{ marginTop: "2rem", textAlign: "center" }}>
-        <button 
+        <button
           onClick={() => navigate("/dashboard")}
-          style={{ 
-            padding: "0.5rem 1rem", 
-            background: "#6c757d", 
-            color: "white", 
-            border: "none", 
+          style={{
+            padding: "0.5rem 1rem",
+            background: "#6c757d",
+            color: "white",
+            border: "none",
             borderRadius: "4px",
-            cursor: "pointer" 
+            cursor: "pointer"
           }}
         >
           Back to Dashboard
