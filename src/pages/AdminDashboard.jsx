@@ -44,7 +44,12 @@ const AdminDashboard = ({ user }) => {
         </div>
       )}
 
+      {activeTab === "myPolls" && 
+      <div>
       <MyPollsTab user={user} />
+      </div>
+      }
+        
 
     </div>
   );

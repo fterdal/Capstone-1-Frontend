@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import PollFormModal from "../components/PollFormModal";
 import PollCard from "../components/PollCard";
 import "./Dashboard.css";
-
+import { API_URL } from "../shared";
 
 const Dashboard = ({ user: currentUser }) => {
   const navigate = useNavigate();
