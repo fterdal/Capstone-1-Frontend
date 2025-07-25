@@ -2,13 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import VoteForm from "../components/VoteForm";
 
-const VotePollPage = () => {
+const VotePollPage = ({ user }) => {
   const { id, slug } = useParams();
   const navigate = useNavigate();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [hasVoted, setHasVoted] = useState(false);
+  const [email, setEmail] = useState("");
+  const isGuest = !user;
 
+  // Fetch poll data
   useEffect(() => {
     const fetchPoll = async () => {
       try {
@@ -16,7 +20,7 @@ const VotePollPage = () => {
         if (slug) {
           url = `http://localhost:8080/api/polls/slug/${slug}`;
         } else if (id) {
-          url = `http://localhost:8080/api/polls/${id}`;  // Backend expects /api/polls/:pollId
+          url = `http://localhost:8080/api/polls/${id}`;
         } else {
           setError("No poll ID or slug provided");
           setLoading(false);
@@ -44,12 +48,27 @@ const VotePollPage = () => {
     fetchPoll();
   }, [id, slug]);
 
+  // Check if logged-in user already voted
+  useEffect(() => {
+    const fetchUserVote = async () => {
+      if (!poll || isGuest) return;
+      try {
+        const res = await fetch(`http://localhost:8080/api/polls/${poll.id}/vote`, {
+          credentials: "include",
+        });
+        if (res.ok) {
+          setHasVoted(true);
+        }
+      } catch (err) {
+        // No vote found — fine
+      }
+    };
+
+    fetchUserVote();
+  }, [poll, isGuest]);
+
   if (loading) {
-    return (
-      <div style={{ padding: "2rem", textAlign: "center" }}>
-        <p>Loading poll...</p>
-      </div>
-    );
+    return <div style={{ padding: "2rem", textAlign: "center" }}><p>Loading poll...</p></div>;
   }
 
   if (error) {
@@ -57,20 +76,11 @@ const VotePollPage = () => {
       <div style={{ padding: "2rem", textAlign: "center", color: "red" }}>
         <h2>Error</h2>
         <p>{error}</p>
-        <button 
-          onClick={() => navigate("/dashboard")}
-          style={{ 
-            marginTop: "1rem", 
-            padding: "0.5rem 1rem", 
-            background: "#007bff", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "4px",
-            cursor: "pointer" 
-          }}
-        >
-          Back to Dashboard
-        </button>
+        {user && (
+          <button onClick={() => navigate("/dashboard")} style={buttonStyle}>
+            Back to Dashboard
+          </button>
+        )}
       </div>
     );
   }
@@ -79,63 +89,57 @@ const VotePollPage = () => {
     return (
       <div style={{ padding: "2rem", textAlign: "center" }}>
         <p>Poll not found</p>
-        <button 
-          onClick={() => navigate("/dashboard")}
-          style={{ 
-            marginTop: "1rem", 
-            padding: "0.5rem 1rem", 
-            background: "#007bff", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "4px",
-            cursor: "pointer" 
-          }}
-        >
-          Back to Dashboard
-        </button>
+        {user && (
+          <button onClick={() => navigate("/dashboard")} style={buttonStyle}>
+            Back to Dashboard
+          </button>
+        )}
       </div>
     );
   }
 
   return (
-    <div
-      className="vote-page"
-      style={{
-        padding: "2rem",
-        maxWidth: "800px",
-        margin: "0 auto",
-      }}
-    >
+    <div className="vote-page" style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
       <h2>Vote on Poll</h2>
-      <div style={{ 
-        marginBottom: "2rem", 
-        padding: "1rem", 
-        background: "#f8f9fa", 
-        borderRadius: "8px" 
+      <div style={{
+        marginBottom: "2rem", padding: "1rem",
+        background: "#f8f9fa", borderRadius: "8px"
       }}>
-        <h3>{poll.question}</h3>
+        <h3>{poll.title}</h3>
         {poll.description && <p>{poll.description}</p>}
       </div>
 
-      <VoteForm poll={poll} />
+      {poll.status === "ended" ? (
+        <p style={{ color: "#888", textAlign: "center" }}>
+          <em>This poll has ended. Voting is disabled.</em>
+        </p>
+      ) : hasVoted ? (
+        <div style={{ textAlign: "center", color: "#28a745" }}>
+          <h4>✅ You’ve already voted on this poll.</h4>
+          <p>Your vote has been recorded. Thank you!</p>
+        </div>
+      ) : (
+        <VoteForm poll={poll} user={user} email={email} setEmail={setEmail} />
+      )}
 
-      <div style={{ marginTop: "2rem", textAlign: "center" }}>
-        <button 
-          onClick={() => navigate("/dashboard")}
-          style={{ 
-            padding: "0.5rem 1rem", 
-            background: "#6c757d", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "4px",
-            cursor: "pointer" 
-          }}
-        >
-          Back to Dashboard
-        </button>
-      </div>
+      {user && (
+        <div style={{ marginTop: "2rem", textAlign: "center" }}>
+          <button onClick={() => navigate("/dashboard")} style={buttonStyle}>
+            Back to Dashboard
+          </button>
+        </div>
+      )}
     </div>
   );
+};
+
+const buttonStyle = {
+  padding: "0.5rem 1rem",
+  background: "#6c757d",
+  color: "white",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
 };
 
 export default VotePollPage;

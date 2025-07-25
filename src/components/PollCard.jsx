@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../shared";
 
 const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
     const confirmed = window.confirm("Are you sure you want to delete this poll?");
     if (!confirmed) return;
     try {
-      await axios.delete(`http://localhost:8080/api/polls/${poll.id}`, {
+      await axios.delete(`${API_URL}/api/polls/${poll.id}`, {
         withCredentials: true,
       });
       console.log("✅ Poll deleted:", poll.id);
@@ -89,13 +90,41 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
       {isOpen && (
         <ul className="poll-menu" onClick={(e) => e.stopPropagation()}>
           <li
-            className={poll.participated ? "disabled" : ""}
-            onClick={() => {
-              if (!poll.participated) navigate(`/polls/edit/${poll.id}`);
+            className={poll.status !== "draft" ? "disabled" : ""}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (poll.status === "draft") {
+                navigate(`/polls/edit/${poll.id}`);
+              }
             }}
-          >Edit</li>
-          <li onClick={() => console.log("Duplicate", poll.id)}>Duplicate</li>
-          <li onClick={() => console.log("Invite", poll.id)}>Invite</li>
+          > Edit </li>
+          <li
+            onClick={async (e) => {
+              e.stopPropagation();
+              try {
+                const res = await axios.post(`${API_URL}/api/polls/${poll.id}/duplicate`, {}, {
+                  withCredentials: true,
+                });
+                const duplicated = await res.data;
+                navigate(`/polls/edit/${duplicated.id}`);
+              } catch (err) {
+                console.error("Failed to duplicate:", err);
+                alert("Could not duplicate poll.");
+              }
+            }}
+          >
+            Duplicate
+          </li>
+          <li
+            onClick={(e) => {
+              e.stopPropagation();
+              const url = `${window.location.origin}/polls/view/${poll.slug}`;
+              navigator.clipboard.writeText(url);
+              alert("Poll link copied to clipboard!");
+            }}
+          >
+            Invite
+          </li>
           <li onClick={() => navigate(`/polls/results/${poll.id}`)}>Results</li>
           <li onClick={handleDelete}>Delete</li>
         </ul>

@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import PollFormModal from "./PollFormModal";
 import "./NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
+  const [isPollModalOpen, setIsPollModalOpen] = useState(false);
+
   return (
     <nav className="navbar">
       <div className="nav-brand">
@@ -14,17 +17,25 @@ const NavBar = ({ user, onLogout }) => {
       </div>
 
       <div className="nav-links">
-
-        
-
         {user ? (
           <div className="user-section">
-            {/* Only show "Create a poll" for authenticated users with username (not guests) */}
+            {/* ✅ Show modal trigger if user is logged in and not a guest */}
             {user.username && (
-              <Link to="/create-poll" className="nav-link">Create a poll</Link>
+              <>
+                <button
+                  className="nav-link"
+                  onClick={() => setIsPollModalOpen(true)}
+                >
+                  + Create a poll
+                </button>
+                <PollFormModal
+                  isOpen={isPollModalOpen}
+                  onClose={() => setIsPollModalOpen(false)}
+                />
+              </>
             )}
 
-            <span className="username">Welcome, {user.username || 'Guest'}!</span>
+            <span className="username">Welcome, {user.username || "Guest"}!</span>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>

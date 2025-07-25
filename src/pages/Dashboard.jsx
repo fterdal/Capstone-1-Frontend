@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PollFormModal from "../components/PollFormModal";
 import PollCard from "../components/PollCard";
 import "./Dashboard.css";
 import { API_URL } from "../shared";
 
 const Dashboard = ({ user: currentUser }) => {
   const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -68,7 +66,7 @@ const Dashboard = ({ user: currentUser }) => {
       </header>
 
       <nav className="dashboard-nav">
-        <button onClick={() => setIsModalOpen(true)}>Create a Poll</button>
+        <button onClick={() => navigate("/polls/new")}>+ Create a Poll</button>
         <input
           type="text"
           placeholder="Search by title..."
@@ -103,7 +101,6 @@ const Dashboard = ({ user: currentUser }) => {
           />
         ))}
       </ul>
-      <PollFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     
     </div>
   );

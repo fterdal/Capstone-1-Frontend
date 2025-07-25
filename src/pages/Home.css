@@ -1,15 +1,42 @@
-h1 {
-  font-size: 3rem;
-  font-weight: bold;
-  margin: 1rem 0;
-  font-family: "Excalifont", "Caveat", "Comic Sans MS", cursive;
-}
+/* src/pages/Home.css */
+
 .home-container {
   text-align: center;
-  padding: 2rem;
+  padding: 4rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
+  min-height: 60vh;
+  background-color: #f9f9fb;
+}
+
+.home-title {
+  font-size: 3rem;
+  font-family: "Caveat", "Comic Sans MS", cursive;
+  margin-bottom: 1rem;
+  color: #2a2a2a;
+}
+
+.home-description {
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  color: #444;
+}
+
+.get-started-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #004aad;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.get-started-btn:hover {
+  background-color: #003080;
 }

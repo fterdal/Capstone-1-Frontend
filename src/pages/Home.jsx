@@ -6,12 +6,15 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className ="home-container">
-      <h1>Welcome to Rankzilla</h1>
-      <p>Rankzilla is a ranking poll platform that lets users vote with more nuance.Instead of just choosing one option, people rank choices, and Rankzilla figures out the winner—fairly.</p>
-      <button onClick={() => navigate("/login")}>Get Started</button>
-
-    </div>
+    <main className="home-container">
+      <h1 className="home-title">Welcome to Rankzilla</h1>
+      <p className="home-description">
+        Rankzilla lets people vote with nuance. Instead of selecting just one option, voters rank choices—and we figure out the winner fairly.
+      </p>
+      <button className="get-started-btn" onClick={() => navigate("/login")}>
+        Get Started
+      </button>
+    </main>
   );
 };
 

@@ -4,17 +4,26 @@ import axios from "axios";
 import "./AppStyles.css";
 import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./components/Login";
-import Home from "./pages/Home";
-import Demo from "./pages/Demo";
 import NotFound from "./components/NotFound";
-import { API_URL } from "./shared";
-import VotePollPage from "./pages/VotePollPage";
-import ViewResultsPage from "./pages/ViewResultsPage";
-import Dashboard from "./pages/Dashboard"
-import HostPollView from "./pages/HostPollView";
-import SmartPollView from "./pages/SmartPollView";
+
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import SmartDashboardRedirect from "./components/SmartDashboardRedirect";
 import AdminDashboard from "./pages/AdminDashboard";
+import EditPoll from "./pages/EditPoll";
+import CreatePoll from "./pages/CreatePoll";
+import VotePollPage from "./pages/VotePollPage";
+import HostPollView from "./pages/HostPollView";
+//import Demo from "./pages/Demo";
+
+import { API_URL } from "./shared";
+
+import ViewResultsPage from "./pages/ViewResultsPage";
+
+
+//import SmartPollView from "./pages/SmartPollView";
+
 
 
 
@@ -110,16 +119,29 @@ const App = () => {
       <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
-          <Route path="/login" element={<Login setUser={setUser} />} />
           <Route exact path="/" element={<Home />} />
-          <Route path="/demo" element={<Demo />} />
-          <Route path="/vote" element={<VotePollPage />} />
-          <Route path="/results/:id" element={<ViewResultsPage user={user} />} />
-          <Route path="/dashboard" element={user?.isAdmin ? <AdminDashboard user={user} /> : <Dashboard user={user} />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          
+          {/* Demo route (optional) */}
+          {/* <Route path="/demo" element={<Demo />} /> */}
+
+          {/* Smart redirect based on admin status */}
+          <Route path="/dashboard" element={<SmartDashboardRedirect user={user} />} />
+          <Route path="/dashboard/main" element={<Dashboard user={user} />} />
+          <Route path="/admin" element={<AdminDashboard user={user} />} />
+
+          {/* Poll CRUD */}
+          <Route path="/polls/new" element={<CreatePoll />} />
+          <Route path="/polls/edit/:id" element={<EditPoll />} />
+
+          {/* Voting and hosting */}
+          <Route path="/polls/view/:slug" element={<VotePollPage user={user} />} />
           <Route path="/polls/host/:id" element={<HostPollView />} />
-          <Route path="/polls/view/:id" element={<VotePollPage />} />
-          <Route path="/polls/view/:slug" element={<VotePollPage />} />
-          <Route path="/poll/:slug" element={<SmartPollView user={user} />} />
+
+          {/* Results (fixes path param) */}
+          <Route path="/polls/results/:id" element={<ViewResultsPage user={user} />} />
+
+          {/* Optional fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
