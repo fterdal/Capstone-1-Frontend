@@ -125,3 +125,25 @@
     width: 100%;
   }
 }
+
+.follow-btn.following {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.follow-btn.following:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.follow-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.no-polls {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+}

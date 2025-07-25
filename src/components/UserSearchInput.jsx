@@ -3,7 +3,7 @@ import axios from "axios";
 import { API_URL } from "../shared";
 import "./CSS/UserSearchInputStyles.css";
 
-const UserSearchInput = ({ selectedUsers, onUsersChange, placeholder = "Search users..." }) => {
+const UserSearchInput = ({ selectedUsers, onUsersChange, placeholder = "Search users...", currentUser = null }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -21,9 +21,11 @@ const UserSearchInput = ({ selectedUsers, onUsersChange, placeholder = "Search u
       try {
         const response = await axios.get(`${API_URL}/api/polls/search/users?q=${encodeURIComponent(searchTerm)}`);
         
-        const filteredResults = response.data.filter(
-          user => !selectedUsers.some(selected => selected.id === user.id)
-        );
+        const filteredResults = response.data.filter(user => {
+          const isSelected = selectedUsers.some(selected => selected.id === user.id);
+          const isCurrentUser = currentUser && user.id === currentUser.id;
+          return !isSelected && !isCurrentUser;
+        });
         
         setSearchResults(filteredResults);
         setShowDropdown(true);
@@ -37,7 +39,7 @@ const UserSearchInput = ({ selectedUsers, onUsersChange, placeholder = "Search u
 
     const timeoutId = setTimeout(searchUsers, 300);
     return () => clearTimeout(timeoutId);
-  }, [searchTerm, selectedUsers]);
+  }, [searchTerm, selectedUsers, currentUser]);
 
   const handleSelectUser = (user) => {
     onUsersChange([...selectedUsers, user]);

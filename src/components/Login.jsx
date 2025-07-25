@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import { API_URL } from "../shared";
 import "./CSS/AuthStyles.css";
@@ -14,6 +15,7 @@ const Login = ({ setUser }) => {
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { loginWithRedirect, isAuthenticated, user: auth0User } = useAuth0();
 
 
   useEffect(() => {
@@ -91,6 +93,10 @@ const Login = ({ setUser }) => {
     }
   };
 
+  const handleAuth0Login = () => {
+    loginWithRedirect();
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-form">
@@ -141,6 +147,19 @@ const Login = ({ setUser }) => {
             {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <div className="auth-divider">
+          <span>or</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAuth0Login}
+          className="auth0-login-btn"
+          disabled={isLoading}
+        >
+          Continue with Auth0
+        </button>
 
         <p className="auth-link">
           Don't have an account? <Link to="/signup">Sign up</Link>

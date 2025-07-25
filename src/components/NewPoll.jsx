@@ -248,6 +248,7 @@ const NewPoll = ({ user }) => {
                 selectedUsers={customViewUsers}
                 onUsersChange={setCustomViewUsers}
                 placeholder="Search users by username..."
+                currentUser={user}
               />
             </div>
           )}

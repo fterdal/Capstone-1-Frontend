@@ -91,34 +91,35 @@ const UserCard = ({ currentUser }) => {
     }
   };
 
-  const handleFollow = async () => {
-    if (!currentUser?.id || !user?.id) return;
+const handleFollow = async () => {
+  if (!currentUser?.id || !user?.id) return;
 
-    setFollowLoading(true);
-    try {
-      if (isFollowing) {
-        await axios.delete(`${API_URL}/api/follows`, {
-          data: {
-            follower_id: currentUser.id,
-            following_id: user.id,
-          },
-        });
-        setIsFollowing(false);
-        setFollowersCount((prev) => prev - 1);
-      } else {
-        await axios.post(`${API_URL}/api/follows`, {
+  setFollowLoading(true);
+  try {
+    if (isFollowing) {
+      await axios.delete(`${API_URL}/api/follows`, {
+        data: {
           follower_id: currentUser.id,
           following_id: user.id,
-        });
-        setIsFollowing(true);
-        setFollowersCount((prev) => prev + 1);
-      }
-    } catch (error) {
-      console.error("Error updating follow status:", error);
-    } finally {
-      setFollowLoading(false);
+        },
+      });
+      setIsFollowing(false);
+      setFollowersCount((prev) => prev - 1);
+    } else {
+      await axios.post(`${API_URL}/api/follows`, {
+        follower_id: currentUser.id,
+        following_id: user.id,
+      });
+      setIsFollowing(true);
+      setFollowersCount((prev) => prev + 1);
     }
-  };
+  } catch (error) {
+    console.error("Error updating follow status:", error);
+    alert("Failed to update follow status. Please try again.");
+  } finally {
+    setFollowLoading(false);
+  }
+};
 
   if (!user) return <p>Loading...</p>;
 
