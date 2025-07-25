@@ -3,7 +3,11 @@ import { createRoot } from "react-dom/client";
 import axios from "axios";
 import "./AppStyles.css";
 import NavBar from "./components/NavBar";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
+
+import Login from "./components/Login";
+import Home from "./pages/Home";
+import Demo from "./pages/Demo";
 import NotFound from "./components/NotFound";
 
 import Home from "./pages/Home";
@@ -23,12 +27,16 @@ import ViewResultsPage from "./pages/ViewResultsPage";
 
 
 //import SmartPollView from "./pages/SmartPollView";
+import PollFormModal from "./components/PollFormModal";
+import UserProfile from "./pages/UserProfile";
 
 
 
+const RouterComponent = process.env.NODE_ENV === 'development' ? HashRouter : BrowserRouter;
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [isCreatePollOpen, setIsCreatePollOpen] = useState(false);
 
   const cleanupExpiredGuestSession = () => {
     const savedGuestSession = localStorage.getItem('guestSession');
@@ -42,7 +50,7 @@ const App = () => {
         // Kick out expired guest sessions 
         if (sessionAge > maxAge) {
           localStorage.removeItem('guestSession');
-          return true; 
+          return true;
         }
       } catch (e) {
         // If the data is corrupted or weird, just delete it
@@ -114,9 +122,16 @@ const App = () => {
     }
   };
 
+  const handleOpenCreatePoll = () => {
+    setIsCreatePollOpen(true);
+  };
+  const handleCloseCreatePoll = () => {
+    setIsCreatePollOpen(false);
+  };
+
   return (
     <div>
-      <NavBar user={user} onLogout={handleLogout} />
+      <NavBar user={user} onLogout={handleLogout} onOpenCreatePoll={handleOpenCreatePoll} />
       <div className="app">
         <Routes>
           <Route exact path="/" element={<Home />} />
@@ -135,7 +150,7 @@ const App = () => {
           <Route path="/polls/edit/:id" element={<EditPoll />} />
 
           {/* Voting and hosting */}
-          <Route path="/polls/view/:slug" element={<VotePollPage user={user} />} />
+          <Route path="/polls/view/:identifier" element={<VotePollPage user={user} />} />
           <Route path="/polls/host/:id" element={<HostPollView />} />
 
           {/* Results (fixes path param) */}
@@ -145,15 +160,18 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+      {isCreatePollOpen && (
+        <PollFormModal isOpen={isCreatePollOpen} onClose={handleCloseCreatePoll} />
+      )}
     </div>
   );
 };
 
 const Root = () => {
   return (
-    <Router>
+    <RouterComponent>
       <App />
-    </Router>
+    </RouterComponent>
   );
 };
 

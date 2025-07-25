@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 
-const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
+const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
   const navigate = useNavigate();
 
   const timeLeft = (deadline) => {
@@ -30,15 +30,54 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
     }
   };
 
+  // Duplicate poll handler
+  const handleDuplicate = async (e) => {
+    e.stopPropagation();
+    try {
+      const res = await axios.post(`http://localhost:8080/api/polls/${poll.id}/duplicate`, {}, { withCredentials: true });
+      const newPollId = res.data?.id;
+      if (newPollId) {
+        navigate(`/polls/edit/${newPollId}`);
+      } else {
+        window.location.reload(); // fallback, but no alert
+      }
+    } catch (err) {
+      console.error(" Failed to duplicate poll:", err);
+      alert("Could not duplicate poll.");
+    }
+  };
+
+  // invite handler: copy poll link to clipboard and show message
+  const handleInvite = (e) => {
+    e.stopPropagation();
+    const pollUrl = poll.slug
+      ? `${window.location.origin}/polls/view/${poll.slug}`
+      : `${window.location.origin}/polls/results/${poll.id}`;
+    navigator.clipboard.writeText(pollUrl)
+      .then(() => {
+        alert("Link copied to clipboard! Share this to invite others to vote.");
+      })
+      .catch(() => {
+        alert("Failed to copy link.");
+      });
+  };
+
   const handleClick = () => {
         if (!poll?.id) {
             console.error("Poll is missing ID:", poll);
             return;
         }
 
-        // Check if user owns the poll and it's published - go to host view
-        // Note: Check both ownerId and userId in case backend uses different property name
+        // Check if user owns the poll
         const isOwner = (poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id);
+        
+        // If it's a draft and user owns it, open edit modal
+        if (poll.status === "draft" && isOwner) {
+            onEditDraft(poll);
+            return;
+        }
+        
+        // If published and user owns it, go to host view
         if (poll.status === "published" && isOwner) {
             navigate(`/polls/host/${poll.id}`);
         } else {
@@ -126,7 +165,6 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser }) => {
             Invite
           </li>
           <li onClick={() => navigate(`/polls/results/${poll.id}`)}>Results</li>
-          <li onClick={handleDelete}>Delete</li>
         </ul>
       )}
     </li>

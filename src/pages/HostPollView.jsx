@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import VoteForm from "../components/VoteForm";
+import { API_URL } from "../shared";
 import "./HostPollView.css";
 
 const HostPollView = () => {
@@ -17,7 +18,7 @@ const HostPollView = () => {
   useEffect(() => {
     const fetchPoll = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/polls/${id}`, {
+        const res = await axios.get(`${API_URL}/api/polls/${id}`, {
           withCredentials: true,
         });
         setPoll(res.data);
@@ -60,15 +61,12 @@ const HostPollView = () => {
 
   const handleSaveDeadline = async () => {
     try {
-      await axios.put(
-        `http://localhost:8080/api/polls/${id}`,
-        {
-          deadline: newDeadline,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+      await axios.patch(`${API_URL}/api/polls/${id}`, {
+
+        deadline: newDeadline,
+      }, {
+        withCredentials: true,
+      });
       setPoll((prev) => ({ ...prev, deadline: newDeadline }));
       setEditingDeadline(false);
     } catch (err) {
@@ -81,23 +79,32 @@ const HostPollView = () => {
       alert("Poll slug is missing. Cannot copy link.");
       return;
     }
-    const shareURL = `${window.location.origin}/polls/view/${poll.slug}`;
-    navigator.clipboard
-      .writeText(shareURL)
+
+    const baseURL =
+      process.env.NODE_ENV === "development"
+        ? `${window.location.origin}/#/polls/view`
+        : `${window.location.origin}/polls/view`;
+
+    const shareURL = `${baseURL}/${poll.slug}`;
+
+    navigator.clipboard.writeText(shareURL)
       .then(() => setCopySuccess("Link copied to clipboard!"))
       .catch(() => alert("Failed to copy link."));
   };
 
   const handleEndPoll = async () => {
+    const endPollNow = new Date().toISOString();
     try {
-      await axios.put(`http://localhost:8080/api/polls/${id}`, {
-        status: "ended",
+      await axios.patch(`${API_URL}/api/polls/${id}`, {
+
+        deadline: endPollNow,
       }, {
         withCredentials: true,
       });
-      setPoll((prev) => ({ ...prev, status: "ended" }));
+      setPoll((prev) => ({ ...prev, deadline: endPollNow, }));
+      setEditingDeadline(false);
     } catch (err) {
-      alert("Failed to end poll.");
+      console.error("Failed to end poll:", err);
     }
   };
 
@@ -166,8 +173,8 @@ const HostPollView = () => {
             <div className="action-buttons">
               <button onClick={handleCopyLink}>Copy Share Link</button>
               {copySuccess && <span className="copy-feedback">{copySuccess}</span>}
-              <button onClick={handleEndPoll} disabled={poll.status === "ended"}>End Poll</button>
-              <button onClick={() => navigate(`/results/${poll.id}`)}>View Results</button>
+              <button onClick={handleEndPoll}>End Poll</button>
+              <button onClick={() => alert("Results logic here")}>View Results</button>
             </div>
           </div>
         </div>

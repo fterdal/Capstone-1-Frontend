@@ -1,10 +1,15 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
+import { API_URL } from "../shared";
 
 const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
   const [rankings, setRankings] = useState({});
+  console.log("this is rankins---->", rankings)
   const [submitting, setSubmitting] = useState(false);
   const [orderedOptions, setOrderedOptions] = useState([]);
+  console.log("this is ordered options", orderedOptions)
   const [draggedItem, setDraggedItem] = useState(null);
+  console.log("dragged--->", draggedItem)
   const [deletedOptions, setDeletedOptions] = useState(new Set());
 
   const isValidEmail = (email) => {
@@ -22,7 +27,7 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
 
   // Update rankings whenever the order changes
   useEffect(() => {
-    const newRankings = {};
+    let newRankings = [];
     orderedOptions.forEach((option, index) => {
       if (deletedOptions.has(option.id)) {
         newRankings[option.id] = null;
@@ -30,7 +35,15 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
         const nonDeletedBefore = orderedOptions
           .slice(0, index)
           .filter((opt) => !deletedOptions.has(opt.id)).length;
-        newRankings[option.id] = nonDeletedBefore + 1;
+
+        newRankings.push({
+          optionId: option.id,
+          rank: nonDeletedBefore + 1
+        })
+
+        // newRankings.optionId = option.id,
+        //   newRankings.ranking = index
+        // newRankings.optionId = option.id
       }
     });
     setRankings(newRankings);
@@ -95,7 +108,11 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
 
     setSubmitting(true);
     try {
-      await fetch(`http://localhost:8080/api/polls/${poll.id}/vote`, {
+
+
+
+      await fetch(`${API_URL}/api/polls/${poll.id}/vote`, {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -105,6 +122,10 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
           ...(isGuest && { email }),
         }),
       });
+      // await axios.post("http://localhost:8080/api/:pollId/vote",
+      //   rankings,
+      //   {withCredentials: true}
+      //  )
 
       alert("Vote submitted!");
       setRankings({});

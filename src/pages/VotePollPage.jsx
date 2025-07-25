@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import VoteForm from "../components/VoteForm";
+import { API_URL } from "../shared";
 
-const VotePollPage = ({ user }) => {
-  const { id, slug } = useParams();
+const VotePollPage = () => {
+  const { identifier } = useParams();
   const navigate = useNavigate();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,19 +18,19 @@ const VotePollPage = ({ user }) => {
     const fetchPoll = async () => {
       try {
         let url;
-        if (slug) {
-          url = `http://localhost:8080/api/polls/slug/${slug}`;
-        } else if (id) {
-          url = `http://localhost:8080/api/polls/${id}`;
+
+
+        if (isNaN(Number(identifier))) {
+          // it's a slug
+          url = `${API_URL}/api/polls/slug/${identifier}`;
         } else {
-          setError("No poll ID or slug provided");
-          setLoading(false);
-          return;
+          // it's a numeric ID
+          url = `${API_URL}/api/polls/${identifier}`;
         }
 
-        const response = await fetch(url, {
-          credentials: "include",
-        });
+
+        console.log("📡 Fetching poll from:", url);
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch poll: ${response.statusText}`);
@@ -46,7 +47,7 @@ const VotePollPage = ({ user }) => {
     };
 
     fetchPoll();
-  }, [id, slug]);
+  }, [identifier]);
 
   // Check if logged-in user already voted
   useEffect(() => {
