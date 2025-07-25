@@ -54,7 +54,14 @@ const HostPollView = () => {
       alert("Poll slug is missing. Cannot copy link.");
       return;
     }
-    const shareURL = `${window.location.origin}/polls/view/${poll.slug}`;
+
+    const baseURL =
+      process.env.NODE_ENV === "development"
+        ? `${window.location.origin}/#/polls/view`
+        : `${window.location.origin}/polls/view`;
+
+    const shareURL = `${baseURL}/${poll.slug}`;
+
     navigator.clipboard.writeText(shareURL)
       .then(() => setCopySuccess("Link copied to clipboard!"))
       .catch(() => alert("Failed to copy link."));
@@ -72,7 +79,7 @@ const HostPollView = () => {
       setPoll((prev) => ({ ...prev, deadline: endPollNow, }));
       setEditingDeadline(false);
     } catch (err) {
-      console.error("Failed to end poll:", err);  
+      console.error("Failed to end poll:", err);
     }
   };
 
