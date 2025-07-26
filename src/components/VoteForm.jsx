@@ -93,8 +93,8 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
     });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isGuest) {
+    /* e.preventDefault();
+    if (isGuest && !email) {
       if (!email.trim()) {
         alert("Please enter your email before submitting.");
         return;
@@ -104,6 +104,7 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
         return;
       }
     }
+    */
 
 
     setSubmitting(true);
@@ -119,7 +120,7 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
         body: JSON.stringify({
           pollId: poll.id,
           rankings: rankings,
-          ...(isGuest && { email }),
+          /*...(isGuest && { email }),*/
         }),
       });
       // await axios.post("http://localhost:8080/api/:pollId/vote",
@@ -143,7 +144,7 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
         Drag to rank the options (top = highest rank). Click X to remove options from ranking:
       </h4>
 
-      {isGuest && (
+      {/*{isGuest && (
         <div style={{ marginBottom: "1rem" }}>
           <label>
             Your Email (required for guests):
@@ -160,7 +161,8 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
           </label>
         </div>
       )}
-
+      */}
+      
       <div className="ranking-options">
         {orderedOptions.map((option, index) => {
           const isDeleted = deletedOptions.has(option.id);

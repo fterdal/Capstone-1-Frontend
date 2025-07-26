@@ -2,6 +2,11 @@
 import React from "react";
 
 const YourRankList = ({ ranking }) => {
+  if (!ranking || ranking.length === 0){
+  return <p style={{ fontStyle: "italic", color:"#888"}}>No Ballot</p>
+}
+const sorted = [...ranking].sort((a,b)=> a.rank - b.rank);
+  
   return (
     <ol
       className="your-rank-list"
@@ -10,9 +15,9 @@ const YourRankList = ({ ranking }) => {
         marginTop: "1rem",
       }}
     >
-      {ranking.map((option, index) => (
+      {sorted.map(({pollOption}, index) => (
         <li key={index} style={{ marginBottom: "0.5rem" }}>
-          {option.optionText}
+          {pollOption?.optionText || "No Option"}
         </li>
       ))}
     </ol>

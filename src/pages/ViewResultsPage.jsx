@@ -4,6 +4,8 @@ import NavBar from "../components/NavBar";
 import CurrentRank from "../components/result/CurrentRank";
 import YourRankList from "../components/result/YourRankList";
 import { API_URL } from "../shared";
+import RoundBreakdown from "../components/result/RoundBreakdown";
+
 
 const ViewResultsPage = ({ user }) => {
   const { id } = useParams();
@@ -35,7 +37,7 @@ const ViewResultsPage = ({ user }) => {
 
         if (voteRes.ok) {
           const voteData = await voteRes.json();
-          setUserRanking(voteData.ranks || []);
+          setUserRanking(voteData.votingRanks || []);
         }
 
         const deadline = new Date(pollData.deadline);
@@ -66,7 +68,6 @@ const ViewResultsPage = ({ user }) => {
 
   return (
     <>
-      <NavBar user={user} />
       <div className="view-results-page" style={{ padding: "2rem" }}>
         <h2>{poll.title}</h2>
         <p>
@@ -89,7 +90,10 @@ const ViewResultsPage = ({ user }) => {
         >
           <div style={{ flex: 1, minWidth: "300px" }}>
             <h3>{isPollEnded ? "Final Results" : "Live Results"}</h3>
-            <CurrentRank data={results} poll={poll} isEnded={isPollEnded} />
+            <CurrentRank data={results.length?Object.entries(results[results.length-1].results).map(([id, info])=>
+            ({ optionText: info.name,
+              count: info.count,
+            })):[]} poll={poll}/>
           </div>
 
           <div style={{ flex: 1, minWidth: "300px" }}>
@@ -97,6 +101,8 @@ const ViewResultsPage = ({ user }) => {
             <YourRankList ranking={userRanking} />
           </div>
         </div>
+        {results.length > 0 && <RoundBreakdown rounds={results} />}
+
       </div>
     </>
   );

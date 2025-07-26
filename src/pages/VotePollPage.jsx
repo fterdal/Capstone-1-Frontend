@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import VoteForm from "../components/VoteForm";
 import { API_URL } from "../shared";
 
-const VotePollPage = () => {
+const VotePollPage = ({ user }) => {
   const { identifier } = useParams();
   const navigate = useNavigate();
   const [poll, setPoll] = useState(null);
