@@ -1,0 +1,29 @@
+.round-breakdown {
+  margin-top: 2rem;
+  border-top: 1px solid #ccc;
+  padding-top: 1rem;
+}
+
+.round-box {
+  margin-bottom: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.round-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.round-box th,
+.round-box td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.eliminated {
+  color: #c0392b;
+  font-weight: bold;
+}

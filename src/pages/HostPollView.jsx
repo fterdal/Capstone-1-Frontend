@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import VoteForm from "../components/VoteForm";
 import { API_URL } from "../shared";
@@ -7,13 +7,13 @@ import "./HostPollView.css";
 
 const HostPollView = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingDeadline, setEditingDeadline] = useState(false);
   const [newDeadline, setNewDeadline] = useState("");
   const [copySuccess, setCopySuccess] = useState("");
-
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -33,6 +33,31 @@ const HostPollView = () => {
     fetchPoll();
   }, [id]);
 
+  // Auto-end poll when deadline passes
+  useEffect(() => {
+    if (!poll?.deadline || poll.status === "ended") return;
+
+    const interval = setInterval(async () => {
+      const now = new Date();
+      const deadlineTime = new Date(poll.deadline);
+
+      if (now >= deadlineTime) {
+        clearInterval(interval);
+        try {
+          await axios.put(`http://localhost:8080/api/polls/${id}`, {
+            status: "ended",
+          }, {
+            withCredentials: true,
+          });
+          setPoll((prev) => ({ ...prev, status: "ended" }));
+        } catch (err) {
+          console.error("Failed to auto-end poll:", err);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [poll, id]);
 
   const handleSaveDeadline = async () => {
     try {
@@ -88,7 +113,11 @@ const HostPollView = () => {
       <div className="host-poll-container">
         <div className="vote-section">
           <h3>Vote on Your Poll</h3>
-          <VoteForm poll={poll} readOnly={false} />
+          {poll.status === "ended" ? (
+            <p style={{ color: "#888" }}><em>This poll has ended. Voting is disabled.</em></p>
+          ) : (
+            <VoteForm poll={poll} readOnly={false} />
+          )}
         </div>
 
         <div className="overview-section">
@@ -130,7 +159,7 @@ const HostPollView = () => {
             ) : (
               <div className="deadline-display">
                 <span>{poll.deadline ? new Date(poll.deadline).toLocaleString() : "No deadline"}</span>
-                <button onClick={() => setEditingDeadline(true)}>Edit</button>
+                <button onClick={() => setEditingDeadline(true)} disabled={poll.status === "ended"}>Edit</button>
               </div>
             )}
           </div>

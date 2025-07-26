@@ -128,30 +128,42 @@ const PollCard = ({ poll, isOpen, onToggleMenu, currentUser, onEditDraft }) => {
 
       {isOpen && (
         <ul className="poll-menu" onClick={(e) => e.stopPropagation()}>
-          {((poll.ownerId === currentUser?.id) || (poll.userId === currentUser?.id)) && (
-            <>
-              <li
-                onClick={() => {
-                  if (poll.status === "draft") {
-                    if (onEditDraft) {
-                      onEditDraft(poll);
-                    } else {
-                      navigate(`/polls/edit/${poll.id}`);
-                    }
-                  } else if (poll.status === "published") {
-                    if (typeof window.onEditDeadlineModal === "function") {
-                      window.onEditDeadlineModal(poll);
-                    } else {
-                      navigate(`/polls/host/${poll.id}`);
-                    }
-                  }
-                }}
-              >Edit</li>
-              <li onClick={handleDelete}>Delete</li>
-            </>
-          )}
-          <li onClick={handleDuplicate}>Duplicate</li>
-          <li onClick={handleInvite}>Invite</li>
+          <li
+            className={poll.status !== "draft" ? "disabled" : ""}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (poll.status === "draft") {
+                navigate(`/polls/edit/${poll.id}`);
+              }
+            }}
+          > Edit </li>
+          <li
+            onClick={async (e) => {
+              e.stopPropagation();
+              try {
+                const res = await axios.post(`${API_URL}/api/polls/${poll.id}/duplicate`, {}, {
+                  withCredentials: true,
+                });
+                const duplicated = await res.data;
+                navigate(`/polls/edit/${duplicated.id}`);
+              } catch (err) {
+                console.error("Failed to duplicate:", err);
+                alert("Could not duplicate poll.");
+              }
+            }}
+          >
+            Duplicate
+          </li>
+          <li
+            onClick={(e) => {
+              e.stopPropagation();
+              const url = `${window.location.origin}/polls/view/${poll.slug}`;
+              navigator.clipboard.writeText(url);
+              alert("Poll link copied to clipboard!");
+            }}
+          >
+            Invite
+          </li>
           <li onClick={() => navigate(`/polls/results/${poll.id}`)}>Results</li>
         </ul>
       )}

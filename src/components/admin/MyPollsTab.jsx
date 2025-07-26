@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import PollCard from "../components/PollCard";
-import { API_URL } from "../shared";
-import "./Dashboard.css";
+import PollCard from "../PollCard";
+import PollFormModal from "../PollFormModal";
+import { API_URL } from "../../shared";
 
-
-const Dashboard = ({ user: currentUser }) => {
+const MyPollsTab = ({ user }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [editingDraft, setEditingDraft] = useState(null);
@@ -16,7 +15,8 @@ const Dashboard = ({ user: currentUser }) => {
   const [filter, setFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [openMenuId, setOpenMenuId] = useState(null);
-  const [loadingDraft, setLoadingDraft] = useState(false); 
+  const [loadingDraft, setLoadingDraft] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchPolls = async () => {
     setLoading(true);
@@ -38,9 +38,8 @@ const Dashboard = ({ user: currentUser }) => {
 
   useEffect(() => {
     fetchPolls();
-  }, [location.pathname]); // Re-fetch when navigating to dashboard
+  }, [location.pathname]);
 
-  // Automatically close polls after deadline without refresh
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -51,21 +50,19 @@ const Dashboard = ({ user: currentUser }) => {
             : poll
         )
       );
-    }, 5000); // Check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
-   //  Fetch complete poll data including options
-   const fetchPollWithOptions = async (pollId) => {
+  const fetchPollWithOptions = async (pollId) => {
     try {
       const res = await fetch(`${API_URL}/api/polls/${pollId}`, {
         credentials: "include",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch poll details");
-      
-      console.log("Fetched poll with options:", data); // Debug log
+
       return data;
     } catch (err) {
       console.error("Error fetching poll details:", err);
@@ -75,20 +72,16 @@ const Dashboard = ({ user: currentUser }) => {
   };
 
   const handleEditDraft = async (draftPoll) => {
-    console.log("Editing draft poll:", draftPoll); // Debug log
     setLoadingDraft(true);
-    
-    // Fetch the complete poll data including options
     const fullPollData = await fetchPollWithOptions(draftPoll.id);
-    
+
     if (fullPollData) {
-      console.log("Setting editing draft with full data:", fullPollData); // Debug log
       setEditingDraft(fullPollData);
       setIsModalOpen(true);
     } else {
       alert("Failed to load draft data");
     }
-    
+
     setLoadingDraft(false);
   };
 
@@ -104,7 +97,7 @@ const Dashboard = ({ user: currentUser }) => {
         .includes(searchTerm.toLowerCase());
       const matchesFilter =
         filter === "all" ||
-        (filter === "created" && poll.ownerId === currentUser.id) ||
+        (filter === "created" && poll.ownerId === user.id) ||
         (filter === "participated" && poll.participated);
       return matchesSearch && matchesFilter;
     })
@@ -118,72 +111,41 @@ const Dashboard = ({ user: currentUser }) => {
       return 0;
     });
 
-  const timeLeft = (deadline) => {
-    const now = new Date();
-    const end = new Date(deadline);
-    const diff = Math.max(0, end - now);
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return days === 0
-      ? "no end date"
-      : `ends in ${days} day${days > 1 ? "s" : ""}`;
-  };
-
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>Dashboard</h1>
-      </header>
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h3>My Polls</h3>
+        <button onClick={() => setIsModalOpen(true)}>Create Poll</button>
+      </div>
 
-      <nav className="dashboard-nav">
-        <button onClick={() => navigate("/polls/new")}>+ Create a Poll</button>
-        <input
-          type="text"
-          placeholder="Search by title..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="all">All</option>
-          <option value="published">Created</option>
-          <option value="participated">Participated</option>
-        </select>
-        <select
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-        >
-          <option value="newest">Newest first</option>
-          <option value="oldest">Oldest first</option>
-          <option value="status-az">Status A → Z</option>
-          <option value="status-za">Status Z → A</option>
-        </select>
-      </nav>
-
-      {loading && <p>Loading polls...</p>}
-      {error && <p className="error">{error}</p>}
-      {!loading && filteredAndSortedPolls.length === 0 && (
-        <p>No polls to display.</p>
-      )}
+      {loading && <p>Loading your polls...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {!loading && polls.length === 0 && <p>You haven't created any polls yet.</p>}
 
       <ul className="poll-list">
         {filteredAndSortedPolls.map((poll) => (
           <PollCard
             key={poll.id}
             poll={poll}
+            currentUser={user}
             isOpen={openMenuId === poll.id}
-            onToggleMenu={(id) => setOpenMenuId(openMenuId === id ? null : id)}
-            currentUser={currentUser}
-            onEditDraft={handleEditDraft}
+            onToggleMenu={(id) =>
+              setOpenMenuId(openMenuId === id ? null : id)
+            }
+            onEdit={() => handleEditDraft(poll)}
           />
         ))}
       </ul>
-              {/* <PollFormModal
-                  isOpen={isModalOpen}
-                  onClose={handleCloseModal}
-                  onPollCreated={fetchPolls}
-                  initialData={editingDraft}
-                />*/}
+
+      {isModalOpen && (
+        <PollFormModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          existingPoll={editingDraft}
+        />
+      )}
     </div>
   );
 };
 
-export default Dashboard;
+export default MyPollsTab;
