@@ -150,6 +150,9 @@ const App = () => {
           {/* Results (fixes path param) */}
           <Route path="/polls/results/:id" element={<ViewResultsPage user={user} />} />
 
+          {/* User profile */}
+          <Route path="/users/:userId" element={<UserProfile />} />
+
           {/* Optional fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>

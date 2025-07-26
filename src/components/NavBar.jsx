@@ -35,7 +35,13 @@ const NavBar = ({ user, onLogout }) => {
               </>
             )}
 
-            <span className="username">Welcome, {user.username || "Guest"}!</span>
+            <span className="username">Welcome, {user.username ? (
+                <Link to={`/users/${user.id}`} className="username-link">
+                  {user.username}
+                </Link>
+              ) : (
+                "Guest"
+              )}!</span>
             <button onClick={onLogout} className="logout-btn">
               Logout
             </button>
