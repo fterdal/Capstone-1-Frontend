@@ -26,8 +26,6 @@ import ViewResultsPage from "./pages/ViewResultsPage";
 import PollFormModal from "./components/PollFormModal";
 import UserProfile from "./pages/UserProfile";
 
-
-
 const RouterComponent = process.env.NODE_ENV === 'development' ? HashRouter : BrowserRouter;
 
 const App = () => {
