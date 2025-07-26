@@ -17,7 +17,7 @@ import HostPollView from "./pages/HostPollView";
 import PollFormModal from "./components/PollFormModal";
 import UserProfile from "./pages/UserProfile";
 
-const RouterComponent = process.env.NODE_ENV === 'development' ? BrowserRouter : HashRouter;
+// const RouterComponent = process.env.NODE_ENV === 'development' ? BrowserRouter : HashRouter;
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -143,9 +143,9 @@ const App = () => {
 
 const Root = () => {
   return (
-    <RouterComponent>
+    <BrowserRouter>
       <App />
-    </RouterComponent>
+    </BrowserRouter>
   );
 };
 

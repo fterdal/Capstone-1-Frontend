@@ -55,7 +55,7 @@ const HostPollView = () => {
       return;
     }
 
-    const baseURL = `${window.location.origin}#/polls/view`;
+    const baseURL = `${window.location.origin}/polls/view`;
     const shareURL = `${baseURL}/${poll.slug}`;
 
     navigator.clipboard.writeText(shareURL)
