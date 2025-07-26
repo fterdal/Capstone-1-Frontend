@@ -81,7 +81,7 @@ const App = () => {
       const response = await axios.get(`${API_URL}/auth/me`, {
         withCredentials: true,
       });
-      setUser(response.data);
+      setUser(response.data.user);
       // If they're properly logged in, we don't need the guest session anymore
       localStorage.removeItem('guestSession');
     } catch {
