@@ -1,4 +1,5 @@
 const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const webpack = require("webpack");
 require("dotenv").config();
 
@@ -12,6 +13,10 @@ module.exports = {
   },
   devtool: "source-map",
   plugins: [
+    new HtmlWebpackPlugin({
+      template: "./public/index.html", // adjust if your template is elsewhere
+      filename: "index.html",
+    }),
     new webpack.DefinePlugin({
       'process.env.REACT_APP_API_URL': JSON.stringify(process.env.REACT_APP_API_URL || "http://localhost:8080"),
     }),
