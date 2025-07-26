@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap');
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -5,44 +7,71 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: #f8f9fa;
+  background-color: #0c0e26; /* Deep navy from Figma */
   padding: 1rem 2rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #1e1e3a;
 }
 
-.nav-brand a {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
+/* Logo + brand container */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Logo image only */
+.logo-img {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* "RANKZILLA" clickable text */
+.brand-link {
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  color: #5DAAF2;
 }
 
-.nav-brand a:hover {
-  color: #007bff;
+.brand-text {
+  font-family: 'Jaro', sans-serif;
+  font-size: 2.5rem; /* ~40px base, use clamp if needed for responsiveness */
+  letter-spacing: 2px;
+  color: #5DAAF2;
+  transition: color 0.2s ease;
 }
 
+.brand-link:hover .brand-text {
+  color: #8ccfff; /* Lighter blue on hover */
+}
+
+/* "Demo" link next to brand */
+.nav-link {
+  color: #dcdcdc;
+  text-decoration: none;
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background-color: #1a1b3b;
+  color: #5DAAF2;
+}
+
+/* Auth or user section */
 .nav-links {
   display: flex;
   align-items: center;
+  gap: 1rem;
 }
 
 .auth-links {
   display: flex;
   gap: 1rem;
   align-items: center;
-}
-
-.nav-link {
-  color: #666;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.nav-link:hover {
-  color: #007bff;
-  background-color: #e9ecef;
 }
 
 .user-section {
@@ -52,10 +81,11 @@
 }
 
 .username {
-  color: #666;
+  color: #bbb;
   font-weight: 500;
 }
 
+/* Logout button */
 .logout-btn {
   background-color: #dc3545;
   color: white;
