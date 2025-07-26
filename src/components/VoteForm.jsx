@@ -64,8 +64,9 @@ const VoteForm = ({ poll, user, email, setEmail, readOnly = false }) => {
   const handleDragStart = (e, index) => {
     setDraggedItem(index);
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/html", e.target.parentNode);
-    e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+    //e.dataTransfer.setData("text/html", e.target.parentNode);
+    //e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+    e.dataTransfer.setDragImage(e.currentTarget, 0, 0);
   };
 
   const handleDragOver = (e, index) => {
