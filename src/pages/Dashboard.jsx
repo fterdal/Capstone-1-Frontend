@@ -59,7 +59,7 @@ const Dashboard = ({ user: currentUser }) => {
    //  Fetch complete poll data including options
    const fetchPollWithOptions = async (pollId) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/polls/${pollId}`, {
+      const res = await fetch(`${API_URL}/api/polls/${pollId}`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -176,12 +176,12 @@ const Dashboard = ({ user: currentUser }) => {
           />
         ))}
       </ul>
-      <PollFormModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onPollCreated={fetchPolls}
-        initialData={editingDraft}
-      />
+              {/* <PollFormModal
+                  isOpen={isModalOpen}
+                  onClose={handleCloseModal}
+                  onPollCreated={fetchPolls}
+                  initialData={editingDraft}
+                />*/}
     </div>
   );
 };

@@ -87,7 +87,7 @@ const CreatePoll = () => {
             checked={form.requireAuth}
             onChange={handleChange}
           />
-          Require login to vote
+          Authentication Required
         </label>
 
         <h4>Poll Options</h4>

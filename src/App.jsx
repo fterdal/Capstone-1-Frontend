@@ -4,10 +4,6 @@ import axios from "axios";
 import "./AppStyles.css";
 import NavBar from "./components/NavBar";
 import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
-
-import Login from "./components/Login";
-import Home from "./pages/Home";
-import Demo from "./pages/Demo";
 import NotFound from "./components/NotFound";
 
 import Home from "./pages/Home";
